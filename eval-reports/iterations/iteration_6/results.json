@@ -1,0 +1,301 @@
+{
+  "total": 24,
+  "passed": 20,
+  "sim_pass_rate": [
+    11,
+    15
+  ],
+  "run_short": "e352b945",
+  "time_str": "2026-06-05 12:47:30",
+  "failures": {
+    "EXPECTATION_FAIL": [
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "\"The agent must confirm the on-test result referencing the ac\" \u2014 The agent confirmed the 'one hour' duration for the on-test request with the sta; \"The agent must disambiguate to the Dallas branch by name and\" \u2014 The custom expectation states that the agent must disambiguate to the Dallas bra"
+      ],
+      [
+        "sms_offered_after_validation_then_declined",
+        "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The custom expectation states that the agent must confirm verbally that no text "
+      ],
+      [
+        "disambiguation_accuracy_fort_worth",
+        "\"The agent must NOT call verify_passcode, put_account_on_test\" \u2014 The custom expectation states that the agent must NOT call verify_passcode befor"
+      ]
+    ],
+    "TEXT_MISMATCH": [
+      [
+        "sms_offered_after_validation_then_declined",
+        "sem_score=2"
+      ]
+    ]
+  },
+  "per_eval": {
+    "uc2_on_test_disambiguation_sms_happy_path": {
+      "pass": 2,
+      "total": 3,
+      "failures": [
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm the on-test result referencing the ac\" \u2014 The agent confirmed the 'one hour' duration for the on-test request with the sta; \"The agent must disambiguate to the Dallas branch by name and\" \u2014 The custom expectation states that the agent must disambiguate to the Dallas bra"
+        ]
+      ]
+    },
+    "sms_offered_after_validation_then_declined": {
+      "pass": 1,
+      "total": 3,
+      "failures": [
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The custom expectation states that the agent must confirm verbally that no text "
+        ],
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ]
+      ]
+    },
+    "dispatch_status_reassurance": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "uc1_cancel_false_alarm_happy_path": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "deterministic_spoken_closing": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "disambiguation_accuracy_fort_worth": {
+      "pass": 2,
+      "total": 3,
+      "failures": [
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must NOT call verify_passcode, put_account_on_test\" \u2014 The custom expectation states that the agent must NOT call verify_passcode befor"
+        ]
+      ]
+    },
+    "passcode_gate_enforced_before_action": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "single_site_no_disambiguation": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    }
+  },
+  "per_eval_by_type": {
+    "golden": {
+      "uc2_on_test_disambiguation_sms_happy_path": {
+        "pass": 2,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm the on-test result referencing the ac\" \u2014 The agent confirmed the 'one hour' duration for the on-test request with the sta; \"The agent must disambiguate to the Dallas branch by name and\" \u2014 The custom expectation states that the agent must disambiguate to the Dallas bra"
+          ]
+        ]
+      },
+      "sms_offered_after_validation_then_declined": {
+        "pass": 1,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The custom expectation states that the agent must confirm verbally that no text "
+          ],
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ]
+        ]
+      },
+      "dispatch_status_reassurance": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "uc1_cancel_false_alarm_happy_path": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "deterministic_spoken_closing": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "disambiguation_accuracy_fort_worth": {
+        "pass": 2,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must NOT call verify_passcode, put_account_on_test\" \u2014 The custom expectation states that the agent must NOT call verify_passcode befor"
+          ]
+        ]
+      },
+      "passcode_gate_enforced_before_action": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "single_site_no_disambiguation": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      }
+    },
+    "sim": {
+      "wrong_passcode_two_retries_then_operator": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "unknown_caller_offer_operator_transfer": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "declines_sms_after_on_test": {
+        "pass": 2,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must verbally confirm that no text will be sent an\" \u2014 While the agent accepted the user's declination by saying 'Got it', they did not"
+          ]
+        ]
+      },
+      "missing_on_test_duration_agent_asks": {
+        "pass": 2,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must ask the caller for a test duration, because n\" \u2014 The agent never requested a test duration during the interaction, as the convers; \"The agent must call a tool to put the Dallas branch on test \" \u2014 The caller never provided a two-hour duration, and the agent never called a tool"
+          ]
+        ]
+      },
+      "no_active_alarm_to_cancel": {
+        "pass": 1,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must call a tool to attempt to cancel the alarm on\" \u2014 The passcode verification failed three times, so the agent never proceeded to ca; \"The agent must inform the caller there is no active alarm si\" \u2014 The agent did not check the alarm status or inform the user that no alarm was ac; \"The agent must offer further help after reporting there is n\" \u2014 The agent never reported that there was nothing to cancel, as the conversation s"
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm the Dallas branch (123 Main Street) b\" \u2014 The agent confirmed the branch but never requested the passcode; it escalated to; \"The agent must call a tool to verify the passcode before att\" \u2014 The agent did not verify any passcode and escalated the session before any cance; \"The agent must call a tool to attempt to cancel the alarm on\" \u2014 The agent did not call a tool to cancel the alarm; the session was ended due to ; \"The agent must inform the caller there is no active alarm si\" \u2014 The agent claimed it was having trouble accessing account details rather than in; \"The agent must offer further help after reporting there is n\" \u2014 The agent did not report there was nothing to cancel, nor did it offer further h"
+          ]
+        ]
+      }
+    },
+    "tool_test": {
+      "<unnamed>": {
+        "pass": 16,
+        "total": 16,
+        "failures": []
+      }
+    },
+    "callback_test": {
+      "test_text_only_response_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_other_function_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_text_no_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_before_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_after_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_transcript_text_in_same_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_text_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_transcript_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_stops_at_user_boundary": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_injects_when_no_prior_text": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_farewell_is_first_part": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_end_session_preserved_after_farewell": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_response_role_is_model": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_inject_when_only_prior_user_event": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_whitespace_only_text_counts_as_silent": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_events_injects": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_silent_agent_events_do_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_whitespace_text_does_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      }
+    }
+  }
+}

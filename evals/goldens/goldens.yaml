@@ -46,7 +46,10 @@ conversations:
         tool_calls:
           - action: verify_passcode
             args:
-              passcode: "Sunset"
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^sun\\s*set$"
+                $originalValue: "Sunset"
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -88,7 +91,10 @@ conversations:
         tool_calls:
           - action: verify_passcode
             args:
-              passcode: "Bluebird"
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^blue\\s*bird$"
+                $originalValue: "Bluebird"
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -208,7 +214,10 @@ conversations:
         tool_calls:
           - action: verify_passcode
             args:
-              passcode: "Sunset"
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^sun\\s*set$"
+                $originalValue: "Sunset"
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -245,7 +254,10 @@ conversations:
         tool_calls:
           - action: verify_passcode
             args:
-              passcode: "Bluebird"
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^blue\\s*bird$"
+                $originalValue: "Bluebird"
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -282,7 +294,10 @@ conversations:
             args: {}
           - action: verify_passcode
             args:
-              passcode: "Sunset"
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^sun\\s*set$"
+                $originalValue: "Sunset"
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""

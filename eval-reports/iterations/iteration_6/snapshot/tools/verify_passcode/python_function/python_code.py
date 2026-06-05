@@ -90,13 +90,7 @@ def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
             "agent_action": "Ask the caller to provide the account passcode.",
         }
 
-    # Normalize whitespace and case: ASR often splits compound spoken words
-    # ("Bluebird" -> "Blue Bird") and lowercases them. Real callers on the
-    # phone hit this, so the tool — not the eval — must absorb it.
-    verified = (
-        passcode.replace(" ", "").strip().lower()
-        == record["passcode"].replace(" ", "").lower()
-    )
+    verified = passcode.strip().lower() == record["passcode"].lower()
 
     if verified:
         context.state["_resolved_account"] = json.dumps(

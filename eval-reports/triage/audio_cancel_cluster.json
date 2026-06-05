@@ -1,0 +1,54 @@
+{
+  "cluster_split": false,
+  "cluster_eval_names": [
+    "uc1_cancel_false_alarm_happy_path",
+    "dispatch_status_reassurance",
+    "deterministic_spoken_closing"
+  ],
+  "eval_name": "uc1_cancel_false_alarm_happy_path",
+  "category": "EXPECTATION_FAIL",
+  "category_overridden": true,
+  "category_override_reason": "Cluster was labeled AUDIO_FAIL (a runner bucket, not a real triage category). The decisive per-turn failure across all three evals is a single tool-parameter EXACT_MATCH mismatch on verify_passcode (parameter_correctness_score: 0). That is an EXPECTATION_FAIL on tool-invocation parameter correctness, NOT a TEXT_MISMATCH, TOOL_MISSING, or TIMEOUT. Surface symptom to verify the fix against is the verify_passcode passcode parameter.",
+  "root_cause": "ASR casing variance, not an agent bug. On the AUDIO channel (gemini-3.1-flash-live) the spoken passcode 'Sunset' is transcribed lowercase ('sunset'), so the model calls verify_passcode(passcode='sunset'). All three goldens assert passcode: \"Sunset\" as a plain string, which the platform matches with EXACT_MATCH and a tool_invocation_parameter_correctness_threshold of 1, yielding 'String mismatch: Sunset != sunset' -> parameter_correctness_score 0 -> overall_tool_invocation_result FAIL (score 0.5) on that turn -> golden FAIL. The agent itself behaves correctly: the verify_passcode tool compares case-insensitively (python_code.py line 93: passcode.strip().lower() == record['passcode'].lower()), returns verified:true, the alarm cancels, dispatch ('police were not dispatched') is reported accurately, and end_session fires. Every other dimension passes: semantic_similarity = 4 ('Fully Consistent') on all agent turns, all custom evaluation_expectation_results PASS (including 'must call verify_passcode with the spoken passcode' and 'must report police were not dispatched'), and every other tool (lookup_accounts_by_caller, cancel_alarm, end_session) PASSes. The three SHORT goldens (passcode_gate, fort_worth, single_site) pass 3/3 in audio precisely because they never reach a verify_passcode turn with an exact-match string arg. The same goldens pass 3/3 on TEXT because typed 'Sunset' preserves casing. Note the run's thresholds even show semantic_similarity_channel: TEXT while running audio, but that is not what is failing here -- semantic scores all PASS; the failure is purely the exact-match string arg.",
+  "evidence_quotes": [
+    {
+      "location": "uc1_cancel_false_alarm_happy_path run 2aacf997 RESULT 0, verify_passcode expectation_outcome (all 3 runs identical)",
+      "quote": "expectation passcode string_value: \"Sunset\"  |  observed passcode string_value: \"sunset\"  |  outcome: FAIL  |  parameter_correctness_score: 0  |  explanation: \"Mismatch for keys:\\npasscode with match type EXACT_MATCH: String mismatch: Sunset != sunset\""
+    },
+    {
+      "location": "dispatch_status_reassurance run 2aacf997 RESULT 0 (and RESULT 1, 2 identical)",
+      "quote": "observed passcode string_value: \"sunset\"; outcome: FAIL; parameter_correctness_score: 0; explanation: 'String mismatch: Sunset != sunset'. Same single failing leaf; semantic_similarity_result score: 4 'Fully Consistent' and overall_tool_invocation_result outcome: FAIL (score 0.5)."
+    },
+    {
+      "location": "deterministic_spoken_closing run 2aacf997 RESULT 0 (and RESULT 1, 2 identical)",
+      "quote": "observed passcode string_value: \"sunset\"; outcome: FAIL; explanation: 'String mismatch: Sunset != sunset'. end_session and the spoken closing both PASS; the only failing assertion is the verify_passcode passcode exact-match."
+    },
+    {
+      "location": "agent_dir/tools/verify_passcode/python_function/python_code.py line 93",
+      "quote": "verified = passcode.strip().lower() == record[\"passcode\"].lower()"
+    },
+    {
+      "location": "evals/goldens/goldens.yaml uc1 turn 3 (lines 47-53), mirrored at dispatch (209-215) and closing (283-289)",
+      "quote": "action: verify_passcode\\n  args:\\n    passcode: \"Sunset\"   # plain string -> EXACT_MATCH"
+    },
+    {
+      "location": "run 2aacf997 evaluation_metrics_thresholds (all 9 results)",
+      "quote": "expectation_level_metrics_thresholds { tool_invocation_parameter_correctness_threshold: 1 }  ;  semantic_similarity_success_threshold: 3 ; semantic_similarity_channel: TEXT"
+    }
+  ],
+  "decision_tree_path": [
+    "Is the golden expectation stale / does it encode an assumption the correct agent behavior violates? -> yes: the passcode EXACT_MATCH string assumes TEXT-channel casing; on AUDIO the ASR lowercases 'Sunset' so the exact-match can never pass even though the agent acts correctly",
+    "Is a tool missing from the agent's tool list? -> no (verify_passcode is called, returns verified:true)",
+    "Are instructions contradictory? -> no",
+    "Is the behavior non-deterministic / flaky? -> no (0/3 on all three, deterministic ASR lowercasing)",
+    "Is the agent hallucinating? -> no (semantic_similarity 4, all custom expectations PASS)"
+  ],
+  "suggested_fix_type": "eval_edit",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/evals/goldens/goldens.yaml"
+  ],
+  "fix_summary_one_line": "Make the verify_passcode passcode arg ASR-casing-tolerant in all three goldens: replace plain string passcode: \"Sunset\" with a case-insensitive match (e.g. $matchType: \"regexp\", $matchValue: \"(?i)^Sunset$\") so the AUDIO-channel transcription 'sunset' matches; do the same for the \"Bluebird\" UC2 goldens to harden them before they hit audio.",
+  "fix_detail": "In goldens.yaml change the three verify_passcode passcode args (uc1 lines 47-49, dispatch lines 209-211, closing lines 283-285) from `passcode: \"Sunset\"` to a $matchType dict, e.g.:\n          - action: verify_passcode\n            args:\n              passcode:\n                $matchType: \"regexp\"\n                $matchValue: \"(?i)^Sunset$\"\n                $originalValue: \"Sunset\"\nAlternatives: $matchType: \"semantic\" or $matchType: \"ignore\" (the custom expectation 'must call verify_passcode with the spoken passcode' already independently guards this and PASSes, so ignore is safe). regexp with (?i) is preferred because it still pins the passcode value while tolerating ASR casing -- this is the audio analogue of the existing rule #5 ($matchType ignore for dates). NOT a threshold change: tool_invocation_parameter_correctness_threshold should stay at 1; the right knob is the per-arg match type, not the global threshold.",
+  "needs_user_approval": true,
+  "confidence": "high"
+}

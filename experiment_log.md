@@ -124,3 +124,32 @@ LESSONS: (1) always pull-verify that modelSettings landed after push — invalid
 ## Iteration 9 — 2026-06-04 (live model, text channel — audio-proofing prep)
 - `<event>welcome</event>` → "Hello" in all 8 goldens (TTS reads the event tag aloud in audio mode; "Hello" works for both channels — user direction from prior project experience). dispatch_status golden aligned to live-model phrasing. Platform goldens force-recreated.
 - **Goldens: 24/24 (100%). Sims: 15/15 (100%).** gemini-3.1-flash-live, text channel. Ready for audio baseline.
+## Iteration 10 — 2026-06-05
+**Change:** Audio baseline (gemini-3.1-flash-live, audio channel): case-insensitive passcode regexp in goldens (ASR lowercases spoken passcodes); speak-after-tool tightening in Put_On_Test (audio turn-splitting: agent spoke 'I'm placing...' before calling put_account_on_test in 2/3 runs of sms_declined golden). Prior audio goldens: 22/24.
+
+| Eval Type | Pass Rate |
+|-----------|-----------|
+| Goldens | 20/24 (83%) |
+| Simulations | 11/15 (73%) |
+| Tool Tests | 16/16 (100%) |
+| Callback Tests | 18/18 (100%) |
+
+**Golden failures:**
+- `EXPECTATION_FAIL` uc2_on_test_disambiguation_sms_happy_path: "The agent must confirm the on-test result referencing the ac" — The agent confirmed the 'one hour' 
+- `EXPECTATION_FAIL` sms_offered_after_validation_then_declined: "The agent must confirm verbally that no text will be sent, t" — The custom expectation states that 
+- `EXPECTATION_FAIL` disambiguation_accuracy_fort_worth: "The agent must NOT call verify_passcode, put_account_on_test" — The custom expectation states that 
+- `TEXT_MISMATCH` sms_offered_after_validation_then_declined: sem_score=2
+
+**Sim failures:**
+- `declines_sms_after_on_test`: The agent must verbally confirm that no text will be sent and then close the cal — While the agent accepted the user's declination by saying 'Got it', they did not
+- `missing_on_test_duration_agent_asks`: The agent must ask the caller for a test duration, because none was provided. — The agent never requested a test duration during the interaction, as the convers
+- `missing_on_test_duration_agent_asks`: The agent must call a tool to put the Dallas branch on test for the two-hour dur — The caller never provided a two-hour duration, and the agent never called a tool
+- `no_active_alarm_to_cancel`: The agent must call a tool to attempt to cancel the alarm on the verified accoun — The passcode verification failed three times, so the agent never proceeded to ca
+- `no_active_alarm_to_cancel`: The agent must inform the caller there is no active alarm signal on the account  — The agent did not check the alarm status or inform the user that no alarm was ac
+- `no_active_alarm_to_cancel`: The agent must offer further help after reporting there is nothing to cancel. — The agent never reported that there was nothing to cancel, as the conversation s
+- `no_active_alarm_to_cancel`: The agent must confirm the Dallas branch (123 Main Street) before requesting the — The agent confirmed the branch but never requested the passcode; it escalated to
+- `no_active_alarm_to_cancel`: The agent must call a tool to verify the passcode before attempting to cancel. — The agent did not verify any passcode and escalated the session before any cance
+- `no_active_alarm_to_cancel`: The agent must call a tool to attempt to cancel the alarm on the verified accoun — The agent did not call a tool to cancel the alarm; the session was ended due to 
+- `no_active_alarm_to_cancel`: The agent must inform the caller there is no active alarm signal on the account  — The agent claimed it was having trouble accessing account details rather than in
+- `no_active_alarm_to_cancel`: The agent must offer further help after reporting there is nothing to cancel. — The agent did not report there was nothing to cancel, nor did it offer further h
+

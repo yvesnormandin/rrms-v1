@@ -3,7 +3,7 @@
     "test_name":"lookup_single_site_caller_returns_one_account",
     "tool":"lookup_accounts_by_caller",
     "status":"PASSED",
-    "latency (ms)":937.1109159983,
+    "latency (ms)":962.522034999,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -12,7 +12,7 @@
     "test_name":"lookup_multi_location_caller_returns_many_accounts",
     "tool":"lookup_accounts_by_caller",
     "status":"PASSED",
-    "latency (ms)":504.9922089966,
+    "latency (ms)":454.6381690016,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -21,7 +21,7 @@
     "test_name":"lookup_unknown_caller_returns_error_with_agent_action",
     "tool":"lookup_accounts_by_caller",
     "status":"PASSED",
-    "latency (ms)":542.338610001,
+    "latency (ms)":454.9276700127,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -30,7 +30,7 @@
     "test_name":"verify_passcode_valid_single_site_by_phone",
     "tool":"verify_passcode",
     "status":"PASSED",
-    "latency (ms)":511.7646159924,
+    "latency (ms)":454.255470002,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -39,7 +39,7 @@
     "test_name":"verify_passcode_valid_multi_location_by_account_id",
     "tool":"verify_passcode",
     "status":"PASSED",
-    "latency (ms)":482.3784149921,
+    "latency (ms)":467.3301680014,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -48,7 +48,7 @@
     "test_name":"verify_passcode_invalid_passcode_returns_unverified",
     "tool":"verify_passcode",
     "status":"PASSED",
-    "latency (ms)":544.4202169892,
+    "latency (ms)":476.7867679911,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -57,7 +57,7 @@
     "test_name":"verify_passcode_no_resolved_account_returns_error",
     "tool":"verify_passcode",
     "status":"PASSED",
-    "latency (ms)":994.9426309904,
+    "latency (ms)":951.2815359922,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -66,7 +66,7 @@
     "test_name":"cancel_alarm_success_reports_dispatch_status",
     "tool":"cancel_alarm",
     "status":"PASSED",
-    "latency (ms)":419.3810119905,
+    "latency (ms)":451.5565699985,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -75,7 +75,7 @@
     "test_name":"cancel_alarm_blocked_when_passcode_not_verified",
     "tool":"cancel_alarm",
     "status":"PASSED",
-    "latency (ms)":522.9736159963,
+    "latency (ms)":474.1806710081,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -84,7 +84,7 @@
     "test_name":"cancel_alarm_no_active_alarm_informs_caller",
     "tool":"cancel_alarm",
     "status":"PASSED",
-    "latency (ms)":447.592313998,
+    "latency (ms)":433.4617029963,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -93,7 +93,7 @@
     "test_name":"put_account_on_test_success_confirms_duration_and_last_digits",
     "tool":"put_account_on_test",
     "status":"PASSED",
-    "latency (ms)":430.7732129964,
+    "latency (ms)":458.3844040026,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -102,7 +102,7 @@
     "test_name":"put_account_on_test_out_of_range_duration_rejected",
     "tool":"put_account_on_test",
     "status":"PASSED",
-    "latency (ms)":428.1820129981,
+    "latency (ms)":430.0668039941,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -111,7 +111,7 @@
     "test_name":"put_account_on_test_missing_duration_asks_caller",
     "tool":"put_account_on_test",
     "status":"PASSED",
-    "latency (ms)":437.9806140059,
+    "latency (ms)":451.0412039963,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -120,7 +120,7 @@
     "test_name":"put_account_on_test_blocked_when_passcode_not_verified",
     "tool":"put_account_on_test",
     "status":"PASSED",
-    "latency (ms)":466.6505139903,
+    "latency (ms)":441.3889029966,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -129,7 +129,7 @@
     "test_name":"send_confirmation_sms_success_returns_sent",
     "tool":"send_confirmation_sms",
     "status":"PASSED",
-    "latency (ms)":510.7366149896,
+    "latency (ms)":430.4753029865,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""
@@ -138,7 +138,7 @@
     "test_name":"send_confirmation_sms_no_phone_returns_error",
     "tool":"send_confirmation_sms",
     "status":"PASSED",
-    "latency (ms)":705.1171210042,
+    "latency (ms)":665.7671059947,
     "app_display_name":"rrms-v1",
     "tester":"Unknown",
     "errors":""

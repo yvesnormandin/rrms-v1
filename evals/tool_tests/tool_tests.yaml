@@ -134,6 +134,24 @@ tests:
           operator: equals
           value: "345"
 
+  # ASR word-splitting: spoken "Bluebird" is often transcribed "Blue Bird".
+  # The tool normalizes whitespace so real audio callers still verify.
+  - name: verify_passcode_asr_word_split_normalized
+    tool: verify_passcode
+    args:
+      passcode: "Blue Bird"
+      account_id: "RRMS-2001"
+    variables:
+      caller_phone: "+12145550199"
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.verified"
+          operator: equals
+          value: true
+
   - name: verify_passcode_invalid_passcode_returns_unverified
     tool: verify_passcode
     args:

@@ -27,8 +27,11 @@ Build Steps (from references/build.md → Full Build):
   - [x] 7c-rerun6. Goldens text run 8 on live model — **23/24**; dispatch_status_reassurance 2/3, residual failure is pure judge paraphrase-noise (no leakage). LIVE-MODEL TEXT VALIDATION effectively complete.
   - [x] 7d-prep. Audio-proofing: <event>welcome</event> → "Hello" in all 8 goldens (TTS reads the event tag aloud — user direction); dispatch_status golden aligned to live-model phrasing; goldens force-recreated
   - [x] 7d-validate. Goldens text run 9 on live model — **24/24 (100%)**
-  - [ ] 7e-sims. Sims on live model (text channel, P1+P2, ×3) — in progress (bg task bf13niqbp)
-  - [ ] 7f. Audio baseline: flip gecx-config modality/default_channel→audio + add gcs_bucket gs://yves-normandin-cxas-evals (app.json model already live); run goldens+sims on audio channel
+  - [x] 7e-sims. Sims on live model (text channel) — 15/15
+  - [x] 7f-1. Audio golden run 10 — 0/24 via --audio flag = SCORING ARTIFACT (memory: hydro-quebec had same); real score via evaluation_status: 9/24 — all 5 full-flow fails from ONE cause: ASR lowercases spoken passcodes vs EXACT_MATCH args
+  - [x] 7f-2. Fix: case-insensitive regexp on 5 passcode args (user-approved); force-recreate; audio run 11 → **22/24** (only sms_declined 1/3: audio turn-splitting — agent speaks "I'm placing..." before calling put_account_on_test)
+  - [x] 7f-3. Fix: speak-after-tool tightening in Put_On_Test; lint clean; pushed
+  - [ ] 7f-4. FULL audio baseline (goldens+sims+tests, run-and-report) — in progress (bg task b2nn0on35)
   - [ ] 8. GTP two-variant deployment: default-CLID before_agent callback (+callback test), deploy-variants script, create 2 variant apps, wire GTP numbers (Console, user)
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog
