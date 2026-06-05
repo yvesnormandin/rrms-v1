@@ -40,6 +40,15 @@ for ((i=0; i<N; i++)); do
   trap 'rm -rf "$TMP"' EXIT
   cp -r "$SRC" "$TMP/$NAME"
 
+  # Guard: strip any nested app copies (stale `cxas pull` artifacts — a pull
+  # into the app dir creates <app>/<app-name>/ with its own app.json).
+  for d in "$TMP/$NAME"/*/; do
+    if [[ -f "$d/app.json" ]]; then
+      echo "   WARNING: removing nested app artifact ${d#"$TMP/$NAME/"} from variant copy"
+      rm -rf "$d"
+    fi
+  done
+
   # 1. Substitute the variant's demo CLID (the ONLY code difference).
   CB="$TMP/$NAME/$CB_REL"
   if ! grep -q '^DEFAULT_CALLER_PHONE = ' "$CB"; then

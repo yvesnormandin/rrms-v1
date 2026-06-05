@@ -54,7 +54,7 @@ _MOCK_ACCOUNTS = {
             "street_address": "456 Oak Avenue",
             "account_last_digits": "782",
             "passcode": "Maple",
-            "has_active_alarm": True,
+            "has_active_alarm": False,
             "dispatch_status": "not dispatched",
         },
         {
@@ -63,8 +63,8 @@ _MOCK_ACCOUNTS = {
             "street_address": "789 Elm Street",
             "account_last_digits": "614",
             "passcode": "Harbor",
-            "has_active_alarm": True,
-            "dispatch_status": "dispatched",
+            "has_active_alarm": False,
+            "dispatch_status": "not dispatched",
         },
     ],
 }

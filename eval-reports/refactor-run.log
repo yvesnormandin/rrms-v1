@@ -1,0 +1,133 @@
+Snapshot saved for iteration 8
+Pushing golden evals from 1 file(s)...
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/ac0bf0eb-4468-4014-9e0b-f08dab3a9bed
+  Updated:   uc1_cancel_false_alarm_happy_path -> ac0bf0eb-4468-4014-9e0b-f08dab3a9bed
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/e201f873-9bda-4b2d-bdd8-2e9682fa5516
+  Updated:   uc2_on_test_disambiguation_sms_happy_path -> e201f873-9bda-4b2d-bdd8-2e9682fa5516
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/f703f2be-2a70-4382-a4ec-630eb75bf9d1
+  Updated:   passcode_gate_enforced_before_action -> f703f2be-2a70-4382-a4ec-630eb75bf9d1
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/b71f8cd8-c054-4010-a4c3-293673f5d2dc
+  Updated:   disambiguation_accuracy_fort_worth -> b71f8cd8-c054-4010-a4c3-293673f5d2dc
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/69e2aa2f-1518-49ab-9e34-29f9dd629cb3
+  Updated:   single_site_no_disambiguation -> 69e2aa2f-1518-49ab-9e34-29f9dd629cb3
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/ad029c27-101f-4650-a463-a672c180c681
+  Updated:   dispatch_status_reassurance -> ad029c27-101f-4650-a463-a672c180c681
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/02f07e60-1023-473f-9285-41383727807d
+  Updated:   sms_offered_after_validation_then_declined -> 02f07e60-1023-473f-9285-41383727807d
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/9d05995d-0a62-4d80-817b-e084d9725563
+  Updated:   deterministic_spoken_closing -> 9d05995d-0a62-4d80-817b-e084d9725563
+Pushing Golden Files ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:10
+
+Done. Synced 8 golden eval(s): 0 created, 8 updated, 0 recreated, 0 failed.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Both GOOGLE_API_KEY and GEMINI_API_KEY are set. Using GOOGLE_API_KEY.
+Config loaded from gecx-config.json (app: rrms-v1)
+
+App: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a
+Channel: text
+Golden runs: 3
+Skip goldens: False
+Skip sims: False
+
+Running all evaluations in-process...
+Found 1 golden files in /home/norman/dev/cxas-scrapi/rrms-v1/evals/goldens
+Pushing golden file /home/norman/dev/cxas-scrapi/rrms-v1/evals/goldens/goldens.yaml
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/69e2aa2f-1518-49ab-9e34-29f9dd629cb3
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/ad029c27-101f-4650-a463-a672c180c681
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/02f07e60-1023-473f-9285-41383727807d
+Updating existing evaluation: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/9d05995d-0a62-4d80-817b-e084d9725563
+Running evaluations: ['projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/69e2aa2f-1518-49ab-9e34-29f9dd629cb3', 'projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/ad029c27-101f-4650-a463-a672c180c681', 'projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/02f07e60-1023-473f-9285-41383727807d', 'projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluations/9d05995d-0a62-4d80-817b-e084d9725563']
+  Waiting for evaluation run name to appear in operation metadata...
+  Run name resolved: projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluationRuns/2aad7eff-bc77-4daf-9ee7-65d8fa9597e8
+Running callback tests in /home/norman/dev/cxas-scrapi/rrms-v1/evals/callback_tests
+Found 1 tool test files in /home/norman/dev/cxas-scrapi/rrms-v1/evals/tool_tests
+Loading tool tests from /home/norman/dev/cxas-scrapi/rrms-v1/evals/tool_tests/tool_tests.yaml
+Running 5 simulations across 1 files
+  PASS  unknown_caller_offer_operator_transfer (run 1/3) | goals: 1/1 | expectations: 4/4 | turns: 3 | 8.3s
+  PASS  unknown_caller_offer_operator_transfer (run 2/3) | goals: 1/1 | expectations: 4/4 | turns: 3 | 8.4s
+  ERROR  wrong_passcode_two_retries_then_operator (run 1/3): 429 Resource has been exhausted (e.g. check quota).
+  FAIL  wrong_passcode_two_retries_then_operator (run 2/3) | goals: 0/1 | expectations: 6/6 | turns: 5 | 16.0s
+  ERROR  unknown_caller_offer_operator_transfer (run 3/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  declines_sms_after_on_test (run 1/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  wrong_passcode_two_retries_then_operator (run 3/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  declines_sms_after_on_test (run 3/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  declines_sms_after_on_test (run 2/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  missing_on_test_duration_agent_asks (run 1/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  missing_on_test_duration_agent_asks (run 2/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  missing_on_test_duration_agent_asks (run 3/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  no_active_alarm_to_cancel (run 1/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  no_active_alarm_to_cancel (run 2/3): 429 Resource has been exhausted (e.g. check quota).
+  ERROR  no_active_alarm_to_cancel (run 3/3): 429 Resource has been exhausted (e.g. check quota).
+Running Simulations ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 100% 0:00:00
+Waiting for evaluation run projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a/evaluationRuns/2aad7eff-bc77-4daf-9ee7-65d8fa9597e8 to complete...
+
+============================================================
+FINAL SUMMARY
+============================================================
+  Total time: 1.5m
+  Channel:    text
+  Combined report: /home/norman/dev/cxas-scrapi/rrms-v1/eval-reports/combined_report_2026-06-05_1617.html
+
+Fetching results for 8 golden eval(s)...
+
+=== Golden Triage (run 2aad7eff, 2026-06-05 20:17:25) ===
+
+SUMMARY: 24/24 PASS
+Adjusted (excl platform/config issues): 24/24 (100.0%)
+
+PER-EVAL:
+  ✓ deterministic_spoken_closing: 3/3
+  ✓ disambiguation_accuracy_fort_worth: 3/3
+  ✓ dispatch_status_reassurance: 3/3
+  ✓ passcode_gate_enforced_before_action: 3/3
+  ✓ single_site_no_disambiguation: 3/3
+  ✓ sms_offered_after_validation_then_declined: 3/3
+  ✓ uc1_cancel_false_alarm_happy_path: 3/3
+  ✓ uc2_on_test_disambiguation_sms_happy_path: 3/3
+Diffing iteration 7 -> 8...
+  12 file(s) changed.
+Fetching eval results...
+  Results saved to /home/norman/dev/cxas-scrapi/rrms-v1/eval-reports/iterations/iteration_8/results.json
+
+Report: /home/norman/dev/cxas-scrapi/rrms-v1/eval-reports/iterations/iteration_8/report.html
+Experiment log: /home/norman/dev/cxas-scrapi/rrms-v1/experiment_log.md
+Results TSV: /home/norman/dev/cxas-scrapi/rrms-v1/results.tsv
+
+JSON summary: rrms-v1/eval-reports/refactor-summary.json
+
+Hillclimb iteration: Single-source mock data refactor: _MOCK_ACCOUNTS now lives ONLY in lookup_accounts_by_caller, which writes full records (incl. passcode, dispatch_status) to new _caller_accounts state var; verify_passcode reads state (dataset copy deleted); cancel_alarm dispatch_status now data-driven from _resolved_account (was hardcoded); _resolved_account gains dispatch_status; verify tool tests supply _caller_accounts via variables. Text channel on live model for cheap validation.
+————————————————————————————————————————————————————————————
+
+============================================================
+  Step 1/5: Snapshot agent state
+============================================================
+  $ /home/norman/dev/cxas-scrapi/.venv/bin/python /home/norman/dev/cxas-scrapi/.agents/skills/cxas-agent-foundry/scripts/generate-iteration-report.py snapshot
+
+============================================================
+  Step 2/5: Push local goldens to platform
+============================================================
+  $ /home/norman/dev/cxas-scrapi/.venv/bin/python /home/norman/dev/cxas-scrapi/.agents/skills/cxas-agent-foundry/scripts/scrapi-eval-runner.py push-goldens
+
+============================================================
+  Step 3/5: Run all evals
+============================================================
+  $ /home/norman/dev/cxas-scrapi/.venv/bin/python /home/norman/dev/cxas-scrapi/.agents/skills/cxas-agent-foundry/scripts/run-evals.py --channel text --runs 3 --priority P1,P2
+
+============================================================
+  Step 4/5: Triage failures
+============================================================
+  $ /home/norman/dev/cxas-scrapi/.venv/bin/python /home/norman/dev/cxas-scrapi/.agents/skills/cxas-agent-foundry/scripts/triage-results.py
+
+============================================================
+  Step 5/5: Generate iteration report
+============================================================
+  $ /home/norman/dev/cxas-scrapi/.venv/bin/python /home/norman/dev/cxas-scrapi/.agents/skills/cxas-agent-foundry/scripts/generate-iteration-report.py report --message Single-source mock data refactor: _MOCK_ACCOUNTS now lives ONLY in lookup_accounts_by_caller, which writes full records (incl. passcode, dispatch_status) to new _caller_accounts state var; verify_passcode reads state (dataset copy deleted); cancel_alarm dispatch_status now data-driven from _resolved_account (was hardcoded); _resolved_account gains dispatch_status; verify tool tests supply _caller_accounts via variables. Text channel on live model for cheap validation. --json-summary rrms-v1/eval-reports/refactor-summary.json
+
+============================================================
+  Hillclimb iteration complete.
+  Message: Single-source mock data refactor: _MOCK_ACCOUNTS now lives ONLY in lookup_accounts_by_caller, which writes full records (incl. passcode, dispatch_status) to new _caller_accounts state var; verify_passcode reads state (dataset copy deleted); cancel_alarm dispatch_status now data-driven from _resolved_account (was hardcoded); _resolved_account gains dispatch_status; verify tool tests supply _caller_accounts via variables. Text channel on live model for cheap validation.
+============================================================
+

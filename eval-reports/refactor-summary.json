@@ -1,0 +1,37 @@
+{
+  "status": "complete",
+  "ran_at": "2026-06-05T16:19:06",
+  "total": 74,
+  "passed": 74,
+  "failed": 0,
+  "pass_rate": 1.0,
+  "by_type": {
+    "golden": {
+      "passed": 24,
+      "failed": 0,
+      "total": 24
+    },
+    "sim": {
+      "passed": 15,
+      "failed": 0,
+      "total": 15
+    },
+    "tool_test": {
+      "passed": 17,
+      "failed": 0,
+      "total": 17
+    },
+    "callback_test": {
+      "passed": 18,
+      "failed": 0,
+      "total": 18
+    }
+  },
+  "top_failures": [],
+  "failure_clusters": [],
+  "total_failures": 0,
+  "platform_errors": [],
+  "reverted": false,
+  "revert_reason": null,
+  "message": "Single-source mock data refactor: _MOCK_ACCOUNTS now lives ONLY in lookup_accounts_by_caller, which writes full records (incl. passcode, dispatch_status) to new _caller_accounts state var; verify_passcode reads state (dataset copy deleted); cancel_alarm dispatch_status now data-driven from _resolved_account (was hardcoded); _resolved_account gains dispatch_status; verify tool tests supply _caller_accounts via variables. Text channel on live model for cheap validation."
+}

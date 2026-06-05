@@ -1,0 +1,244 @@
+[
+  {
+    "name": "unknown_caller_offer_operator_transfer",
+    "run": 1,
+    "passed": true,
+    "goals": "1/1",
+    "expectations": "4/4",
+    "turns": 3,
+    "duration_s": 8.3,
+    "session_id": "c32a42e1-4e81-4110-89f3-559cc8b60d55",
+    "session_parameters": {
+      "caller_phone": "+15555550000"
+    },
+    "transcript": "User: event: welcome\nAgent: Rapid Response Monitoring. How can I help you today? Rapid Response Monitoring. How can I help you today?\nUser: Hi, I think my alarm went off and I'd like to cancel it.\nAgent: I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further? I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?\nUser: Yes, please transfer me to a live operator.\nAgent: Got it, transferring you to an operator now. Got it, transferring you to an operator now.",
+    "detailed_trace": [
+      "User: event: welcome",
+      "Agent Text: Rapid Response Monitoring. How can I help you today?\nUser Query: <event>session start</event>\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+      "User: Hi, I think my alarm went off and I'd like to cancel it.",
+      "Agent Text: I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?\nUser Query: Hi, I think my alarm went off and I'd like to cancel it.\nTool Call: lookup_accounts_by_caller with args {}\nTool Response: lookup_accounts_by_caller with result {'result': {'status': 'error', 'agent_action': 'Apologize that you cannot locate an account for this number and offer to transfer the caller to a live operator.', 'error': 'No account linked to this phone number.'}}\nAgent Text (Diag): I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?",
+      "User: Yes, please transfer me to a live operator.",
+      "Agent Text: Got it, transferring you to an operator now.\nUser Query: Yes, please transfer me to a live operator.\nAgent Text (Diag): Got it, transferring you to an operator now.\nTool Call: end_session with args {'params': {}, 'session_escalated': True, 'reason': 'caller_needs_transfer'}"
+    ],
+    "step_details": [
+      {
+        "goal": "Try to get help, but the calling number is not linked to any account.",
+        "success_criteria": "The agent attempts to look up the account, cannot find one for this number, apologizes, and offers to transfer the caller to a live operator. Being offered/transferred to a live operator counts as a successful outcome.\n",
+        "status": "Completed",
+        "justification": "The agent offered to transfer to a live operator, meeting the success criteria. The user accepted the transfer."
+      }
+    ],
+    "expectation_details": [
+      {
+        "expectation": "The agent must call a tool to look up the account by the caller's phone number.",
+        "status": "Met",
+        "justification": "The agent successfully executed the lookup_accounts_by_caller tool upon receiving the user's request."
+      },
+      {
+        "expectation": "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found.",
+        "status": "Met",
+        "justification": "The agent did not ask for a passcode or attempt any alarm cancellation, as it correctly identified that no account was linked to the phone number."
+      },
+      {
+        "expectation": "The agent must apologize that it cannot locate an account for this number.",
+        "status": "Met",
+        "justification": "The agent explicitly stated, 'I'm sorry, I'm having trouble locating your account,' following the failed lookup."
+      },
+      {
+        "expectation": "The agent must offer to transfer the caller to a live operator.",
+        "status": "Met",
+        "justification": "The agent proactively offered to transfer the caller to a live operator in the same response where the account location issue was identified."
+      }
+    ]
+  },
+  {
+    "name": "unknown_caller_offer_operator_transfer",
+    "run": 2,
+    "passed": true,
+    "goals": "1/1",
+    "expectations": "4/4",
+    "turns": 3,
+    "duration_s": 8.4,
+    "session_id": "84b5140d-b55d-476a-b7b1-47dfd5415c60",
+    "session_parameters": {
+      "caller_phone": "+15555550000"
+    },
+    "transcript": "User: event: welcome\nAgent: Rapid Response Monitoring. How can I help you today? Rapid Response Monitoring. How can I help you today?\nUser: Hi, I think my alarm went off and I'd like to cancel it.\nAgent: I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further? I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?\nUser: Yes, please transfer me to a live operator.\nAgent: Got it, I'm transferring you to an operator now. Got it, I'm transferring you to an operator now.",
+    "detailed_trace": [
+      "User: event: welcome",
+      "Agent Text: Rapid Response Monitoring. How can I help you today?\nUser Query: <event>session start</event>\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+      "User: Hi, I think my alarm went off and I'd like to cancel it.",
+      "Agent Text: I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?\nUser Query: Hi, I think my alarm went off and I'd like to cancel it.\nTool Call: lookup_accounts_by_caller with args {}\nTool Response: lookup_accounts_by_caller with result {'result': {'status': 'error', 'agent_action': 'Apologize that you cannot locate an account for this number and offer to transfer the caller to a live operator.', 'error': 'No account linked to this phone number.'}}\nAgent Text (Diag): I'm sorry, I'm having trouble locating your account. Would you like me to transfer you to a live operator who can assist you further?",
+      "User: Yes, please transfer me to a live operator.",
+      "Agent Text: Got it, I'm transferring you to an operator now.\nUser Query: Yes, please transfer me to a live operator.\nAgent Text (Diag): Got it, I'm transferring you to an operator now.\nTool Call: end_session with args {'params': {}, 'session_escalated': True, 'reason': \"The caller's phone number was not recognized, so they are being transferred to a human agent for assistance.\"}"
+    ],
+    "step_details": [
+      {
+        "goal": "Try to get help, but the calling number is not linked to any account.",
+        "success_criteria": "The agent attempts to look up the account, cannot find one for this number, apologizes, and offers to transfer the caller to a live operator. Being offered/transferred to a live operator counts as a successful outcome.\n",
+        "status": "Completed",
+        "justification": "The agent offered to transfer to a live operator, meeting the success criteria. The user has accepted the transfer, completing the step."
+      }
+    ],
+    "expectation_details": [
+      {
+        "expectation": "The agent must call a tool to look up the account by the caller's phone number.",
+        "status": "Met",
+        "justification": "The agent successfully called the 'lookup_accounts_by_caller' tool after the user stated they wanted to cancel their alarm."
+      },
+      {
+        "expectation": "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found.",
+        "status": "Met",
+        "justification": "The agent did not ask for a passcode or attempt to perform any alarm-related actions; it correctly identified the error and proceeded to escalate."
+      },
+      {
+        "expectation": "The agent must apologize that it cannot locate an account for this number.",
+        "status": "Met",
+        "justification": "The agent explicitly stated, 'I'm sorry, I'm having trouble locating your account' after the tool returned the error."
+      },
+      {
+        "expectation": "The agent must offer to transfer the caller to a live operator.",
+        "status": "Met",
+        "justification": "The agent explicitly asked the user if they would like to be transferred to a live operator for further assistance."
+      }
+    ]
+  },
+  {
+    "name": "wrong_passcode_two_retries_then_operator",
+    "run": 1,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "wrong_passcode_two_retries_then_operator",
+    "run": 2,
+    "passed": false,
+    "goals": "0/1",
+    "expectations": "6/6",
+    "turns": 5,
+    "duration_s": 16.0,
+    "session_id": "007faa39-eb29-45ad-a4ff-83c5f20e0e1d",
+    "session_parameters": {
+      "caller_phone": "+15125550142"
+    },
+    "transcript": "User: event: welcome\nAgent: Rapid Response Monitoring. How can I help you today? Rapid Response Monitoring. How can I help you today?\nUser: Hi, I'm the manager of the Johnson Verizon Store, and I've accidentally set off the security alarm. I need to cancel it.\nAgent: Of course. Could you please provide the passcode for verification? Of course. Could you please provide the passcode for verification?\nUser: The passcode is Sunrise.\nAgent: I'm sorry, that passcode did not match. Could you please try again? I'm sorry, that passcode did not match. Could you please try again?\nUser: The passcode is Sunflower.\nAgent: I'm sorry, that passcode also did not match. Please try one more time. I'm sorry, that passcode also did not match. Please try one more time.\nUser: The passcode is Sundown.\nAgent: I'm sorry, that passcode did not match either. Let me connect you with a live operator who can help. I'm transferring you now. I'm sorry, that passcode did not match either. Let me connect you with a live operator who can help. I'm transferring you now.",
+    "detailed_trace": [
+      "User: event: welcome",
+      "Agent Text: Rapid Response Monitoring. How can I help you today?\nUser Query: <event>session start</event>\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+      "User: Hi, I'm the manager of the Johnson Verizon Store, and I've accidentally set off the security alarm. I need to cancel it.",
+      "Agent Text: Of course. Could you please provide the passcode for verification?\nUser Query: Hi, I'm the manager of the Johnson Verizon Store, and I've accidentally set off the security alarm. I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {}\nTool Response: lookup_accounts_by_caller with result {'result': {'status': 'success', 'accounts': [{'street_address': '742 Commerce Drive', 'has_active_alarm': True, 'account_last_digits': '118', 'branch_name': 'Johnson Verizon Store', 'account_id': 'RRMS-1001'}], 'account_count': 1.0}}\nAgent Text (Diag): Of course. Could you please provide the passcode for verification?",
+      "User: The passcode is Sunrise.",
+      "Agent Text: I'm sorry, that passcode did not match. Could you please try again?\nUser Query: The passcode is Sunrise.\nTool Call: verify_passcode with args {'passcode': 'Sunrise', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.', 'verified': False}}\nAgent Text (Diag): I'm sorry, that passcode did not match. Could you please try again?",
+      "User: The passcode is Sunflower.",
+      "Agent Text: I'm sorry, that passcode also did not match. Please try one more time.\nUser Query: The passcode is Sunflower.\nTool Call: verify_passcode with args {'passcode': 'Sunflower', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.', 'verified': False}}\nAgent Text (Diag): I'm sorry, that passcode also did not match. Please try one more time.",
+      "User: The passcode is Sundown.",
+      "Agent Text: I'm sorry, that passcode did not match either. Let me connect you with a live operator who can help. I'm transferring you now.\nUser Query: The passcode is Sundown.\nTool Call: verify_passcode with args {'passcode': 'Sundown', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.', 'verified': False}}\nAgent Text (Diag): I'm sorry, that passcode did not match either. Let me connect you with a live operator who can help. I'm transferring you now.\nTool Call: end_session with args {'params': {}, 'session_escalated': True, 'reason': 'Passcode verification failed 3 times.'}"
+    ],
+    "step_details": [
+      {
+        "goal": "Cancel the alarm but fail passcode verification on all three attempts.",
+        "success_criteria": "The agent asks for the passcode, lets the caller retry after each failure, and after the third failed attempt declines to perform the action and offers to transfer to a live operator. Being offered/transferred to a live operator after the failed attempts counts as a successful outcome.\n",
+        "status": "In Progress",
+        "justification": "Agent's suggestion did not meet criteria; user is persisting."
+      }
+    ],
+    "expectation_details": [
+      {
+        "expectation": "The agent must ask for the account passcode before attempting to cancel the alarm.",
+        "status": "Met",
+        "justification": "The agent asked for the passcode immediately after the user identified themselves and requested to cancel the alarm, preventing any attempt to cancel it before verification."
+      },
+      {
+        "expectation": "The agent must call a tool to verify the passcode on each attempt.",
+        "status": "Met",
+        "justification": "The agent called the verify_passcode tool for 'Sunrise', 'Sunflower', and 'Sundown' successfully."
+      },
+      {
+        "expectation": "The agent must allow the caller to retry after each failed passcode, up to three total attempts.",
+        "status": "Met",
+        "justification": "The agent allowed two retries, totaling three attempts (the initial failure, one retry, and a final second retry) before escalating."
+      },
+      {
+        "expectation": "The agent must NOT call any tool to cancel the alarm, because the passcode was never verified.",
+        "status": "Met",
+        "justification": "No cancellation tool or logic was invoked; the session ended with escalation due to failed verification."
+      },
+      {
+        "expectation": "After the third failed attempt, the agent must decline to complete the request and offer to transfer the caller to a live operator.",
+        "status": "Met",
+        "justification": "After the third failed attempt, the agent stated they could not verify the code and offered to transfer the caller to a live operator."
+      },
+      {
+        "expectation": "The agent must ask for information one piece at a time, not all at once.",
+        "status": "Met",
+        "justification": "The agent requested only the passcode from the user and handled the identification process through the caller's initial prompt, maintaining a conversational flow without overwhelming the user with multiple requests."
+      }
+    ]
+  },
+  {
+    "name": "unknown_caller_offer_operator_transfer",
+    "run": 3,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "declines_sms_after_on_test",
+    "run": 1,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "wrong_passcode_two_retries_then_operator",
+    "run": 3,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "declines_sms_after_on_test",
+    "run": 3,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "declines_sms_after_on_test",
+    "run": 2,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "missing_on_test_duration_agent_asks",
+    "run": 1,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "missing_on_test_duration_agent_asks",
+    "run": 2,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "missing_on_test_duration_agent_asks",
+    "run": 3,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "no_active_alarm_to_cancel",
+    "run": 1,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "no_active_alarm_to_cancel",
+    "run": 2,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  },
+  {
+    "name": "no_active_alarm_to_cancel",
+    "run": 3,
+    "passed": false,
+    "error": "429 Resource has been exhausted (e.g. check quota)."
+  }
+]

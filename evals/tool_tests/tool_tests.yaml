@@ -9,9 +9,10 @@
 #
 # Expectation paths use the EXACT return-dict keys from each tool's
 # python_function/python_code.py. Tools read context.state (caller_phone,
-# _resolved_account), so state is populated via `variables:` since tool tests
-# run in isolation. _resolved_account is a JSON-serialized string (the tools
-# json.loads it), so it is supplied here as a JSON string.
+# _caller_accounts, _resolved_account), so state is populated via `variables:`
+# since tool tests run in isolation. _caller_accounts/_resolved_account are
+# JSON-serialized strings (the tools json.loads them). _MOCK_ACCOUNTS lives
+# ONLY in lookup_accounts_by_caller; verify_passcode reads _caller_accounts.
 
 tests:
   # ---------------------------------------------------------------------------
@@ -96,7 +97,7 @@ tests:
     args:
       passcode: "Sunset"
     variables:
-      caller_phone: "+15125550142"
+      _caller_accounts: '[{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "passcode": "Sunset", "has_active_alarm": true, "dispatch_status": "not dispatched"}]'
     expectations:
       response:
         - path: "$.result.status"
@@ -118,7 +119,7 @@ tests:
       passcode: "bluebird"
       account_id: "RRMS-2001"
     variables:
-      caller_phone: "+12145550199"
+      _caller_accounts: '[{"account_id": "RRMS-2001", "branch_name": "Dallas", "street_address": "123 Main Street", "account_last_digits": "345", "passcode": "Bluebird", "has_active_alarm": false, "dispatch_status": "not dispatched"}, {"account_id": "RRMS-2002", "branch_name": "Fort Worth", "street_address": "456 Oak Avenue", "account_last_digits": "782", "passcode": "Maple", "has_active_alarm": false, "dispatch_status": "not dispatched"}, {"account_id": "RRMS-2003", "branch_name": "Plano", "street_address": "789 Elm Street", "account_last_digits": "614", "passcode": "Harbor", "has_active_alarm": false, "dispatch_status": "not dispatched"}]'
     expectations:
       response:
         - path: "$.result.status"
@@ -142,7 +143,7 @@ tests:
       passcode: "Blue Bird"
       account_id: "RRMS-2001"
     variables:
-      caller_phone: "+12145550199"
+      _caller_accounts: '[{"account_id": "RRMS-2001", "branch_name": "Dallas", "street_address": "123 Main Street", "account_last_digits": "345", "passcode": "Bluebird", "has_active_alarm": false, "dispatch_status": "not dispatched"}, {"account_id": "RRMS-2002", "branch_name": "Fort Worth", "street_address": "456 Oak Avenue", "account_last_digits": "782", "passcode": "Maple", "has_active_alarm": false, "dispatch_status": "not dispatched"}, {"account_id": "RRMS-2003", "branch_name": "Plano", "street_address": "789 Elm Street", "account_last_digits": "614", "passcode": "Harbor", "has_active_alarm": false, "dispatch_status": "not dispatched"}]'
     expectations:
       response:
         - path: "$.result.status"
@@ -157,7 +158,7 @@ tests:
     args:
       passcode: "WrongWord"
     variables:
-      caller_phone: "+15125550142"
+      _caller_accounts: '[{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "passcode": "Sunset", "has_active_alarm": true, "dispatch_status": "not dispatched"}]'
     expectations:
       response:
         - path: "$.result.status"
@@ -192,7 +193,7 @@ tests:
     tool: cancel_alarm
     args: {}
     variables:
-      _resolved_account: '{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "has_active_alarm": true, "passcode_verified": true}'
+      _resolved_account: '{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "has_active_alarm": true, "dispatch_status": "not dispatched", "passcode_verified": true}'
     expectations:
       response:
         - path: "$.result.status"

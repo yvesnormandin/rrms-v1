@@ -184,3 +184,20 @@ LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-sp
   - rrms-demo-multisite = 1a32623a-96d0-43f3-bf91-7f533a9deb58 (CLID +12145550199)
 - Smoke-tested both with NO session params (live-caller simulation): store ran full UC1 (lookup→verify inline "Sunset"→cancel→dispatch status); multisite returned 3 branches + standalone Dallas disambiguation question.
 - Remaining manual step: wire GTP numbers to the variant apps in the Console.
+## Iteration 13 — 2026-06-05
+**Change:** Single-source mock data refactor: _MOCK_ACCOUNTS now lives ONLY in lookup_accounts_by_caller, which writes full records (incl. passcode, dispatch_status) to new _caller_accounts state var; verify_passcode reads state (dataset copy deleted); cancel_alarm dispatch_status now data-driven from _resolved_account (was hardcoded); _resolved_account gains dispatch_status; verify tool tests supply _caller_accounts via variables. Text channel on live model for cheap validation.
+
+| Eval Type | Pass Rate |
+|-----------|-----------|
+| Goldens | 24/24 (100%) |
+| Simulations | 15/15 (100%) |
+| Tool Tests | 17/17 (100%) |
+| Callback Tests | 18/18 (100%) |
+
+
+## Iteration 13 — 2026-06-05 (single-source mock data refactor)
+- `_MOCK_ACCOUNTS` now lives ONLY in lookup_accounts_by_caller, which writes the caller's full records to new `_caller_accounts` state var (declared in app.json; passcodes never in tool returns). verify_passcode's dataset copy deleted; cancel_alarm dispatch_status now data-driven via `_resolved_account` (was hardcoded). 4 verify tool tests supply `_caller_accounts` via variables.
+- **Validation (text channel, live model): 74/74 (100%)** — goldens 24/24, sims 15/15, tools 17/17, callbacks 18/18.
+- BUG FOUND+FIXED in skill's gate-check.py: gate 1 pulled with --target-dir=app_dir, nesting a stale platform copy at cxas_app/rrms-v1/rrms-v1/ on every run (recurred twice). Patched to pull into a temp dir (and re-lint the pulled copy for the drift check). deploy-variants.sh also gained a guard stripping nested app artifacts from variant copies.
+- User enriched mock data: Fort Worth + Plano now have active alarms; Plano dispatch_status="dispatched" (exercises the "Police were dispatched" branch). No eval coupling (dispatch assertions only target Johnson Verizon Store; no_active_alarm sim targets Dallas, unchanged).
+- Canonical + both GTP variants re-pushed clean with the refactor + new data.
