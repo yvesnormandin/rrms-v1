@@ -1,0 +1,10 @@
+{
+  "name": "verify_passcode",
+  "pythonFunction": {
+    "name": "verify_passcode",
+    "pythonCode": "tools/verify_passcode/python_function/python_code.py",
+    "description": "Validate a spoken passcode against the resolved account.\n\nArgs:\n    passcode: The passcode spoken by the caller.\n    account_id: The account being verified (use for multi-location callers).\n\nReturns:\n    dict: status, verified (bool), and on failure an agent_action hint."
+  },
+  "executionType": "SYNCHRONOUS",
+  "displayName": "verify_passcode"
+}

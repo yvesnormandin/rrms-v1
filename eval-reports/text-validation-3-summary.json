@@ -1,0 +1,115 @@
+{
+  "status": "complete",
+  "ran_at": "2026-06-04T15:29:18",
+  "total": 73,
+  "passed": 67,
+  "failed": 6,
+  "pass_rate": 0.9178082191780822,
+  "by_type": {
+    "golden": {
+      "passed": 18,
+      "failed": 6,
+      "total": 24
+    },
+    "sim": {
+      "passed": 15,
+      "failed": 0,
+      "total": 15
+    },
+    "tool_test": {
+      "passed": 16,
+      "failed": 0,
+      "total": 16
+    },
+    "callback_test": {
+      "passed": 18,
+      "failed": 0,
+      "total": 18
+    }
+  },
+  "top_failures": [
+    {
+      "eval_name": "uc2_on_test_disambiguation_sms_happy_path",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    },
+    {
+      "eval_name": "uc2_on_test_disambiguation_sms_happy_path",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    },
+    {
+      "eval_name": "uc2_on_test_disambiguation_sms_happy_path",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    },
+    {
+      "eval_name": "deterministic_spoken_closing",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    },
+    {
+      "eval_name": "deterministic_spoken_closing",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    },
+    {
+      "eval_name": "deterministic_spoken_closing",
+      "eval_type": "golden",
+      "category": "TOOL_MISSING",
+      "run_id": "a8756b88"
+    }
+  ],
+  "failure_clusters": [
+    {
+      "category": "TOOL_MISSING",
+      "eval_type": "golden",
+      "discriminator": "cancel_alarm",
+      "discriminator_kind": "tool",
+      "eval_count": 1,
+      "eval_names": [
+        "deterministic_spoken_closing"
+      ],
+      "run_id": "a8756b88",
+      "priority_score": 62001,
+      "eval_pass_rates": {
+        "deterministic_spoken_closing": "0/3"
+      },
+      "regression_status": "regression",
+      "regressed_evals": [
+        "deterministic_spoken_closing"
+      ],
+      "regression_context": {
+        "previous_iteration": 3,
+        "previous_message": "Fix round 1 (text mode): lookup_accounts_by_caller now zero-arg (reads caller_phone from state) \u2014 fixes uc1 TOOL_MISSING arg mismatch; instruction edits: confirm caller-named branch in multi-branch disambiguation (uc2), SMS-decline must confirm + offer further help in one turn (sms_declined golden + sim), passcode pushback must re-ask for passcode (passcode_gate). Tool tests switched lookup args to variables. Goldens expect argless lookup.",
+        "previous_snapshot_dir": "/home/norman/dev/cxas-scrapi/rrms-v1/eval-reports/iterations/iteration_3/snapshot"
+      }
+    },
+    {
+      "category": "TOOL_MISSING",
+      "eval_type": "golden",
+      "discriminator": null,
+      "discriminator_kind": "none",
+      "eval_count": 1,
+      "eval_names": [
+        "uc2_on_test_disambiguation_sms_happy_path"
+      ],
+      "run_id": "a8756b88",
+      "priority_score": 12001,
+      "eval_pass_rates": {
+        "uc2_on_test_disambiguation_sms_happy_path": "0/3"
+      },
+      "regression_status": "new"
+    }
+  ],
+  "total_failures": 6,
+  "platform_errors": [],
+  "reverted": false,
+  "revert_reason": null,
+  "message": "Fix round 2 (text mode): standalone branch-confirmation turn (fixes fort_worth regression from round 1 \u2014 agent was chaining passcode request into the confirm turn); put_account_on_test now MANDATORY before any on-test confirmation + new action_grounding constraint (fixes uc2 golden 0/3 + declines_sms sim hallucinated-action bug \u2014 model narrated success without calling the tool); passcode_gate golden turn-2 text aligned with verified-correct agent phrasing (judge variance on store-name mention, user-approved eval edit)."
+}

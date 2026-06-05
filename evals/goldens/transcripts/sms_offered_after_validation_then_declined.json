@@ -1,0 +1,28 @@
+{
+  "name": "sms_offered_after_validation_then_declined",
+  "session_parameters": {
+    "caller_phone": "+12145550199"
+  },
+  "transcript": [
+    {
+      "user": "<event>welcome</event>",
+      "agent": "Rapid Response Monitoring. How can I help you today?"
+    },
+    {
+      "user": "I need the Dallas branch on test for an hour.",
+      "agent": "Sure, I can help with that. I show three accounts linked to this phone number: the Dallas branch at 123 Main Street, the Fort Worth branch at 456 Oak Avenue, and the Plano branch at 789 Elm Street. Did you mean the Dallas branch at 123 Main Street?"
+    },
+    {
+      "user": "Yes.",
+      "agent": "Okay. Could you please provide the passcode for verification?"
+    },
+    {
+      "user": "Bluebird.",
+      "agent": "Thanks. The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?"
+    },
+    {
+      "user": "No thanks, that's okay.",
+      "agent": "Okay, I won't send a text. You're all set. Have a good day."
+    }
+  ]
+}

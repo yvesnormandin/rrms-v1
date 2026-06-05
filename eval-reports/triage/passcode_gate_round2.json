@@ -1,0 +1,25 @@
+{
+  "eval_name": "passcode_gate_enforced_before_action",
+  "category": "TEXT_MISMATCH",
+  "category_overridden": false,
+  "root_cause": "Round-1 fix (Verify_Passcode step 5: refuse + re-ask passcode in the SAME response) is CONFIRMED COMPLETE and working. In the target run 523c54f6 the turn-3 re-ask scored 4/Fully-Consistent-PASS in all three runs, reproducing the golden re-ask. The remaining 1/3 failure is NOT the re-ask turn and NOT incomplete instruction (option a) and NOT paraphrase variance on the re-ask (option b). It is a DIFFERENT turn: turn 2 (first passcode request), where the agent volunteers the resolved account name ('Okay, I see your account for the Johnson Verizon Store...') which the LLM sem-judge penalizes as an 'unauthorized addition' vs the golden's generic 'could you please provide the passcode for the account?'. Critically, the agent emits the SAME turn-2 text in all three runs of 523c54f6, yet the judge scored it 2 (FAIL), 3 (PASS), and 4 (PASS) across those three runs. Identical agent behavior, different scores => borderline sem-judge non-determinism, not a deterministic agent bug. This is flaky per eval_pass_rates routing (2/3, N=3). The older run 075cbfd9 (17:20, pre-round-1 baseline) shows the original turn-3 failure mode for contrast, confirming round-1 fixed it.",
+  "evidence_quotes": [
+    {"location": "run 523c54f6 result 0 (FAIL), turn 3 re-ask, semantic_similarity_result", "quote": "score: 4 label: \"Fully Consistent\" outcome: PASS -- observed verbatim: \"I'm sorry, I do need the passcode to verify before I can cancel the alarm. What is the passcode?\""},
+    {"location": "run 523c54f6 result 0 (FAIL), turn 2, observed_agent_response", "quote": "Okay, I see your account for the Johnson Verizon Store. I can help cancel that alarm for you. First, I just need to verify your passcode. Could you please provide that for me?"},
+    {"location": "run 523c54f6 result 0 (FAIL), turn 2, semantic_similarity_result score=2 explanation", "quote": "the actual response includes an unauthorized addition of information about the identified account (\"I see your account for the Johnson Verizon Store\")... This constitutes a significant divergence in completeness"},
+    {"location": "run 523c54f6 result 1 (PASS), turn 2, observed_agent_response + score", "quote": "Okay, I see your account for the Johnson Verizon Store. ... -> score=3 (PASS) -- SAME text, scored above threshold"},
+    {"location": "run 523c54f6 result 2 (PASS), turn 2, observed_agent_response + score", "quote": "Okay, I see your account for the Johnson Verizon Store. ... -> score=4 (PASS) -- IDENTICAL text, scored Fully Consistent"},
+    {"location": "agent_dir/agents/root_agent/instruction.txt lines 124-130 (Verify_Passcode step 5)", "quote": "If the caller pushes back or asks you to proceed WITHOUT the passcode ... refuse ... AND, in the SAME response, ask for the passcode again ... Never refuse without renewing the passcode request."}
+  ],
+  "decision_tree_path": [
+    "Is the golden expectation stale (instruction changed but golden expects old phrasing)?: partially -- golden turn-2 uses generic phrasing; agent legitimately discloses resolved account name",
+    "Is the behavior inherently non-deterministic (passes 2/3)?: YES -- identical turn-2 agent text scored 2/3/4 by the sem-judge across three runs in the same run_id; the variance is judge-side, not agent-side"
+  ],
+  "suggested_fix_type": "flaky",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/evals/goldens/goldens.yaml"
+  ],
+  "fix_summary_one_line": "Do NOT touch the instruction -- round-1 step-5 fix is confirmed complete (turn-3 re-ask passes verbatim). Remaining 1/3 is sem-judge borderline variance on the turn-2 account-name disclosure (same agent text scored 2/3/4). Treat as flaky: either run more iterations, convert to sim, or relax the turn-2 golden agent text to permit naming the resolved account so the judge stops penalizing the disclosure.",
+  "needs_user_approval": false,
+  "confidence": "high"
+}

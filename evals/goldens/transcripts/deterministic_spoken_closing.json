@@ -1,0 +1,20 @@
+{
+  "name": "deterministic_spoken_closing",
+  "session_parameters": {
+    "caller_phone": "+15125550142"
+  },
+  "transcript": [
+    {
+      "user": "<event>welcome</event>",
+      "agent": "Rapid Response Monitoring. How can I help you today?"
+    },
+    {
+      "user": "I accidentally set off my alarm \u2014 can you cancel it? Passcode is Sunset.",
+      "agent": "Sure, I can help with that. Could you please provide the passcode for verification?"
+    },
+    {
+      "user": "No, that's everything. Thanks.",
+      "agent": "You're all set. Have a good day."
+    }
+  ]
+}

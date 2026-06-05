@@ -1,0 +1,951 @@
+{
+  "wall_clock_s": 283.1,
+  "parallel": 1,
+  "modality": "text",
+  "model": "gemini-3.1-flash-lite",
+  "results": [
+    {
+      "name": "wrong_passcode_two_retries_then_operator",
+      "run": 1,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 7,
+      "duration_s": 22.8,
+      "session_id": "e1480952-5b06-44f5-98e0-167a4f730d9b",
+      "session_parameters": {
+        "caller_phone": "+15125550142"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. I need you to cancel it for me.\nAgent: Sure, I can help you with that. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification? I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. I need you to cancel it for me. Sure, I can help you with that. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?\nUser: Sunrise\nAgent: I'm sorry, that passcode did not match. Could you please try again? Sunrise I'm sorry, that passcode did not match. Could you please try again?\nUser: Sunflower\nAgent: I'm sorry, that passcode did not match either. Please try again. Sunflower I'm sorry, that passcode did not match either. Please try again.\nUser: Sundown\nAgent: I'm sorry, that passcode did not match. I cannot complete your request. Would you like me to connect you with a live operator? Sundown I'm sorry, that passcode did not match. I cannot complete your request. Would you like me to connect you with a live operator?\nUser: Yes, please connect me to a live operator.\nAgent: Okay, I'm transferring you to a live operator now. Yes, please connect me to a live operator. Okay, I'm transferring you to a live operator now.\nUser: ",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. I need you to cancel it for me.",
+        "Agent Text: Sure, I can help you with that. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?\nAgent Text (Diag): I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. I need you to cancel it for me.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15125550142'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 1.0, 'status': 'success', 'accounts': [{'street_address': '742 Commerce Drive', 'has_active_alarm': True, 'account_last_digits': '118', 'branch_name': 'Johnson Verizon Store', 'account_id': 'RRMS-1001'}]}}\nAgent Text (Diag): Sure, I can help you with that. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?",
+        "User: Sunrise",
+        "Agent Text: I'm sorry, that passcode did not match. Could you please try again?\nAgent Text (Diag): Sunrise\nTool Call: verify_passcode with args {'passcode': 'Sunrise', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match. Could you please try again?",
+        "User: Sunflower",
+        "Agent Text: I'm sorry, that passcode did not match either. Please try again.\nAgent Text (Diag): Sunflower\nTool Call: verify_passcode with args {'passcode': 'Sunflower', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match either. Please try again.",
+        "User: Sundown",
+        "Agent Text: I'm sorry, that passcode did not match. I cannot complete your request. Would you like me to connect you with a live operator?\nAgent Text (Diag): Sundown\nTool Call: verify_passcode with args {'passcode': 'Sundown', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match. I cannot complete your request. Would you like me to connect you with a live operator?",
+        "User: Yes, please connect me to a live operator.",
+        "Agent Text: Okay, I'm transferring you to a live operator now.\nAgent Text (Diag): Yes, please connect me to a live operator.\nAgent Text (Diag): Okay, I'm transferring you to a live operator now."
+      ],
+      "step_details": [
+        {
+          "goal": "Cancel the alarm but fail passcode verification on all three attempts.",
+          "success_criteria": "The agent asks for the passcode, lets the caller retry after each failure, and after the third failed attempt declines to perform the action and offers to transfer to a live operator. Being offered/transferred to a live operator after the failed attempts counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The user failed all three passcode attempts and accepted the offer to speak with a live operator, successfully completing the goal criteria."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask for the account passcode before attempting to cancel the alarm.",
+          "status": "Met",
+          "justification": "The agent requested the passcode immediately after identifying the account, and never attempted to cancel the alarm."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode on each attempt.",
+          "status": "Met",
+          "justification": "For every passcode provided by the user ('Sunrise', 'Sunflower', 'Sundown'), the agent successfully called the 'verify_passcode' tool."
+        },
+        {
+          "expectation": "The agent must allow the caller to retry after each failed passcode, up to three total attempts.",
+          "status": "Met",
+          "justification": "The agent allowed two retries, totaling three attempts as per the instructions."
+        },
+        {
+          "expectation": "The agent must NOT call any tool to cancel the alarm, because the passcode was never verified.",
+          "status": "Met",
+          "justification": "The agent never initiated a tool call to cancel the alarm."
+        },
+        {
+          "expectation": "After the third failed attempt, the agent must decline to complete the request and offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "After the third failed attempt, the agent stated they could not complete the request and offered a transfer to a live operator."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent only asked for the passcode, following a logical conversational flow."
+        }
+      ]
+    },
+    {
+      "name": "wrong_passcode_two_retries_then_operator",
+      "run": 2,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 6,
+      "duration_s": 21.9,
+      "session_id": "af6b00d0-81c4-4b26-a2a2-99142bb433f2",
+      "session_parameters": {
+        "caller_phone": "+15125550142"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. Can you please cancel it for me?\nAgent: Certainly. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification? I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. Can you please cancel it for me? Certainly. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?\nUser: The passcode is Sunrise.\nAgent: I'm sorry, that passcode did not match. Could you please try again? The passcode is Sunrise. I'm sorry, that passcode did not match. Could you please try again?\nUser: The passcode is Sunflower.\nAgent: I'm sorry, that passcode did not match either. Please try again, and remember, you have one more attempt before I will need to transfer you to a live operator. The passcode is Sunflower. I'm sorry, that passcode did not match either. Please try again, and remember, you have one more attempt before I will need to transfer you to a live operator.\nUser: The passcode is Sundown.\nAgent: I'm sorry, that passcode did not match. I cannot complete your request at this time. Would you like me to transfer you to a live operator? The passcode is Sundown. I'm sorry, that passcode did not match. I cannot complete your request at this time. Would you like me to transfer you to a live operator?\nUser: Yes, please transfer me to a live operator.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. Can you please cancel it for me?",
+        "Agent Text: Certainly. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?\nAgent Text (Diag): I'm the manager of the Johnson Verizon Store and I accidentally set off the alarm. Can you please cancel it for me?\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15125550142'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 1.0, 'status': 'success', 'accounts': [{'street_address': '742 Commerce Drive', 'has_active_alarm': True, 'account_last_digits': '118', 'branch_name': 'Johnson Verizon Store', 'account_id': 'RRMS-1001'}]}}\nAgent Text (Diag): Certainly. I see you're calling about the Johnson Verizon Store. Could you please provide the passcode for verification?",
+        "User: The passcode is Sunrise.",
+        "Agent Text: I'm sorry, that passcode did not match. Could you please try again?\nAgent Text (Diag): The passcode is Sunrise.\nTool Call: verify_passcode with args {'passcode': 'Sunrise', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match. Could you please try again?",
+        "User: The passcode is Sunflower.",
+        "Agent Text: I'm sorry, that passcode did not match either. Please try again, and remember, you have one more attempt before I will need to transfer you to a live operator.\nAgent Text (Diag): The passcode is Sunflower.\nTool Call: verify_passcode with args {'passcode': 'Sunflower', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match either. Please try again, and remember, you have one more attempt before I will need to transfer you to a live operator.",
+        "User: The passcode is Sundown.",
+        "Agent Text: I'm sorry, that passcode did not match. I cannot complete your request at this time. Would you like me to transfer you to a live operator?\nAgent Text (Diag): The passcode is Sundown.\nTool Call: verify_passcode with args {'passcode': 'Sundown', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match. I cannot complete your request at this time. Would you like me to transfer you to a live operator?",
+        "User: Yes, please transfer me to a live operator.",
+        "Agent Text: Okay. I am transferring you to a live operator now.\nAgent Text (Diag): Yes, please transfer me to a live operator.\nAgent Text (Diag): Okay. I am transferring you to a live operator now.\nTool Call: end_session with args {'session_escalated': True}"
+      ],
+      "step_details": [
+        {
+          "goal": "Cancel the alarm but fail passcode verification on all three attempts.",
+          "success_criteria": "The agent asks for the passcode, lets the caller retry after each failure, and after the third failed attempt declines to perform the action and offers to transfer to a live operator. Being offered/transferred to a live operator after the failed attempts counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent offered to transfer to a live operator after the third failed attempt, fulfilling the success criteria."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask for the account passcode before attempting to cancel the alarm.",
+          "status": "Met",
+          "justification": "The agent explicitly asked for the passcode before attempting any action on the account and never attempted to cancel the alarm."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode on each attempt.",
+          "status": "Met",
+          "justification": "For every passcode provided by the user ('Sunrise', 'Sunflower', and 'Sundown'), the agent successfully executed the verify_passcode tool."
+        },
+        {
+          "expectation": "The agent must allow the caller to retry after each failed passcode, up to three total attempts.",
+          "status": "Met",
+          "justification": "The agent allowed two retries and correctly managed the three attempts as specified before proceeding to escalate."
+        },
+        {
+          "expectation": "The agent must NOT call any tool to cancel the alarm, because the passcode was never verified.",
+          "status": "Met",
+          "justification": "The agent did not call any cancellation tool; it only called verification tools and an end_session tool."
+        },
+        {
+          "expectation": "After the third failed attempt, the agent must decline to complete the request and offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "After the third unsuccessful attempt, the agent informed the user it could not complete the request and asked if they wanted to be transferred."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent requested only the passcode from the user to verify the account, following the process one step at a time."
+        }
+      ]
+    },
+    {
+      "name": "wrong_passcode_two_retries_then_operator",
+      "run": 3,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 6,
+      "duration_s": 22.2,
+      "session_id": "36b89c68-1155-41bf-9dcf-62f2a2654e15",
+      "session_parameters": {
+        "caller_phone": "+15125550142"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I'm the manager of the Johnson Verizon Store and I've accidentally set off the alarm. I need to cancel it.\nAgent: Okay, I see the Johnson Verizon Store account. Could you please provide the passcode for verification? I'm the manager of the Johnson Verizon Store and I've accidentally set off the alarm. I need to cancel it. Okay, I see the Johnson Verizon Store account. Could you please provide the passcode for verification?\nUser: The passcode is Sunrise.\nAgent: I'm sorry, that passcode didn't match. Please try again. The passcode is Sunrise. I'm sorry, that passcode didn't match. Please try again.\nUser: The passcode is Sunflower.\nAgent: That passcode didn't match either. Please try again. The passcode is Sunflower. That passcode didn't match either. Please try again.\nUser: The passcode is Sundown.\nAgent: I'm sorry, that passcode did not match. I cannot complete the request. I can connect you with a live operator if you'd like. The passcode is Sundown. I'm sorry, that passcode did not match. I cannot complete the request. I can connect you with a live operator if you'd like.\nUser: Yes, please connect me to a live operator.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I'm the manager of the Johnson Verizon Store and I've accidentally set off the alarm. I need to cancel it.",
+        "Agent Text: Okay, I see the Johnson Verizon Store account. Could you please provide the passcode for verification?\nAgent Text (Diag): I'm the manager of the Johnson Verizon Store and I've accidentally set off the alarm. I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15125550142'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 1.0, 'status': 'success', 'accounts': [{'street_address': '742 Commerce Drive', 'has_active_alarm': True, 'account_last_digits': '118', 'branch_name': 'Johnson Verizon Store', 'account_id': 'RRMS-1001'}]}}\nAgent Text (Diag): Okay, I see the Johnson Verizon Store account. Could you please provide the passcode for verification?",
+        "User: The passcode is Sunrise.",
+        "Agent Text: I'm sorry, that passcode didn't match. Please try again.\nAgent Text (Diag): The passcode is Sunrise.\nTool Call: verify_passcode with args {'passcode': 'Sunrise', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode didn't match. Please try again.",
+        "User: The passcode is Sunflower.",
+        "Agent Text: That passcode didn't match either. Please try again.\nAgent Text (Diag): The passcode is Sunflower.\nTool Call: verify_passcode with args {'passcode': 'Sunflower', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): That passcode didn't match either. Please try again.",
+        "User: The passcode is Sundown.",
+        "Agent Text: I'm sorry, that passcode did not match. I cannot complete the request. I can connect you with a live operator if you'd like.\nAgent Text (Diag): The passcode is Sundown.\nTool Call: verify_passcode with args {'passcode': 'Sundown', 'account_id': 'RRMS-1001'}\nTool Response: verify_passcode with result {'result': {'verified': False, 'status': 'success', 'agent_action': 'Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.'}}\nAgent Text (Diag): I'm sorry, that passcode did not match. I cannot complete the request. I can connect you with a live operator if you'd like.",
+        "User: Yes, please connect me to a live operator.",
+        "Agent Text: Thank you for calling Rapid Response Monitoring. Have a great day!\nAgent Text (Diag): Yes, please connect me to a live operator.\nAgent Text (Diag): Thank you for calling Rapid Response Monitoring. Have a great day!\nTool Call: end_session with args {'reason': 'The caller reached the maximum number of passcode attempts.', 'session_escalated': True}"
+      ],
+      "step_details": [
+        {
+          "goal": "Cancel the alarm but fail passcode verification on all three attempts.",
+          "success_criteria": "The agent asks for the passcode, lets the caller retry after each failure, and after the third failed attempt declines to perform the action and offers to transfer to a live operator. Being offered/transferred to a live operator after the failed attempts counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent offered to transfer to a live operator after the third failed passcode attempt; user accepted the transfer as instructed."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask for the account passcode before attempting to cancel the alarm.",
+          "status": "Met",
+          "justification": "The agent explicitly asked for the passcode before attempting any further actions on the account."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode on each attempt.",
+          "status": "Met",
+          "justification": "The agent called 'verify_passcode' for each of the three passcode attempts (Sunrise, Sunflower, Sundown)."
+        },
+        {
+          "expectation": "The agent must allow the caller to retry after each failed passcode, up to three total attempts.",
+          "status": "Met",
+          "justification": "The agent allowed two retries, totaling three attempts, before concluding the passcode process."
+        },
+        {
+          "expectation": "The agent must NOT call any tool to cancel the alarm, because the passcode was never verified.",
+          "status": "Met",
+          "justification": "No cancellation tool was called; the agent correctly identified that the passcode was not verified."
+        },
+        {
+          "expectation": "After the third failed attempt, the agent must decline to complete the request and offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "After the third failed attempt, the agent stated they could not complete the request and offered a transfer to a live operator."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent handled the verification process step by step, only asking for the passcode after identifying the account."
+        }
+      ]
+    },
+    {
+      "name": "unknown_caller_offer_operator_transfer",
+      "run": 1,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "4/4",
+      "turns": 3,
+      "duration_s": 12.1,
+      "session_id": "05848f4d-80a9-4ba2-8f6b-846fdf7c2879",
+      "session_parameters": {
+        "caller_phone": "+15555550000"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: Hi, I think my alarm went off and I need to cancel it.\nAgent: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator? Hi, I think my alarm went off and I need to cancel it. I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nUser: Yes, please transfer me.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: Hi, I think my alarm went off and I need to cancel it.",
+        "Agent Text: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nAgent Text (Diag): Hi, I think my alarm went off and I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15555550000'}\nTool Response: lookup_accounts_by_caller with result {'result': {'agent_action': 'Apologize that you cannot locate an account for this number and offer to transfer the caller to a live operator.', 'status': 'error', 'error': 'No account linked to this phone number.'}}\nAgent Text (Diag): I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?",
+        "User: Yes, please transfer me.",
+        "Agent Text: Thank you for calling Rapid Response Monitoring. Have a great day!\nAgent Text (Diag): Yes, please transfer me.\nAgent Text (Diag): Thank you for calling Rapid Response Monitoring. Have a great day!\nTool Call: end_session with args {'reason': \"The caller's account could not be found based on their phone number.\", 'session_escalated': True}"
+      ],
+      "step_details": [
+        {
+          "goal": "Try to get help, but the calling number is not linked to any account.",
+          "success_criteria": "The agent attempts to look up the account, cannot find one for this number, apologizes, and offers to transfer the caller to a live operator. Being offered/transferred to a live operator counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent offered to transfer to a live operator, meeting the success criteria. User is accepting the transfer to complete the step."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must call a tool to look up the account by the caller's phone number.",
+          "status": "Met",
+          "justification": "The agent executed the lookup_accounts_by_caller tool with the caller's phone number."
+        },
+        {
+          "expectation": "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found.",
+          "status": "Met",
+          "justification": "The agent did not request a passcode nor attempt to perform any alarm cancellation or testing actions."
+        },
+        {
+          "expectation": "The agent must apologize that it cannot locate an account for this number.",
+          "status": "Met",
+          "justification": "The agent explicitly stated, 'I am sorry, I cannot locate an account for this phone number.'"
+        },
+        {
+          "expectation": "The agent must offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "The agent asked, 'Would you like me to transfer you to a live operator?'"
+        }
+      ]
+    },
+    {
+      "name": "unknown_caller_offer_operator_transfer",
+      "run": 2,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "4/4",
+      "turns": 3,
+      "duration_s": 12.6,
+      "session_id": "d1c6fea4-b07c-45aa-b83f-e0d118e5228d",
+      "session_parameters": {
+        "caller_phone": "+15555550000"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: Hi, I think my alarm went off at my house and I really need to get it canceled.\nAgent: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator? Hi, I think my alarm went off at my house and I really need to get it canceled. I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nUser: Yes, please, that would be great.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: Hi, I think my alarm went off at my house and I really need to get it canceled.",
+        "Agent Text: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nAgent Text (Diag): Hi, I think my alarm went off at my house and I really need to get it canceled.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15555550000'}\nTool Response: lookup_accounts_by_caller with result {'result': {'agent_action': 'Apologize that you cannot locate an account for this number and offer to transfer the caller to a live operator.', 'status': 'error', 'error': 'No account linked to this phone number.'}}\nAgent Text (Diag): I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?",
+        "User: Yes, please, that would be great.",
+        "Agent Text: Thank you for calling Rapid Response Monitoring. Have a great day!\nAgent Text (Diag): Yes, please, that would be great.\nAgent Text (Diag): Thank you for calling Rapid Response Monitoring. Have a great day!\nTool Call: end_session with args {'reason': \"The customer's account could not be found, and they opted to be transferred to a live operator.\", 'session_escalated': True}"
+      ],
+      "step_details": [
+        {
+          "goal": "Try to get help, but the calling number is not linked to any account.",
+          "success_criteria": "The agent attempts to look up the account, cannot find one for this number, apologizes, and offers to transfer the caller to a live operator. Being offered/transferred to a live operator counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent met the success criteria by offering a transfer, and the user has accepted the transfer, successfully completing the goal."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must call a tool to look up the account by the caller's phone number.",
+          "status": "Met",
+          "justification": "The agent executed the tool lookup_accounts_by_caller after the user stated the purpose of their call."
+        },
+        {
+          "expectation": "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found.",
+          "status": "Met",
+          "justification": "The agent acknowledged the error and did not request a passcode or attempt to process a cancellation, consistent with the inability to find the account."
+        },
+        {
+          "expectation": "The agent must apologize that it cannot locate an account for this number.",
+          "status": "Met",
+          "justification": "The agent explicitly stated, 'I am sorry, I cannot locate an account for this phone number.'"
+        },
+        {
+          "expectation": "The agent must offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "The agent asked, 'Would you like me to transfer you to a live operator?' following the lookup failure."
+        }
+      ]
+    },
+    {
+      "name": "unknown_caller_offer_operator_transfer",
+      "run": 3,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "4/4",
+      "turns": 3,
+      "duration_s": 12.8,
+      "session_id": "520e99b3-8ba7-43a5-a1e4-8925e8fb1b98",
+      "session_parameters": {
+        "caller_phone": "+15555550000"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: Hi, I think my alarm went off and I need to cancel it.\nAgent: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator? Hi, I think my alarm went off and I need to cancel it. I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nUser: Yes, please transfer me to a live operator.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: Hi, I think my alarm went off and I need to cancel it.",
+        "Agent Text: I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?\nAgent Text (Diag): Hi, I think my alarm went off and I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+15555550000'}\nTool Response: lookup_accounts_by_caller with result {'result': {'agent_action': 'Apologize that you cannot locate an account for this number and offer to transfer the caller to a live operator.', 'status': 'error', 'error': 'No account linked to this phone number.'}}\nAgent Text (Diag): I am sorry, I cannot locate an account for this phone number. Would you like me to transfer you to a live operator?",
+        "User: Yes, please transfer me to a live operator.",
+        "Agent Text: Thank you for calling Rapid Response Monitoring. Have a great day!\nAgent Text (Diag): Yes, please transfer me to a live operator.\nAgent Text (Diag): Thank you for calling Rapid Response Monitoring. Have a great day!\nTool Call: end_session with args {'reason': \"The caller's account could not be found based on their phone number.\", 'session_escalated': True}"
+      ],
+      "step_details": [
+        {
+          "goal": "Try to get help, but the calling number is not linked to any account.",
+          "success_criteria": "The agent attempts to look up the account, cannot find one for this number, apologizes, and offers to transfer the caller to a live operator. Being offered/transferred to a live operator counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent met the success criteria by offering a transfer to a live operator; the user accepted the transfer."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must call a tool to look up the account by the caller's phone number.",
+          "status": "Met",
+          "justification": "The agent called the lookup_accounts_by_caller tool with the caller's phone number."
+        },
+        {
+          "expectation": "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found.",
+          "status": "Met",
+          "justification": "The agent correctly identified that no account was found and did not proceed with any account-sensitive actions."
+        },
+        {
+          "expectation": "The agent must apologize that it cannot locate an account for this number.",
+          "status": "Met",
+          "justification": "The agent explicitly stated 'I am sorry, I cannot locate an account for this phone number.'"
+        },
+        {
+          "expectation": "The agent must offer to transfer the caller to a live operator.",
+          "status": "Met",
+          "justification": "The agent asked 'Would you like me to transfer you to a live operator?'"
+        }
+      ]
+    },
+    {
+      "name": "declines_sms_after_on_test",
+      "run": 1,
+      "passed": false,
+      "goals": "0/1",
+      "expectations": "6/6",
+      "turns": 5,
+      "duration_s": 20.1,
+      "session_id": "c20d48ec-f7b3-4cee-8527-5b3c39f985d5",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put my Dallas branch at 123 Main Street on test for one hour.\nAgent: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street? I need to put my Dallas branch at 123 Main Street on test for one hour. Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the correct branch.\nAgent: Great. Could you please provide the passcode for verification? Yes, that is the correct branch. Great. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well? Bluebird Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nUser: No thanks, that's not necessary.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put my Dallas branch at 123 Main Street on test for one hour.",
+        "Agent Text: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I need to put my Dallas branch at 123 Main Street on test for one hour.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the correct branch.",
+        "Agent Text: Great. Could you please provide the passcode for verification?\nAgent Text (Diag): Yes, that is the correct branch.\nAgent Text (Diag): Great. Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n\nAgent Text: The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n\nTool Call: put_account_on_test with args {'duration_label': 'one hour', 'duration_minutes': 60.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'one hour', 'message': 'The branch account ending in 345 is now on test for one hour.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 60.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?",
+        "User: No thanks, that's not necessary.",
+        "Agent Text: You got it. No text will be sent. You're all set. Have a good day.\nAgent Text (Diag): No thanks, that's not necessary.\nAgent Text (Diag): You got it. No text will be sent. You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user has completed their request to put a branch on test and declined SMS confirmation.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Put the Dallas branch on test for one hour, then decline the SMS confirmation offer.",
+          "success_criteria": "The agent disambiguates to the Dallas branch, verifies the passcode, puts the branch on test for one hour, offers an SMS confirmation, and when the caller declines, confirms verbally that no text will be sent and closes normally. Completing the on-test and closing without sending an SMS counts as a successful outcome.\n",
+          "status": "In Progress",
+          "justification": "Agent offered an SMS confirmation; user is declining per the response guide."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the specific branch (Dallas at 123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent explicitly asked 'Did you mean the Dallas branch at 123 Main Street?' and received confirmation before requesting the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The agent called the 'verify_passcode' tool after receiving 'Bluebird' and prior to calling 'put_account_on_test'."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for one hour.",
+          "status": "Met",
+          "justification": "The agent called 'put_account_on_test' with 'duration_minutes': 60.0, which corresponds to one hour."
+        },
+        {
+          "expectation": "The agent must offer an SMS confirmation after the on-test action.",
+          "status": "Met",
+          "justification": "Immediately after the success message for putting the account on test, the agent asked: 'Would you like me to send a confirmation text as well?'"
+        },
+        {
+          "expectation": "The agent must NOT call any tool to send an SMS, because the caller declined.",
+          "status": "Met",
+          "justification": "The user declined the SMS, and the agent did not execute any SMS-sending tool calls."
+        },
+        {
+          "expectation": "The agent must verbally confirm that no text will be sent and then close the call.",
+          "status": "Met",
+          "justification": "The agent stated 'No text will be sent. You're all set. Have a good day.' and then properly executed the 'end_session' tool."
+        }
+      ]
+    },
+    {
+      "name": "declines_sms_after_on_test",
+      "run": 2,
+      "passed": false,
+      "goals": "0/1",
+      "expectations": "6/6",
+      "turns": 5,
+      "duration_s": 20.0,
+      "session_id": "b4599041-6cab-4846-a659-4a350ebd0a3c",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put my Dallas branch at 123 Main Street on test for one hour.\nAgent: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street? I need to put my Dallas branch at 123 Main Street on test for one hour. Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the correct branch.\nAgent: Great. Could you please provide the passcode for verification? Yes, that is the correct branch. Great. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well? Bluebird Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nUser: No thanks, that's not necessary.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put my Dallas branch at 123 Main Street on test for one hour.",
+        "Agent Text: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I need to put my Dallas branch at 123 Main Street on test for one hour.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the correct branch.",
+        "Agent Text: Great. Could you please provide the passcode for verification?\nAgent Text (Diag): Yes, that is the correct branch.\nAgent Text (Diag): Great. Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n\nAgent Text: The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thanks. The passcode is verified. I'll put the Dallas branch on test for one hour.\n\nTool Call: put_account_on_test with args {'duration_label': 'one hour', 'duration_minutes': 60.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'one hour', 'message': 'The branch account ending in 345 is now on test for one hour.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 60.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?",
+        "User: No thanks, that's not necessary.",
+        "Agent Text: You got it. No text will be sent. You're all set. Have a good day.\nAgent Text (Diag): No thanks, that's not necessary.\nAgent Text (Diag): You got it. No text will be sent. You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user has completed their request to put a branch on test and declined SMS confirmation.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Put the Dallas branch on test for one hour, then decline the SMS confirmation offer.",
+          "success_criteria": "The agent disambiguates to the Dallas branch, verifies the passcode, puts the branch on test for one hour, offers an SMS confirmation, and when the caller declines, confirms verbally that no text will be sent and closes normally. Completing the on-test and closing without sending an SMS counts as a successful outcome.\n",
+          "status": "In Progress",
+          "justification": "The agent offered an SMS confirmation; I am declining it as per the response guide."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the specific branch (Dallas at 123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent explicitly asks, 'Did you mean the Dallas branch at 123 Main Street?' before proceeding to request the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The verify_passcode tool was called successfully before the put_account_on_test tool was invoked."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for one hour.",
+          "status": "Met",
+          "justification": "The agent called put_account_on_test with duration_minutes set to 60.0 (one hour)."
+        },
+        {
+          "expectation": "The agent must offer an SMS confirmation after the on-test action.",
+          "status": "Met",
+          "justification": "After successfully putting the branch on test, the agent asked, 'Would you like me to send a confirmation text as well?'"
+        },
+        {
+          "expectation": "The agent must NOT call any tool to send an SMS, because the caller declined.",
+          "status": "Met",
+          "justification": "The user declined the offer, and no SMS-related tool was called in the trace."
+        },
+        {
+          "expectation": "The agent must verbally confirm that no text will be sent and then close the call.",
+          "status": "Met",
+          "justification": "The agent confirmed 'No text will be sent' and ended the session via the end_session tool."
+        }
+      ]
+    },
+    {
+      "name": "declines_sms_after_on_test",
+      "run": 3,
+      "passed": false,
+      "goals": "0/1",
+      "expectations": "6/6",
+      "turns": 4,
+      "duration_s": 16.6,
+      "session_id": "e6f7bb42-b5a4-47d0-8019-6a450d57b4ae",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put my Dallas branch at 123 Main Street on test for one hour, please.\nAgent: Certainly, I can help you with that. So, you'd like to put the Dallas branch at 123 Main Street on test for one hour. Could you please provide the passcode for verification? I need to put my Dallas branch at 123 Main Street on test for one hour, please. Certainly, I can help you with that. So, you'd like to put the Dallas branch at 123 Main Street on test for one hour. Could you please provide the passcode for verification?\nUser: The passcode is Bluebird.\nAgent: Thank you. The passcode has been verified.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well? The passcode is Bluebird. Thank you. The passcode has been verified.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nUser: No thanks, that's not necessary.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put my Dallas branch at 123 Main Street on test for one hour, please.",
+        "Agent Text: Certainly, I can help you with that. So, you'd like to put the Dallas branch at 123 Main Street on test for one hour. Could you please provide the passcode for verification?\nAgent Text (Diag): I need to put my Dallas branch at 123 Main Street on test for one hour, please.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Certainly, I can help you with that. So, you'd like to put the Dallas branch at 123 Main Street on test for one hour. Could you please provide the passcode for verification?",
+        "User: The passcode is Bluebird.",
+        "Agent Text: Thank you. The passcode has been verified.\n\nAgent Text: The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?\nAgent Text (Diag): The passcode is Bluebird.\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thank you. The passcode has been verified.\n\nTool Call: put_account_on_test with args {'duration_label': 'one hour', 'duration_minutes': 60.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'one hour', 'message': 'The branch account ending in 345 is now on test for one hour.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 60.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?",
+        "User: No thanks, that's not necessary.",
+        "Agent Text: Sure. You're all set. Have a good day.\nAgent Text (Diag): No thanks, that's not necessary.\nAgent Text (Diag): Sure. You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user has completed their request to put a branch on test and declined SMS confirmation.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Put the Dallas branch on test for one hour, then decline the SMS confirmation offer.",
+          "success_criteria": "The agent disambiguates to the Dallas branch, verifies the passcode, puts the branch on test for one hour, offers an SMS confirmation, and when the caller declines, confirms verbally that no text will be sent and closes normally. Completing the on-test and closing without sending an SMS counts as a successful outcome.\n",
+          "status": "In Progress",
+          "justification": "The agent offered a confirmation text; the user is now declining it as per the response guide."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the specific branch (Dallas at 123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent explicitly repeated 'the Dallas branch at 123 Main Street' in the response before asking for the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The agent called 'verify_passcode' before executing the 'put_account_on_test' tool."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for one hour.",
+          "status": "Met",
+          "justification": "The agent called 'put_account_on_test' with the correct arguments (60 minutes/one hour)."
+        },
+        {
+          "expectation": "The agent must offer an SMS confirmation after the on-test action.",
+          "status": "Met",
+          "justification": "Immediately after performing the on-test action, the agent asked: 'Would you like me to send a confirmation text as well?'"
+        },
+        {
+          "expectation": "The agent must NOT call any tool to send an SMS, because the caller declined.",
+          "status": "Met",
+          "justification": "The user declined the text, and the trace confirms no SMS tool was called."
+        },
+        {
+          "expectation": "The agent must verbally confirm that no text will be sent and then close the call.",
+          "status": "Met",
+          "justification": "The agent acknowledged the user's decline with 'Sure. You're all set. Have a good day.' and then proceeded to end the session."
+        }
+      ]
+    },
+    {
+      "name": "missing_on_test_duration_agent_asks",
+      "run": 1,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "5/5",
+      "turns": 6,
+      "duration_s": 21.1,
+      "session_id": "ec7b4b7a-44f9-421d-b675-c7f26d3dceaf",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put the Dallas branch on test.\nAgent: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street? I need to put the Dallas branch on test. Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the correct branch.\nAgent: What is the passcode for verification? Yes, that is the correct branch. What is the passcode for verification?\nUser: Bluebird\nAgent: Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test? Bluebird Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?\nUser: two hours\nAgent: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well? two hours The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nUser: No, thank you. That is all I needed.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put the Dallas branch on test.",
+        "Agent Text: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I need to put the Dallas branch on test.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the correct branch.",
+        "Agent Text: What is the passcode for verification?\nAgent Text (Diag): Yes, that is the correct branch.\nAgent Text (Diag): What is the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?",
+        "User: two hours",
+        "Agent Text: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nAgent Text (Diag): two hours\nTool Call: put_account_on_test with args {'duration_label': 'two hours', 'duration_minutes': 120.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'two hours', 'message': 'The branch account ending in 345 is now on test for two hours.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 120.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?",
+        "User: No, thank you. That is all I needed.",
+        "Agent Text: You got it. Have a good day!\nAgent Text (Diag): No, thank you. That is all I needed.\nAgent Text (Diag): You got it. Have a good day!\nTool Call: end_session with args {'reason': 'The user successfully put their account on test and declined SMS confirmation.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to put the Dallas branch on test without stating a duration; provide one when asked.",
+          "success_criteria": "The agent recognizes no duration was given, asks the caller for one, accepts a valid duration (within 30 minutes to 8 hours), and proceeds to put the branch on test for that duration after verifying the passcode. Getting the branch put on test for the provided duration counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The goal was met; the branch was put on test for the requested duration and the user declined the optional SMS confirmation."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask the caller for a test duration, because none was provided.",
+          "status": "Met",
+          "justification": "After the passcode was verified, the agent explicitly asked: 'For how long would you like to put the Dallas branch on test?'"
+        },
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent asked 'Did you mean the Dallas branch at 123 Main Street?' and received confirmation from the user before proceeding to request the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The agent called 'verify_passcode' immediately after the user provided the passcode, which occurred before the 'put_account_on_test' tool was called."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for the two-hour duration the caller provided.",
+          "status": "Met",
+          "justification": "The agent called 'put_account_on_test' with arguments duration_label 'two hours' and duration_minutes 120.0, matching the user request."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent gathered information sequentially: first identifying the specific branch, then requesting the passcode, then asking for the duration, and finally offering an optional confirmation text."
+        }
+      ]
+    },
+    {
+      "name": "missing_on_test_duration_agent_asks",
+      "run": 2,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "5/5",
+      "turns": 6,
+      "duration_s": 20.6,
+      "session_id": "9439b3c1-d294-45fb-b0ca-8f6664dd745a",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put the Dallas branch on test\nAgent: Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test? I need to put the Dallas branch on test Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?\nUser: I'm referring to the Dallas branch at 123 Main Street.\nAgent: Got it. And what is the passcode for verification? I'm referring to the Dallas branch at 123 Main Street. Got it. And what is the passcode for verification?\nUser: Bluebird\nAgent: Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test? Bluebird Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?\nUser: two hours\nAgent: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well? two hours The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nUser: No, that is not necessary, thank you.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put the Dallas branch on test",
+        "Agent Text: Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?\nAgent Text (Diag): I need to put the Dallas branch on test\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?",
+        "User: I'm referring to the Dallas branch at 123 Main Street.",
+        "Agent Text: Got it. And what is the passcode for verification?\nAgent Text (Diag): I'm referring to the Dallas branch at 123 Main Street.\nAgent Text (Diag): Got it. And what is the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thank you. The passcode has been verified. For how long would you like to put the Dallas branch on test?",
+        "User: two hours",
+        "Agent Text: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nAgent Text (Diag): two hours\nTool Call: put_account_on_test with args {'duration_label': 'two hours', 'duration_minutes': 120.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'two hours', 'message': 'The branch account ending in 345 is now on test for two hours.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 120.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?",
+        "User: No, that is not necessary, thank you.",
+        "Agent Text: Sure. You're all set. Have a good day.\nAgent Text (Diag): No, that is not necessary, thank you.\nAgent Text (Diag): Sure. You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user declined SMS confirmation after placing an account on test.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to put the Dallas branch on test without stating a duration; provide one when asked.",
+          "success_criteria": "The agent recognizes no duration was given, asks the caller for one, accepts a valid duration (within 30 minutes to 8 hours), and proceeds to put the branch on test for that duration after verifying the passcode. Getting the branch put on test for the provided duration counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "Step goal achieved: Agent confirmed the Dallas branch on test for two hours. User declined SMS confirmation to finalize the interaction."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask the caller for a test duration, because none was provided.",
+          "status": "Met",
+          "justification": "The agent asked for the duration after the passcode was verified, as the user did not provide it initially."
+        },
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent successfully identified the Dallas branch at 123 Main Street and confirmed it with the user before asking for the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The agent called the verify_passcode tool prior to calling the put_account_on_test tool."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for the two-hour duration the caller provided.",
+          "status": "Met",
+          "justification": "The agent called put_account_on_test with duration_label='two hours' and duration_minutes=120.0."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent handled the interaction sequentially, first identifying the account/branch, then requesting the passcode, then asking for the duration."
+        }
+      ]
+    },
+    {
+      "name": "missing_on_test_duration_agent_asks",
+      "run": 3,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "5/5",
+      "turns": 6,
+      "duration_s": 24.0,
+      "session_id": "3642f7ea-0c0f-4f76-8a51-c88a17338e14",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I need to put the Dallas branch on test\nAgent: Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test? I need to put the Dallas branch on test Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?\nUser: I'd like to confirm the Dallas branch at 123 Main Street.\nAgent: Sure. Could you please provide the passcode for verification? I'd like to confirm the Dallas branch at 123 Main Street. Sure. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Thanks. What duration would you like to put the Dallas branch on test for? Bluebird Thanks. What duration would you like to put the Dallas branch on test for?\nUser: two hours\nAgent: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well? two hours The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nUser: No, thank you, that's all I need.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I need to put the Dallas branch on test",
+        "Agent Text: Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?\nAgent Text (Diag): I need to put the Dallas branch on test\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches: Dallas at 123 Main Street, Fort Worth at 456 Oak Avenue, and Plano at 789 Elm Street. Which one would you like to put on test?",
+        "User: I'd like to confirm the Dallas branch at 123 Main Street.",
+        "Agent Text: Sure. Could you please provide the passcode for verification?\nAgent Text (Diag): I'd like to confirm the Dallas branch at 123 Main Street.\nAgent Text (Diag): Sure. Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thanks. What duration would you like to put the Dallas branch on test for?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thanks. What duration would you like to put the Dallas branch on test for?",
+        "User: two hours",
+        "Agent Text: The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?\nAgent Text (Diag): two hours\nTool Call: put_account_on_test with args {'duration_label': 'two hours', 'duration_minutes': 120.0}\nTool Response: put_account_on_test with result {'result': {'duration_label': 'two hours', 'message': 'The branch account ending in 345 is now on test for two hours.', 'account_last_digits': '345', 'branch_name': 'Dallas', 'on_test': True, 'duration_minutes': 120.0, 'status': 'success'}}\nAgent Text (Diag): The Dallas branch account ending in 345 is now on test for two hours. Would you like me to send a confirmation text as well?",
+        "User: No, thank you, that's all I need.",
+        "Agent Text: You're all set. Have a good day.\nAgent Text (Diag): No, thank you, that's all I need.\nAgent Text (Diag): You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user has completed their request and does not require any further assistance.'}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to put the Dallas branch on test without stating a duration; provide one when asked.",
+          "success_criteria": "The agent recognizes no duration was given, asks the caller for one, accepts a valid duration (within 30 minutes to 8 hours), and proceeds to put the branch on test for that duration after verifying the passcode. Getting the branch put on test for the provided duration counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "Goal achieved; the branch is on test for the requested duration and the user declined the optional SMS confirmation."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must ask the caller for a test duration, because none was provided.",
+          "status": "Met",
+          "justification": "After verifying the passcode, the agent explicitly asked 'What duration would you like to put the Dallas branch on test for?' which occurred before the user provided 'two hours'."
+        },
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent identified the branches, the user confirmed the Dallas branch at 123 Main Street, and only after that confirmation did the agent request the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before putting the branch on test.",
+          "status": "Met",
+          "justification": "The tool 'verify_passcode' was called after receiving the passcode 'Bluebird' and before the 'put_account_on_test' tool was invoked."
+        },
+        {
+          "expectation": "The agent must call a tool to put the Dallas branch on test for the two-hour duration the caller provided.",
+          "status": "Met",
+          "justification": "The agent called 'put_account_on_test' with 'duration_label': 'two hours' and 'duration_minutes': 120.0 after the user specified the duration."
+        },
+        {
+          "expectation": "The agent must ask for information one piece at a time, not all at once.",
+          "status": "Met",
+          "justification": "The agent asked for the branch selection, then the passcode, then the duration in separate steps, following a logical conversational flow."
+        }
+      ]
+    },
+    {
+      "name": "no_active_alarm_to_cancel",
+      "run": 1,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 5,
+      "duration_s": 18.6,
+      "session_id": "bf92d2e7-4a79-44c3-92c1-06cfb923c4cc",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I think the alarm at my Dallas branch went off and I need to cancel it.\nAgent: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street? I think the alarm at my Dallas branch went off and I need to cancel it. Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the correct branch.\nAgent: Sure. Could you please provide the passcode for verification? Yes, that is the correct branch. Sure. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Thank you. The passcode has been verified.\n I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today? Bluebird Thank you. The passcode has been verified.\n I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?\nUser: Oh, I see. That's all I needed, thank you.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I think the alarm at my Dallas branch went off and I need to cancel it.",
+        "Agent Text: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I think the alarm at my Dallas branch went off and I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the correct branch.",
+        "Agent Text: Sure. Could you please provide the passcode for verification?\nAgent Text (Diag): Yes, that is the correct branch.\nAgent Text (Diag): Sure. Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thank you. The passcode has been verified.\n\nAgent Text: I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thank you. The passcode has been verified.\n\nTool Call: cancel_alarm with args {}\nTool Response: cancel_alarm with result {'result': {'status': 'no_active_alarm', 'branch_name': 'Dallas', 'agent_action': 'Inform the caller there is no active alarm signal on the account and nothing to cancel, then offer further help.'}}\nAgent Text (Diag): I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?",
+        "User: Oh, I see. That's all I needed, thank you.",
+        "Agent Text: You're all set. Have a good day.\nAgent Text (Diag): Oh, I see. That's all I needed, thank you.\nAgent Text (Diag): You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user indicated they had no further requests after their alarm cancellation request was completed.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to cancel an alarm on a branch that has no active alarm signal.",
+          "success_criteria": "After the passcode is verified, the agent attempts to cancel and learns there is no active alarm; it informs the caller there is no active alarm signal and nothing to cancel, then offers further help. Being told there is nothing to cancel and offered further help counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent confirmed there was no active alarm and offered further help; the user responded according to the response guide, completing the goal."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent specifically asked 'Did you mean the Dallas branch at 123 Main Street?' before requesting the passcode in the following turn."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before attempting to cancel.",
+          "status": "Met",
+          "justification": "The verify_passcode tool was called successfully before any cancellation attempt was made."
+        },
+        {
+          "expectation": "The agent must call a tool to attempt to cancel the alarm on the verified account.",
+          "status": "Met",
+          "justification": "The agent called the cancel_alarm tool after verifying the passcode."
+        },
+        {
+          "expectation": "The agent must inform the caller there is no active alarm signal on the account and nothing to cancel.",
+          "status": "Met",
+          "justification": "The agent explicitly stated, 'I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel.'"
+        },
+        {
+          "expectation": "The agent must NOT falsely claim an alarm was canceled.",
+          "status": "Met",
+          "justification": "The agent correctly informed the user that there was nothing to cancel rather than claiming it was successfully canceled."
+        },
+        {
+          "expectation": "The agent must offer further help after reporting there is nothing to cancel.",
+          "status": "Met",
+          "justification": "The agent followed the notification of no active alarm by asking, 'Is there anything else I can help you with today?'"
+        }
+      ]
+    },
+    {
+      "name": "no_active_alarm_to_cancel",
+      "run": 2,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 5,
+      "duration_s": 18.9,
+      "session_id": "76a77bdb-1c33-406e-81af-3f2ef7746697",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I think the alarm at my Dallas branch went off and I need to cancel it.\nAgent: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street? I think the alarm at my Dallas branch went off and I need to cancel it. Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the correct branch.\nAgent: Sure. Could you please provide the passcode for verification? Yes, that is the correct branch. Sure. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Thank you. The passcode has been verified.\n I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today? Bluebird Thank you. The passcode has been verified.\n I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?\nUser: That is all I needed. Thank you.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I think the alarm at my Dallas branch went off and I need to cancel it.",
+        "Agent Text: Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I think the alarm at my Dallas branch went off and I need to cancel it.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the correct branch.",
+        "Agent Text: Sure. Could you please provide the passcode for verification?\nAgent Text (Diag): Yes, that is the correct branch.\nAgent Text (Diag): Sure. Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Thank you. The passcode has been verified.\n\nAgent Text: I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Thank you. The passcode has been verified.\n\nTool Call: cancel_alarm with args {}\nTool Response: cancel_alarm with result {'result': {'status': 'no_active_alarm', 'branch_name': 'Dallas', 'agent_action': 'Inform the caller there is no active alarm signal on the account and nothing to cancel, then offer further help.'}}\nAgent Text (Diag): I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel. Is there anything else I can help you with today?",
+        "User: That is all I needed. Thank you.",
+        "Agent Text: You're all set. Have a good day.\nAgent Text (Diag): That is all I needed. Thank you.\nAgent Text (Diag): You're all set. Have a good day.\nTool Call: end_session with args {'reason': 'The user indicated they had no further requests after their alarm cancellation request was completed.', 'session_escalated': False}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to cancel an alarm on a branch that has no active alarm signal.",
+          "success_criteria": "After the passcode is verified, the agent attempts to cancel and learns there is no active alarm; it informs the caller there is no active alarm signal and nothing to cancel, then offers further help. Being told there is nothing to cancel and offered further help counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "Agent informed the user there is no active alarm and offered further help; user has acknowledged and finished the interaction as per the response guide."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent asked 'Did you mean the Dallas branch at 123 Main Street?' and waited for confirmation before proceeding to request the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before attempting to cancel.",
+          "status": "Met",
+          "justification": "The agent performed the 'verify_passcode' tool call before executing the 'cancel_alarm' tool call."
+        },
+        {
+          "expectation": "The agent must call a tool to attempt to cancel the alarm on the verified account.",
+          "status": "Met",
+          "justification": "The agent called the 'cancel_alarm' tool after verifying the account."
+        },
+        {
+          "expectation": "The agent must inform the caller there is no active alarm signal on the account and nothing to cancel.",
+          "status": "Met",
+          "justification": "The agent clearly stated: 'I'm showing there is no active alarm signal on the Dallas account right now, so there's nothing to cancel.'"
+        },
+        {
+          "expectation": "The agent must NOT falsely claim an alarm was canceled.",
+          "status": "Met",
+          "justification": "The agent accurately reported that no alarm was found and did not falsely state that any cancellation occurred."
+        },
+        {
+          "expectation": "The agent must offer further help after reporting there is nothing to cancel.",
+          "status": "Met",
+          "justification": "After informing the user there was no alarm to cancel, the agent explicitly asked: 'Is there anything else I can help you with today?'"
+        }
+      ]
+    },
+    {
+      "name": "no_active_alarm_to_cancel",
+      "run": 3,
+      "passed": true,
+      "goals": "1/1",
+      "expectations": "6/6",
+      "turns": 5,
+      "duration_s": 18.9,
+      "session_id": "0a9b4091-728e-4d83-90ac-8c49ed80c3d0",
+      "session_parameters": {
+        "caller_phone": "+12145550199"
+      },
+      "transcript": "User: Hi\nAgent: Rapid Response Monitoring. How can I help you today? Hi Rapid Response Monitoring. How can I help you today?\nUser: I think the alarm at my Dallas branch went off and I need to get it canceled.\nAgent: Okay, I see you have three branches: Dallas, Fort Worth, and Plano. Did you mean the Dallas branch at 123 Main Street? I think the alarm at my Dallas branch went off and I need to get it canceled. Okay, I see you have three branches: Dallas, Fort Worth, and Plano. Did you mean the Dallas branch at 123 Main Street?\nUser: Yes, that is the Dallas branch at 123 Main Street.\nAgent: Could you please provide the passcode for verification? Yes, that is the Dallas branch at 123 Main Street. Could you please provide the passcode for verification?\nUser: Bluebird\nAgent: Got it. The passcode is verified.\n There is no active alarm signal on the Dallas account, so there's nothing to cancel. Is there anything else I can help you with today? Bluebird Got it. The passcode is verified.\n There is no active alarm signal on the Dallas account, so there's nothing to cancel. Is there anything else I can help you with today?\nUser: That is all I needed. Thank you.",
+      "detailed_trace": [
+        "User: Hi",
+        "Agent Text: Rapid Response Monitoring. How can I help you today?\nAgent Text (Diag): Hi\nAgent Text (Diag): Rapid Response Monitoring. How can I help you today?",
+        "User: I think the alarm at my Dallas branch went off and I need to get it canceled.",
+        "Agent Text: Okay, I see you have three branches: Dallas, Fort Worth, and Plano. Did you mean the Dallas branch at 123 Main Street?\nAgent Text (Diag): I think the alarm at my Dallas branch went off and I need to get it canceled.\nTool Call: lookup_accounts_by_caller with args {'caller_phone': '+12145550199'}\nTool Response: lookup_accounts_by_caller with result {'result': {'account_count': 3.0, 'status': 'success', 'accounts': [{'street_address': '123 Main Street', 'has_active_alarm': False, 'account_last_digits': '345', 'branch_name': 'Dallas', 'account_id': 'RRMS-2001'}, {'street_address': '456 Oak Avenue', 'has_active_alarm': False, 'account_last_digits': '782', 'branch_name': 'Fort Worth', 'account_id': 'RRMS-2002'}, {'street_address': '789 Elm Street', 'has_active_alarm': False, 'account_last_digits': '614', 'branch_name': 'Plano', 'account_id': 'RRMS-2003'}]}}\nAgent Text (Diag): Okay, I see you have three branches: Dallas, Fort Worth, and Plano. Did you mean the Dallas branch at 123 Main Street?",
+        "User: Yes, that is the Dallas branch at 123 Main Street.",
+        "Agent Text: Could you please provide the passcode for verification?\nAgent Text (Diag): Yes, that is the Dallas branch at 123 Main Street.\nAgent Text (Diag): Could you please provide the passcode for verification?",
+        "User: Bluebird",
+        "Agent Text: Got it. The passcode is verified.\n\nAgent Text: There is no active alarm signal on the Dallas account, so there's nothing to cancel. Is there anything else I can help you with today?\nAgent Text (Diag): Bluebird\nTool Call: verify_passcode with args {'passcode': 'Bluebird', 'account_id': 'RRMS-2001'}\nTool Response: verify_passcode with result {'result': {'account_last_digits': '345', 'branch_name': 'Dallas', 'verified': True, 'status': 'success'}}\nAgent Text (Diag): Got it. The passcode is verified.\n\nTool Call: cancel_alarm with args {}\nTool Response: cancel_alarm with result {'result': {'status': 'no_active_alarm', 'branch_name': 'Dallas', 'agent_action': 'Inform the caller there is no active alarm signal on the account and nothing to cancel, then offer further help.'}}\nAgent Text (Diag): There is no active alarm signal on the Dallas account, so there's nothing to cancel. Is there anything else I can help you with today?",
+        "User: That is all I needed. Thank you.",
+        "Agent Text: You're all set. Have a good day.\n\nAgent Text (Diag): That is all I needed. Thank you.\nAgent Text (Diag): You're all set. Have a good day.\n\nTool Call: end_session with args {}"
+      ],
+      "step_details": [
+        {
+          "goal": "Ask to cancel an alarm on a branch that has no active alarm signal.",
+          "success_criteria": "After the passcode is verified, the agent attempts to cancel and learns there is no active alarm; it informs the caller there is no active alarm signal and nothing to cancel, then offers further help. Being told there is nothing to cancel and offered further help counts as a successful outcome.\n",
+          "status": "Completed",
+          "justification": "The agent informed the user there is no alarm to cancel and the user confirmed that was all they needed, satisfying the success criteria."
+        }
+      ],
+      "expectation_details": [
+        {
+          "expectation": "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode.",
+          "status": "Met",
+          "justification": "The agent explicitly asked 'Did you mean the Dallas branch at 123 Main Street?' and received confirmation from the user before asking for the passcode."
+        },
+        {
+          "expectation": "The agent must call a tool to verify the passcode before attempting to cancel.",
+          "status": "Met",
+          "justification": "The agent called verify_passcode after receiving the input 'Bluebird' and before calling cancel_alarm."
+        },
+        {
+          "expectation": "The agent must call a tool to attempt to cancel the alarm on the verified account.",
+          "status": "Met",
+          "justification": "The agent called the cancel_alarm tool following the verification process."
+        },
+        {
+          "expectation": "The agent must inform the caller there is no active alarm signal on the account and nothing to cancel.",
+          "status": "Met",
+          "justification": "The agent clearly stated: 'There is no active alarm signal on the Dallas account, so there's nothing to cancel.'"
+        },
+        {
+          "expectation": "The agent must NOT falsely claim an alarm was canceled.",
+          "status": "Met",
+          "justification": "The agent accurately reported that there was no active alarm to cancel and did not claim a cancellation occurred."
+        },
+        {
+          "expectation": "The agent must offer further help after reporting there is nothing to cancel.",
+          "status": "Met",
+          "justification": "The agent concluded the statement with: 'Is there anything else I can help you with today?'"
+        }
+      ]
+    }
+  ]
+}

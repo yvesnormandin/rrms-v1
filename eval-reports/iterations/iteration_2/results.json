@@ -1,0 +1,409 @@
+{
+  "total": 24,
+  "passed": 11,
+  "sim_pass_rate": [
+    12,
+    15
+  ],
+  "run_short": "075cbfd9",
+  "time_str": "2026-06-04 17:20:41",
+  "failures": {
+    "EXPECTATION_FAIL": [
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+      ],
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+      ],
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+      ],
+      [
+        "sms_offered_after_validation_then_declined",
+        "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+      ],
+      [
+        "sms_offered_after_validation_then_declined",
+        "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+      ],
+      [
+        "sms_offered_after_validation_then_declined",
+        "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+      ]
+    ],
+    "TEXT_MISMATCH": [
+      [
+        "passcode_gate_enforced_before_action",
+        "sem_score=2"
+      ],
+      [
+        "passcode_gate_enforced_before_action",
+        "sem_score=2"
+      ],
+      [
+        "dispatch_status_reassurance",
+        "sem_score=2"
+      ],
+      [
+        "dispatch_status_reassurance",
+        "sem_score=2"
+      ]
+    ],
+    "TOOL_MISSING": [
+      [
+        "uc1_cancel_false_alarm_happy_path",
+        "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+      ],
+      [
+        "uc1_cancel_false_alarm_happy_path",
+        "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+      ],
+      [
+        "uc1_cancel_false_alarm_happy_path",
+        "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+      ]
+    ]
+  },
+  "per_eval": {
+    "uc2_on_test_disambiguation_sms_happy_path": {
+      "pass": 0,
+      "total": 3,
+      "failures": [
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+        ],
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+        ],
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+        ]
+      ]
+    },
+    "passcode_gate_enforced_before_action": {
+      "pass": 1,
+      "total": 3,
+      "failures": [
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ],
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ]
+      ]
+    },
+    "uc1_cancel_false_alarm_happy_path": {
+      "pass": 0,
+      "total": 3,
+      "failures": [
+        [
+          "TOOL_MISSING",
+          "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+        ],
+        [
+          "TOOL_MISSING",
+          "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+        ],
+        [
+          "TOOL_MISSING",
+          "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+        ]
+      ]
+    },
+    "sms_offered_after_validation_then_declined": {
+      "pass": 0,
+      "total": 3,
+      "failures": [
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+        ],
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+        ],
+        [
+          "EXPECTATION_FAIL",
+          "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+        ]
+      ]
+    },
+    "dispatch_status_reassurance": {
+      "pass": 1,
+      "total": 3,
+      "failures": [
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ],
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ]
+      ]
+    },
+    "single_site_no_disambiguation": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "deterministic_spoken_closing": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "disambiguation_accuracy_fort_worth": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    }
+  },
+  "per_eval_by_type": {
+    "golden": {
+      "uc2_on_test_disambiguation_sms_happy_path": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm the on-test result referencing the ac\" \u2014 The custom expectation states that the agent must confirm the on-test result ref; \"The agent must verify the passcode before placing the branch\" \u2014 The custom expectation states that the agent must verify the passcode before pla; \"The agent must OFFER an SMS confirmation and only send it af\" \u2014 The custom expectation states that the agent must OFFER an SMS confirmation and "
+          ]
+        ]
+      },
+      "passcode_gate_enforced_before_action": {
+        "pass": 1,
+        "total": 3,
+        "failures": [
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ],
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ]
+        ]
+      },
+      "uc1_cancel_false_alarm_happy_path": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "TOOL_MISSING",
+            "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+          ],
+          [
+            "TOOL_MISSING",
+            "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+          ],
+          [
+            "TOOL_MISSING",
+            "expected lookup_accounts_by_caller, got lookup_accounts_by_caller. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm, end_session]"
+          ]
+        ]
+      },
+      "sms_offered_after_validation_then_declined": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must confirm verbally that no text will be sent, t\" \u2014 The agent verbally confirmed that no text would be sent by saying, \"Okay, I won'"
+          ]
+        ]
+      },
+      "dispatch_status_reassurance": {
+        "pass": 1,
+        "total": 3,
+        "failures": [
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ],
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ]
+        ]
+      },
+      "single_site_no_disambiguation": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "deterministic_spoken_closing": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "disambiguation_accuracy_fort_worth": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      }
+    },
+    "sim": {
+      "wrong_passcode_two_retries_then_operator": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "unknown_caller_offer_operator_transfer": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "declines_sms_after_on_test": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "SIM_TASK_INCOMPLETE",
+            "goals=0/1, turns=5; check transcript for cause"
+          ],
+          [
+            "SIM_TASK_INCOMPLETE",
+            "goals=0/1, turns=5; check transcript for cause"
+          ],
+          [
+            "SIM_TASK_INCOMPLETE",
+            "goals=0/1, turns=4; check transcript for cause"
+          ]
+        ]
+      },
+      "missing_on_test_duration_agent_asks": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "no_active_alarm_to_cancel": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      }
+    },
+    "tool_test": {
+      "<unnamed>": {
+        "pass": 16,
+        "total": 16,
+        "failures": []
+      }
+    },
+    "callback_test": {
+      "test_text_only_response_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_other_function_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_text_no_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_before_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_after_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_transcript_text_in_same_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_text_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_transcript_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_stops_at_user_boundary": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_injects_when_no_prior_text": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_farewell_is_first_part": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_end_session_preserved_after_farewell": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_response_role_is_model": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_inject_when_only_prior_user_event": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_whitespace_only_text_counts_as_silent": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_events_injects": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_silent_agent_events_do_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_whitespace_text_does_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      }
+    }
+  }
+}

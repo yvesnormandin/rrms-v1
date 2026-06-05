@@ -1,0 +1,7 @@
+{
+  "status": "clean",
+  "iterations": 1,
+  "fixes_applied": [],
+  "unresolved": [],
+  "final_lint_output": "Linting app: rrms-v1\n============================================================\n  Agents: 1\n  Tools: 5\n  Callbacks: 1\n  Evals: 0\n\n============================================================\nLINT RESULTS\n============================================================\n\n  All checks passed.\n\nLint PASSED (no errors)."
+}

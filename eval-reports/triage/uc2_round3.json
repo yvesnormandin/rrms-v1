@@ -1,0 +1,26 @@
+{
+  "eval_name": "uc2_on_test_disambiguation_sms_happy_path",
+  "category": "TOOL_MISSING",
+  "category_overridden": false,
+  "root_cause": "On_Test_Flow step 4 (the SMS-ACCEPT branch) tells the agent to 'call send_confirmation_sms and confirm the text was sent' but does NOT instruct it to offer further help, unlike step 5 (the DECLINE branch, which round 1 patched to add 'Anything else today?'). With no offer-help instruction on the ACCEPT path, on turn 5 the agent collapses the SMS confirmation and the closing sign-off into a single message ('A confirmation text has been sent... You're all set. Have a good day.'), skipping the golden's expected 'Anything else today?' question. This misaligns the conversation by one turn: the caller's scripted turn-6 'Nope.' now lands after the agent has already signed off, so the agent has nothing to act on, treats it as unintelligible ('I'm sorry, I didn't catch that...'), and NEVER calls end_session. The missing tool is end_session, which the golden expects in turn 6. send_confirmation_sms IS called (turn 5), so the surface 'TOOL_MISSING' is specifically the absent end_session at the end of the flow, caused by the turn-misalignment cascade. Fix is instruction-side, not a missing tool registration: end_session is in the agent's tools and is reachable via the Closing step; the agent just never gets there in the right turn.",
+  "evidence_quotes": [
+    {"location": "fresh transcript turn 5, agent output", "quote": "A confirmation text has been sent to your phone number. You're all set. Have a good day."},
+    {"location": "fresh transcript turn 6, agent output (caller said 'Nope.')", "quote": "I'm sorry, I didn't catch that. Could you please repeat that for me?"},
+    {"location": "iteration_4/results.json failures (all 3 runs)", "quote": "expected , not found. Called: [lookup_accounts_by_caller, verify_passcode, put_account_on_test, send_confirmation_sms]"},
+    {"location": "agent_dir/agents/root_agent/instruction.txt On_Test_Flow step 4 (ACCEPT branch)", "quote": "4. If the caller accepts, call {@TOOL: send_confirmation_sms} and confirm the text was sent."},
+    {"location": "agent_dir/agents/root_agent/instruction.txt On_Test_Flow step 5 (DECLINE branch)", "quote": "5. If the caller declines, respond in ONE message that BOTH confirms you will not send a text AND offers further help (e.g., \"No problem, I won't send a text. Anything else today?\"). Never skip the offer of further help or jump straight to the closing sign-off."},
+    {"location": "golden goldens.yaml turn 5 and turn 6 expectations", "quote": "turn5 agent: 'Done. A confirmation has been sent. Anything else today?' (send_confirmation_sms); turn6 agent: 'All right, have a great day.' (end_session)"}
+  ],
+  "decision_tree_path": [
+    "Is the golden expectation stale (instruction changed but golden expects old phrasing)? -> no (golden's offer-help + end_session contract is the intended UC2 behavior; the agent is wrong, not the golden)",
+    "Is a tool missing from the agent's tool list? -> no (end_session and send_confirmation_sms are both reachable; this is not a tool-registration problem)",
+    "Are instructions contradictory / asymmetric across the flow branches? -> yes (ACCEPT branch lacks the offer-further-help instruction that the DECLINE branch has, causing the agent to skip the 'Anything else?' turn and collapse into the sign-off, which drops end_session from the correct turn)"
+  ],
+  "suggested_fix_type": "instruction_edit",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/cxas_app/rrms-v1/agents/root_agent/instruction.txt"
+  ],
+  "fix_summary_one_line": "In On_Test_Flow step 4 (SMS-ACCEPT branch), add the offer-further-help instruction so the agent confirms the text AND asks 'Anything else today?' in one message (mirroring step 5), instead of jumping to the closing sign-off; this realigns the turns so the caller's final 'Nope.' lands at Closing and end_session fires.",
+  "needs_user_approval": false,
+  "confidence": "high"
+}

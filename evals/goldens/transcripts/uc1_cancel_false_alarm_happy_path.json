@@ -1,0 +1,24 @@
+{
+  "name": "uc1_cancel_false_alarm_happy_path",
+  "session_parameters": {
+    "caller_phone": "+15125550142"
+  },
+  "transcript": [
+    {
+      "user": "<event>welcome</event>",
+      "agent": "Rapid Response Monitoring. How can I help you today?"
+    },
+    {
+      "user": "Hi, so I just opened my store and I accidentally set off the alarm. Would you be able to cancel that for me please?",
+      "agent": "Sure, I can help you with that. I see you have an account for the Johnson Verizon Store. Could you please provide the passcode for verification?"
+    },
+    {
+      "user": "Yes, that passcode is Sunset.",
+      "agent": "Thanks. The passcode is correct. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Is there anything else I can help you with today?"
+    },
+    {
+      "user": "Great, that's perfect. Thank you.",
+      "agent": "You're all set. Have a good day."
+    }
+  ]
+}

@@ -1,0 +1,327 @@
+{
+  "total": 24,
+  "passed": 17,
+  "sim_pass_rate": [
+    13,
+    15
+  ],
+  "run_short": "523c54f6",
+  "time_str": "2026-06-04 18:46:53",
+  "failures": {
+    "TOOL_MISSING": [
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+      ],
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+      ],
+      [
+        "uc2_on_test_disambiguation_sms_happy_path",
+        "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+      ]
+    ],
+    "TEXT_MISMATCH": [
+      [
+        "disambiguation_accuracy_fort_worth",
+        "sem_score=2"
+      ],
+      [
+        "disambiguation_accuracy_fort_worth",
+        "sem_score=2"
+      ],
+      [
+        "disambiguation_accuracy_fort_worth",
+        "sem_score=2"
+      ],
+      [
+        "passcode_gate_enforced_before_action",
+        "sem_score=2"
+      ]
+    ]
+  },
+  "per_eval": {
+    "uc2_on_test_disambiguation_sms_happy_path": {
+      "pass": 0,
+      "total": 3,
+      "failures": [
+        [
+          "TOOL_MISSING",
+          "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+        ],
+        [
+          "TOOL_MISSING",
+          "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+        ],
+        [
+          "TOOL_MISSING",
+          "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+        ]
+      ]
+    },
+    "dispatch_status_reassurance": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "disambiguation_accuracy_fort_worth": {
+      "pass": 0,
+      "total": 3,
+      "failures": [
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ],
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ],
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ]
+      ]
+    },
+    "uc1_cancel_false_alarm_happy_path": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "deterministic_spoken_closing": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "sms_offered_after_validation_then_declined": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    },
+    "passcode_gate_enforced_before_action": {
+      "pass": 2,
+      "total": 3,
+      "failures": [
+        [
+          "TEXT_MISMATCH",
+          "sem_score=2"
+        ]
+      ]
+    },
+    "single_site_no_disambiguation": {
+      "pass": 3,
+      "total": 3,
+      "failures": []
+    }
+  },
+  "per_eval_by_type": {
+    "golden": {
+      "uc2_on_test_disambiguation_sms_happy_path": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "TOOL_MISSING",
+            "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+          ],
+          [
+            "TOOL_MISSING",
+            "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+          ],
+          [
+            "TOOL_MISSING",
+            "expected put_account_on_test, not found. Called: [lookup_accounts_by_caller, verify_passcode, send_confirmation_sms, end_session]"
+          ]
+        ]
+      },
+      "dispatch_status_reassurance": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "disambiguation_accuracy_fort_worth": {
+        "pass": 0,
+        "total": 3,
+        "failures": [
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ],
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ],
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ]
+        ]
+      },
+      "uc1_cancel_false_alarm_happy_path": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "deterministic_spoken_closing": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "sms_offered_after_validation_then_declined": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "passcode_gate_enforced_before_action": {
+        "pass": 2,
+        "total": 3,
+        "failures": [
+          [
+            "TEXT_MISMATCH",
+            "sem_score=2"
+          ]
+        ]
+      },
+      "single_site_no_disambiguation": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      }
+    },
+    "sim": {
+      "wrong_passcode_two_retries_then_operator": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "unknown_caller_offer_operator_transfer": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "declines_sms_after_on_test": {
+        "pass": 1,
+        "total": 3,
+        "failures": [
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must call a tool to put the Dallas branch on test \" \u2014 The trace does not show a tool call to perform the 'put on test' action"
+          ],
+          [
+            "EXPECTATION_FAIL",
+            "\"The agent must call a tool to put the Dallas branch on test \" \u2014 While the agent verbally confirmed the branch was on test, there is no tool call"
+          ]
+        ]
+      },
+      "missing_on_test_duration_agent_asks": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      },
+      "no_active_alarm_to_cancel": {
+        "pass": 3,
+        "total": 3,
+        "failures": []
+      }
+    },
+    "tool_test": {
+      "<unnamed>": {
+        "pass": 16,
+        "total": 16,
+        "failures": []
+      }
+    },
+    "callback_test": {
+      "test_text_only_response_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_other_function_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_text_no_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_before_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_text_after_end_session_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_transcript_text_in_same_call_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_text_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_transcript_returns_none": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_stops_at_user_boundary": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_injects_when_no_prior_text": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_farewell_is_first_part": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_end_session_preserved_after_farewell": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_response_role_is_model": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_inject_when_only_prior_user_event": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_whitespace_only_text_counts_as_silent": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_empty_events_injects": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_silent_agent_events_do_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      },
+      "test_prior_agent_whitespace_text_does_not_block": {
+        "pass": 1,
+        "total": 1,
+        "failures": []
+      }
+    }
+  }
+}

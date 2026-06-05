@@ -1,0 +1,111 @@
+{
+  "app_name": "projects/yves-normandin-project/locations/us/apps/ec021a75-b0a0-4d88-90d9-1d39556bee7a",
+  "timestamp": "2026-06-04T17:11:03.846911Z",
+  "gates": [
+    {
+      "gate": 1,
+      "name": "Pull, Lint and Push",
+      "status": "fail",
+      "findings": [
+        {
+          "step": "push",
+          "stdout": "Pushing app from /home/norman/dev/cxas-scrapi/rrms-v1/cxas_app/...\nPushing to existing app... Overwriting if supported.\nUploading to CES...\nWaiting for import to complete...\nFailed to push app: 400 ImportApp must contain an app resource. 3: ImportApp must contain an app resource.\n",
+          "stderr": ""
+        }
+      ],
+      "warnings": [],
+      "error": "Push failed"
+    },
+    {
+      "gate": 2,
+      "name": "Agent hierarchy",
+      "status": "pass",
+      "findings": [
+        {
+          "root_agent": "root_agent",
+          "agents": [
+            "root_agent"
+          ]
+        }
+      ],
+      "warnings": [],
+      "error": null
+    },
+    {
+      "gate": 3,
+      "name": "Tool associations",
+      "status": "pass",
+      "findings": [
+        {
+          "platform_tools": [
+            "cancel_alarm",
+            "lookup_accounts_by_caller",
+            "put_account_on_test",
+            "send_confirmation_sms",
+            "verify_passcode"
+          ],
+          "per_agent_tools": {
+            "root_agent": [
+              "lookup_accounts_by_caller",
+              "verify_passcode",
+              "cancel_alarm",
+              "put_account_on_test",
+              "send_confirmation_sms",
+              "end_session"
+            ]
+          }
+        }
+      ],
+      "warnings": [],
+      "error": null
+    },
+    {
+      "gate": 4,
+      "name": "Callback inventory + test discovery",
+      "status": "pass",
+      "findings": [
+        {
+          "callbacks_per_agent": {
+            "root_agent": {
+              "after_model_callbacks": 1
+            }
+          },
+          "total": 1
+        },
+        {
+          "tests_authored": 1,
+          "tests_discoverable_by_runner": 1
+        }
+      ],
+      "warnings": [],
+      "error": null
+    },
+    {
+      "gate": 5,
+      "name": "Single-turn smoke test",
+      "status": "pass",
+      "findings": [
+        {
+          "session_id": "gate5-ef2951f0",
+          "status": "responded"
+        }
+      ],
+      "warnings": [],
+      "error": null
+    },
+    {
+      "gate": 6,
+      "name": "Multi-turn smoke test",
+      "status": "skipped",
+      "findings": [],
+      "warnings": [],
+      "error": null
+    }
+  ],
+  "overall": {
+    "passed": 4,
+    "failed": 1,
+    "skipped": 1,
+    "all_pass": false
+  }
+}

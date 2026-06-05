@@ -1,0 +1,10 @@
+{
+  "name": "send_confirmation_sms",
+  "pythonFunction": {
+    "name": "send_confirmation_sms",
+    "pythonCode": "tools/send_confirmation_sms/python_function/python_code.py",
+    "description": "Send a mock SMS confirmation to the caller.\n\nArgs:\n    message_summary: A short summary of the action to confirm in the text\n        (e.g., \"Dallas branch on test for one hour\").\n\nReturns:\n    dict: status and the (mock) delivery details."
+  },
+  "executionType": "SYNCHRONOUS",
+  "displayName": "send_confirmation_sms"
+}

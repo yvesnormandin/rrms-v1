@@ -1,0 +1,32 @@
+{
+  "name": "uc2_on_test_disambiguation_sms_happy_path",
+  "session_parameters": {
+    "caller_phone": "+12145550199"
+  },
+  "transcript": [
+    {
+      "user": "<event>welcome</event>",
+      "agent": "Rapid Response Monitoring. How can I help you today?"
+    },
+    {
+      "user": "Hey, so I need to put the Dallas branch on testing for one hour.",
+      "agent": "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+    },
+    {
+      "user": "Yes.",
+      "agent": "Sure. Could you please provide the passcode for verification?"
+    },
+    {
+      "user": "Bluebird.",
+      "agent": "Got it.\n The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?"
+    },
+    {
+      "user": "Please.",
+      "agent": "A confirmation text has been sent to your phone number. You're all set. Have a good day."
+    },
+    {
+      "user": "Nope.",
+      "agent": "I'm sorry, I didn't catch that. Could you please repeat that for me?"
+    }
+  ]
+}

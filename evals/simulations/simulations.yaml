@@ -1,0 +1,129 @@
+# RRMS-v1 simulations — edge-case / policy CUJs (phrasing varies, so sim not golden).
+# Audio agent: max_turns includes +4-6 headroom for TTS/STT turn inflation.
+# Only eval-suppliable session parameter is caller_phone (keys the in-code mock dataset).
+#   +15125550142 -> single-site "Johnson Verizon Store", passcode "Sunset", active alarm.
+#   +12145550199 -> multi-location manager; "Dallas" @ 123 Main Street, passcode "Bluebird".
+#   any phone NOT in the dataset (e.g. +15555550000) -> unknown caller.
+
+- name: wrong_passcode_two_retries_then_operator
+  tags: [rrms-v1, audio, P1, HIGH, auth, error-handling]
+  steps:
+    - goal: Cancel the alarm but fail passcode verification on all three attempts.
+      success_criteria: >
+        The agent asks for the passcode, lets the caller retry after each failure,
+        and after the third failed attempt declines to perform the action and offers
+        to transfer to a live operator. Being offered/transferred to a live operator
+        after the failed attempts counts as a successful outcome.
+      response_guide: >
+        You are the manager of the Johnson Verizon Store. You called because you
+        accidentally set off the alarm and want it canceled. When the agent asks for
+        the passcode, give a WRONG passcode every time: say "Sunrise" the first time,
+        "Sunflower" the second time, and "Sundown" the third time. Never say the
+        correct passcode. When the agent offers to connect you to a live operator,
+        accept. Provide only one piece of information per turn.
+      max_turns: 16
+  expectations:
+    - "The agent must ask for the account passcode before attempting to cancel the alarm."
+    - "The agent must call a tool to verify the passcode on each attempt."
+    - "The agent must allow the caller to retry after each failed passcode, up to three total attempts."
+    - "The agent must NOT call any tool to cancel the alarm, because the passcode was never verified."
+    - "After the third failed attempt, the agent must decline to complete the request and offer to transfer the caller to a live operator."
+    - "The agent must ask for information one piece at a time, not all at once."
+  session_parameters: {caller_phone: "+15125550142"}
+
+- name: unknown_caller_offer_operator_transfer
+  tags: [rrms-v1, audio, P2, MEDIUM, error-handling]
+  steps:
+    - goal: Try to get help, but the calling number is not linked to any account.
+      success_criteria: >
+        The agent attempts to look up the account, cannot find one for this number,
+        apologizes, and offers to transfer the caller to a live operator. Being
+        offered/transferred to a live operator counts as a successful outcome.
+      response_guide: >
+        You are calling because you think your alarm went off and you want it
+        canceled. You are NOT in the system — your number is not linked to any
+        account. If the agent asks for any details, just say you want to cancel an
+        alarm. When the agent offers to connect you to a live operator, accept.
+      max_turns: 12
+  expectations:
+    - "The agent must call a tool to look up the account by the caller's phone number."
+    - "The agent must NOT ask for a passcode or attempt any cancel/test action, because no account was found."
+    - "The agent must apologize that it cannot locate an account for this number."
+    - "The agent must offer to transfer the caller to a live operator."
+  session_parameters: {caller_phone: "+15555550000"}
+
+- name: declines_sms_after_on_test
+  tags: [rrms-v1, audio, P2, LOW, uc2, sms, variation]
+  steps:
+    - goal: Put the Dallas branch on test for one hour, then decline the SMS confirmation offer.
+      success_criteria: >
+        The agent disambiguates to the Dallas branch, verifies the passcode, puts the
+        branch on test for one hour, offers an SMS confirmation, and when the caller
+        declines, confirms verbally that no text will be sent and closes normally.
+        Completing the on-test and closing without sending an SMS counts as a
+        successful outcome.
+      response_guide: >
+        You manage several branches. You want to put the Dallas branch on test for one
+        hour. When the agent asks which branch (it should mention Dallas at 123 Main
+        Street), confirm Dallas. When asked for the passcode, say "Bluebird". When the
+        agent offers to send a confirmation text, DECLINE — say "No thanks, that's not
+        necessary." Then say you don't need anything else. Provide one piece of
+        information per turn.
+      max_turns: 16
+  expectations:
+    - "The agent must confirm the specific branch (Dallas at 123 Main Street) before requesting the passcode."
+    - "The agent must call a tool to verify the passcode before putting the branch on test."
+    - "The agent must call a tool to put the Dallas branch on test for one hour."
+    - "The agent must offer an SMS confirmation after the on-test action."
+    - "The agent must NOT call any tool to send an SMS, because the caller declined."
+    - "The agent must verbally confirm that no text will be sent and then close the call."
+  session_parameters: {caller_phone: "+12145550199"}
+
+- name: missing_on_test_duration_agent_asks
+  tags: [rrms-v1, audio, P2, LOW, uc2, on-test, clarification]
+  steps:
+    - goal: Ask to put the Dallas branch on test without stating a duration; provide one when asked.
+      success_criteria: >
+        The agent recognizes no duration was given, asks the caller for one, accepts a
+        valid duration (within 30 minutes to 8 hours), and proceeds to put the branch
+        on test for that duration after verifying the passcode. Getting the branch put
+        on test for the provided duration counts as a successful outcome.
+      response_guide: >
+        You manage several branches. Say only "I need to put the Dallas branch on test"
+        WITHOUT mentioning any duration. When the agent asks which branch, confirm
+        Dallas at 123 Main Street. When the agent asks how long, say "two hours". When
+        asked for the passcode, say "Bluebird". Provide one piece of information per
+        turn. You do not need an SMS confirmation if asked.
+      max_turns: 18
+  expectations:
+    - "The agent must ask the caller for a test duration, because none was provided."
+    - "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode."
+    - "The agent must call a tool to verify the passcode before putting the branch on test."
+    - "The agent must call a tool to put the Dallas branch on test for the two-hour duration the caller provided."
+    - "The agent must ask for information one piece at a time, not all at once."
+  session_parameters: {caller_phone: "+12145550199"}
+
+- name: no_active_alarm_to_cancel
+  tags: [rrms-v1, audio, P2, MEDIUM, uc1, error-handling]
+  steps:
+    - goal: Ask to cancel an alarm on a branch that has no active alarm signal.
+      success_criteria: >
+        After the passcode is verified, the agent attempts to cancel and learns there
+        is no active alarm; it informs the caller there is no active alarm signal and
+        nothing to cancel, then offers further help. Being told there is nothing to
+        cancel and offered further help counts as a successful outcome.
+      response_guide: >
+        You manage several branches. You think the alarm at your Dallas branch went off
+        and want it canceled. When the agent asks which branch, confirm Dallas at 123
+        Main Street. When asked for the passcode, say "Bluebird". (There is in fact no
+        active alarm on this branch.) After the agent tells you there is nothing to
+        cancel, say that's all you needed. Provide one piece of information per turn.
+      max_turns: 16
+  expectations:
+    - "The agent must confirm the Dallas branch (123 Main Street) before requesting the passcode."
+    - "The agent must call a tool to verify the passcode before attempting to cancel."
+    - "The agent must call a tool to attempt to cancel the alarm on the verified account."
+    - "The agent must inform the caller there is no active alarm signal on the account and nothing to cancel."
+    - "The agent must NOT falsely claim an alarm was canceled."
+    - "The agent must offer further help after reporting there is nothing to cancel."
+  session_parameters: {caller_phone: "+12145550199"}

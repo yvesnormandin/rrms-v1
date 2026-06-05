@@ -1,0 +1,10 @@
+{
+  "name": "lookup_accounts_by_caller",
+  "pythonFunction": {
+    "name": "lookup_accounts_by_caller",
+    "pythonCode": "tools/lookup_accounts_by_caller/python_function/python_code.py",
+    "description": "Look up account(s) linked to the caller\u0027s phone number.\n\nArgs:\n    caller_phone: The caller\u0027s phone number. If empty, falls back to the\n        caller_phone session variable.\n\nReturns:\n    dict: status, and either a list of account records or an error with an\n        agent_action recovery hint."
+  },
+  "executionType": "SYNCHRONOUS",
+  "displayName": "lookup_accounts_by_caller"
+}

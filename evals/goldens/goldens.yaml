@@ -1,0 +1,301 @@
+# RRMS Demo Agent (rrms-v1) — Golden evals
+#
+# Audio agent (gemini-3.1-flash-live). The same YAML runs as audio at run time
+# (--channel audio); no per-file changes are needed for the audio pipeline.
+# Agent text below is approximate — the platform scores agent turns by semantic
+# similarity, so the exact spoken phrasing may differ.
+#
+# Manifest (grounded against the agent JSON / tool code, not the prompt):
+#   Real tools:  lookup_accounts_by_caller, verify_passcode, cancel_alarm,
+#                put_account_on_test, send_confirmation_sms, end_session
+#   Real vars:   caller_phone (eval-suppliable session param),
+#                _resolved_account (tool-derived — NEVER set in evals)
+#   Mock data (tools' python_code.py):
+#     +15125550142 -> Johnson Verizon Store, passcode "Sunset",
+#                     last digits 118, has_active_alarm=True, not dispatched (UC1)
+#     +12145550199 -> Dallas (123 Main Street, last 345, passcode "Bluebird"),
+#                     Fort Worth, Plano (multi-location; forces disambiguation) (UC2)
+#
+# The after_model callback (deterministic farewell) reads NO state at session
+# start, so common_session_parameters is intentionally empty — caller_phone is
+# the only session parameter and lives per-conversation.
+
+# after_model_callback (deterministic farewell) reads no startup state, so
+# there is no common_session_parameters block — caller_phone is supplied
+# per-conversation below; _resolved_account is tool-derived and must never
+# be set in evals.
+
+conversations:
+  # ---------------------------------------------------------------------------
+  # UC1 happy path — false-alarm cancellation after passcode verification.
+  # Verbatim basis: sources/rrms-demo-brief.md UC1 sample call.
+  # ---------------------------------------------------------------------------
+  - conversation: uc1_cancel_false_alarm_happy_path
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "Hi, so I just opened my store and I accidentally set off the alarm. Would you be able to cancel that for me please?"
+        agent: "Of course. Could you please provide the passcode for verification?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Yes, that passcode is Sunset."
+        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode: "Sunset"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "Great, that's perfect. Thank you."
+        agent: "You're all set. Have a good day."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "The agent must call lookup_accounts_by_caller before requesting the passcode."
+      - "The agent must call verify_passcode with the spoken passcode before canceling the alarm."
+      - "The agent must call cancel_alarm only after the passcode is verified."
+      - "The agent must report that police were not dispatched, matching the tool's dispatch status."
+      - "The agent must NOT ask the caller which site or branch they mean (single-site caller resolves directly)."
+    tags: [P0, NO-GO, uc1, cancel-alarm, happy-path, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # UC2 happy path — multi-location disambiguation -> verify -> on-test ->
+  # offer + send SMS. Verbatim basis: brief UC2 sample call.
+  # ---------------------------------------------------------------------------
+  - conversation: uc2_on_test_disambiguation_sms_happy_path
+    session_parameters:
+      caller_phone: "+12145550199"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "Hey, so I need to put the Dallas branch on testing for one hour."
+        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Yes."
+        agent: "Great. Please provide the account passcode to confirm."
+      - user: "Bluebird."
+        agent: "Thanks, verified. The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode: "Bluebird"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: put_account_on_test
+            args:
+              duration_minutes: 60
+              duration_label:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+      - user: "Please."
+        agent: "Done. A confirmation has been sent. Anything else today?"
+        tool_calls:
+          - action: send_confirmation_sms
+            args:
+              message_summary:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+      - user: "Nope."
+        agent: "All right, have a great day."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "The agent must disambiguate to the Dallas branch by name and street address (123 Main Street) before requesting the passcode."
+      - "The agent must verify the passcode before placing the branch on test."
+      - "The agent must confirm the on-test result referencing the account last digits (345) and the one-hour duration."
+      - "The agent must OFFER an SMS confirmation and only send it after the caller accepts."
+      - "The agent must call send_confirmation_sms after the caller agrees to the text."
+    tags: [P0, NO-GO, uc2, on-test, disambiguation, sms, happy-path, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Passcode gate — agent must NOT cancel/test before a valid passcode.
+  # Caller tries to skip verification; agent must still require it first.
+  # ---------------------------------------------------------------------------
+  - conversation: passcode_gate_enforced_before_action
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "I set off my alarm by accident, just cancel it for me, I'm in a hurry."
+        agent: "I can help with that. Could you please provide the passcode for verification?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Can't you just cancel it without the passcode? I'm the owner."
+        agent: "I'm sorry, I do need the passcode to verify before I can cancel the alarm. What is the passcode?"
+    expectations:
+      - "The agent must NOT call cancel_alarm before verify_passcode has returned a successful verification."
+      - "The agent must request the passcode and decline to cancel until it is provided and verified."
+      - "The agent must remain warm and professional while holding the verification requirement firm."
+    tags: [P0, NO-GO, auth, passcode-gate, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Multi-location disambiguation accuracy — resolved branch must match the
+  # caller's stated branch (Fort Worth here, NOT Dallas).
+  # ---------------------------------------------------------------------------
+  - conversation: disambiguation_accuracy_fort_worth
+    session_parameters:
+      caller_phone: "+12145550199"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "I need to put the Fort Worth branch on test for two hours."
+        agent: "I see you manage multiple branches. Did you mean the Fort Worth branch at 456 Oak Avenue?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Yes, that's the one."
+        agent: "Great. Please provide the account passcode to confirm."
+    expectations:
+      - "The agent must disambiguate to the Fort Worth branch — referencing the Fort Worth name and its street address (456 Oak Avenue), NOT Dallas."
+      - "The agent must confirm the specific branch before requesting the passcode."
+      - "The agent must NOT call verify_passcode, put_account_on_test, or cancel_alarm before the branch is confirmed and the passcode is provided."
+    tags: [P0, HIGH, uc2, disambiguation, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Single-site caller resolves without asking which site (UC1 account
+  # resolution). Agent acts on Johnson Verizon Store with no disambiguation.
+  # ---------------------------------------------------------------------------
+  - conversation: single_site_no_disambiguation
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "Hi, I accidentally tripped the alarm at my store. Can you cancel it?"
+        agent: "Of course. Could you please provide the passcode for verification?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+    expectations:
+      - "The agent must NOT ask the caller which site or branch they mean — the single-site caller resolves directly to one account."
+      - "The agent must proceed straight to requesting the passcode after looking up the account."
+    tags: [P1, HIGH, uc1, account-resolution, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Dispatch-status reassurance is clear and accurate (UC1 step 5).
+  # Same flow as UC1 happy path, asserted on the dispatch-status reassurance.
+  # ---------------------------------------------------------------------------
+  - conversation: dispatch_status_reassurance
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "I set the alarm off opening up this morning — please cancel it."
+        agent: "Of course. Could you please provide the passcode for verification?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "The passcode is Sunset."
+        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Is there anything else I can help you with today?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode: "Sunset"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "Oh good, so nobody's coming out?"
+        agent: "That's right — no police or dispatch were sent. You're all set."
+    expectations:
+      - "The agent must explicitly state the dispatch status, accurately reporting that police were NOT dispatched (matching the cancel_alarm tool response)."
+      - "The agent must NOT speculate about dispatch — it states only what the tool confirmed."
+      - "The reassurance must be clear and calm, confirming nobody is being dispatched."
+    tags: [P1, HIGH, uc1, dispatch-status, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # SMS offered only after successful validation; sent only if caller accepts.
+  # Here the caller DECLINES — agent must confirm verbally and NOT send SMS.
+  # ---------------------------------------------------------------------------
+  - conversation: sms_offered_after_validation_then_declined
+    session_parameters:
+      caller_phone: "+12145550199"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "I need the Dallas branch on test for an hour."
+        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Yes."
+        agent: "Great. Please provide the account passcode to confirm."
+      - user: "Bluebird."
+        agent: "Thanks, verified. The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode: "Bluebird"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: put_account_on_test
+            args:
+              duration_minutes: 60
+              duration_label:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+      - user: "No thanks, that's okay."
+        agent: "No problem, I won't send a text. Anything else today?"
+    expectations:
+      - "The agent must OFFER the SMS confirmation only AFTER the on-test action was successfully validated and placed."
+      - "The agent must NOT call send_confirmation_sms when the caller declines the text."
+      - "The agent must confirm verbally that no text will be sent, then offer further help."
+    tags: [P1, MEDIUM, uc2, sms, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Deterministic spoken closing before end_session (after_model callback).
+  # Asserts a spoken sign-off precedes session termination.
+  # ---------------------------------------------------------------------------
+  - conversation: deterministic_spoken_closing
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "<event>welcome</event>"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "I accidentally set off my alarm — can you cancel it? Passcode is Sunset."
+        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+          - action: verify_passcode
+            args:
+              passcode: "Sunset"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "No, that's everything. Thanks."
+        agent: "You're all set. Have a good day."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "The agent must speak a warm closing sign-off before the session ends."
+      - "A spoken farewell must be present in the final turn that calls end_session — the call must not end in silence."
+      - "The agent must call end_session to terminate the call after the spoken closing."
+    tags: [P1, MEDIUM, closing, callback, rrms-v1, audio]

@@ -1,0 +1,10 @@
+{
+  "name": "put_account_on_test",
+  "pythonFunction": {
+    "name": "put_account_on_test",
+    "pythonCode": "tools/put_account_on_test/python_function/python_code.py",
+    "description": "Place the verified branch on test for the given duration.\n\nArgs:\n    duration_minutes: Normalized test duration in minutes (e.g., 60).\n    duration_label: Human-friendly duration phrase for read-back (e.g., \"one hour\").\n\nReturns:\n    dict: status, confirmation details, or an error with an agent_action hint."
+  },
+  "executionType": "SYNCHRONOUS",
+  "displayName": "put_account_on_test"
+}

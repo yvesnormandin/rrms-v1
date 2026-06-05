@@ -1,0 +1,25 @@
+{
+  "eval_name": "dispatch_status_reassurance",
+  "category": "TEXT_MISMATCH",
+  "category_overridden": false,
+  "root_cause": "Intermediate pass rate (1/3) on a golden TEXT_MISMATCH whose failing turn is an open-ended reassurance follow-up ('Oh good, so nobody's coming out?'). The agent's behavior is correct and grounded -- cancel_alarm returns dispatch_status='not dispatched' and the instruction (lines 132-135) explicitly tells the agent to reassure about dispatch status from the tool response. The two failing runs scored sem_score=2 (just under the semantic-match threshold) because the free-form phrasing of the closing reassurance varies run-to-run, not because the agent said anything wrong. This is non-deterministic LLM phrasing variance, not a deterministic agent bug.",
+  "evidence_quotes": [
+    {"location": "results.json per_eval.dispatch_status_reassurance", "quote": "\"pass\": 1, \"total\": 3, \"failures\": [[\"TEXT_MISMATCH\", \"sem_score=2\"], [\"TEXT_MISMATCH\", \"sem_score=2\"]]"},
+    {"location": "goldens.yaml dispatch_status_reassurance, final turn", "quote": "user: \"Oh good, so nobody's coming out?\"  agent: \"That's right — no police or dispatch were sent. You're all set.\""},
+    {"location": "agent_dir/agents/root_agent/instruction.txt lines 132-135", "quote": "If an alarm was canceled, confirm clearly and reassure the caller about dispatch status using the tool response, e.g., \"The alarm at Johnson Verizon Store has been canceled. Police were not dispatched.\""},
+    {"location": "agent_dir/tools/cancel_alarm/python_function/python_code.py lines 59-60", "quote": "\"dispatch_status\": \"not dispatched\", \"message\": \"The alarm has been canceled. Police were not dispatched.\""}
+  ],
+  "decision_tree_path": [
+    "Is the golden expectation stale (instruction changed but golden expects old phrasing)?", "no",
+    "Is a tool missing from the agent's tool list?", "no",
+    "Are instructions contradictory across agents?", "no",
+    "Is the behavior inherently non-deterministic (passes 1/3, fails 2/3)?", "yes -- eval_pass_rates flaky-routing rule applies (1/3, N>=3)"
+  ],
+  "suggested_fix_type": "flaky",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/evals/goldens/goldens.yaml"
+  ],
+  "fix_summary_one_line": "Flaky open-ended reassurance turn: convert dispatch_status_reassurance to a simulation (or end the golden one turn earlier at the grounded cancel confirmation) rather than asserting an exact phrasing on the free-form follow-up; do NOT edit the agent -- its behavior is correct and grounded.",
+  "needs_user_approval": true,
+  "confidence": "high"
+}

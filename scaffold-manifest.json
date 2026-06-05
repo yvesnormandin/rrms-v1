@@ -1,0 +1,49 @@
+{
+    "status": "complete",
+    "summary": "Wrote 14 files for 1 agent (root_agent), 5 Python tools, and 1 after_model callback, plus a customized app.json. Single-agent audio design per TDD. Copied project template, removed all template examples and unused sub-agent/tools/callbacks.",
+    "app_dir": "cxas_app/rrms-v1/",
+    "files_written": [
+        {"path": "cxas_app/rrms-v1/app.json", "type": "app_config"},
+        {"path": "cxas_app/rrms-v1/agents/root_agent/root_agent.json", "type": "agent_config"},
+        {"path": "cxas_app/rrms-v1/agents/root_agent/instruction.txt", "type": "instruction"},
+        {"path": "cxas_app/rrms-v1/agents/root_agent/after_model_callbacks/after_model_callbacks_01/python_code.py", "type": "callback"},
+        {"path": "cxas_app/rrms-v1/tools/lookup_accounts_by_caller/lookup_accounts_by_caller.json", "type": "tool_config"},
+        {"path": "cxas_app/rrms-v1/tools/lookup_accounts_by_caller/python_function/python_code.py", "type": "tool_code"},
+        {"path": "cxas_app/rrms-v1/tools/verify_passcode/verify_passcode.json", "type": "tool_config"},
+        {"path": "cxas_app/rrms-v1/tools/verify_passcode/python_function/python_code.py", "type": "tool_code"},
+        {"path": "cxas_app/rrms-v1/tools/cancel_alarm/cancel_alarm.json", "type": "tool_config"},
+        {"path": "cxas_app/rrms-v1/tools/cancel_alarm/python_function/python_code.py", "type": "tool_code"},
+        {"path": "cxas_app/rrms-v1/tools/put_account_on_test/put_account_on_test.json", "type": "tool_config"},
+        {"path": "cxas_app/rrms-v1/tools/put_account_on_test/python_function/python_code.py", "type": "tool_code"},
+        {"path": "cxas_app/rrms-v1/tools/send_confirmation_sms/send_confirmation_sms.json", "type": "tool_config"},
+        {"path": "cxas_app/rrms-v1/tools/send_confirmation_sms/python_function/python_code.py", "type": "tool_code"}
+    ],
+    "files_skipped": [
+        {"path": "cxas_app/rrms-v1/agents/troubleshoot_agent/", "reason": "Template example removed -- TDD specifies single-agent design (no sub-agents)"},
+        {"path": "cxas_app/rrms-v1/tools/lookup_account/", "reason": "Template example removed -- not in TDD Tools"},
+        {"path": "cxas_app/rrms-v1/tools/payload_update_tool/", "reason": "Template example removed -- not in TDD Tools"},
+        {"path": "cxas_app/rrms-v1/tools/set_session_state/", "reason": "Template example removed -- not in TDD Tools (no callback trigger pattern in this design)"},
+        {"path": "cxas_app/rrms-v1/agents/root_agent/before_agent_callbacks/", "reason": "Template example removed -- TDD specifies only the after_model farewell callback"},
+        {"path": "cxas_app/rrms-v1/agents/root_agent/before_model_callbacks/", "reason": "Template example removed -- TDD specifies only the after_model farewell callback"},
+        {"path": "evals/goldens/example_auth_routing.yaml", "reason": "template example removed"},
+        {"path": "evals/goldens/example_escalation.yaml", "reason": "template example removed"},
+        {"path": "evals/simulations/example_simulations.yaml", "reason": "template example removed"},
+        {"path": "evals/tool_tests/example_tool_tests.yaml", "reason": "template example removed"},
+        {"path": "evals/callback_tests/agents/root_agent/before_model_callbacks/", "reason": "template example removed (paired callback test agent)"},
+        {"path": "evals/callback_tests/tests/root_agent/before_model_callbacks/", "reason": "template example removed (paired callback test)"}
+    ],
+    "unresolved": [],
+    "notes": [
+        "DEMO FIXTURE CHOICES (TDD open questions 6 and 7 -- scaffolder's discretion; surface to user for override):",
+        "  Placeholder phone numbers: Johnson Verizon Store (single-site, UC1) = +15125550142; Multi-location manager (UC2) = +12145550199. Both use the reserved 555-01xx range.",
+        "  Johnson Verizon Store: account_id RRMS-1001, address 742 Commerce Drive, last digits 118, passcode 'Sunset', active alarm (not dispatched).",
+        "  Multi-location manager branches: Dallas (RRMS-2001, 123 Main Street, last 345, passcode 'Bluebird') -- per TDD; PLUS invented demo branches Fort Worth (RRMS-2002, 456 Oak Avenue, last 782, passcode 'Maple') and Plano (RRMS-2003, 789 Elm Street, last 614, passcode 'Harbor') to force disambiguation.",
+        "STATE MODELING: _resolved_account is declared as a STRING variable holding a JSON-serialized object (GECX session state supports only STRING/BOOLEAN per api-reference). Tools json.dumps/json.loads it. Noted because the TDD §4 schema describes it as a JSON object.",
+        "PASSCODE GATE: enforced both in the instruction (constraint) and defensively in cancel_alarm / put_account_on_test (they check passcode_verified in _resolved_account and refuse otherwise).",
+        "DURATION: put_account_on_test accepts duration_minutes (int, normalized by the agent) + duration_label (str for read-back); enforces 30-480 min range per TDD edge-case policy. Used int default 0 (not None) per platform tool-param rules.",
+        "OPERATOR TRANSFER is simulated via instruction text only (agent states the transfer, then end_session) -- no transfer_to_agent tool, consistent with the single-agent design.",
+        "The mock dataset is duplicated in lookup_accounts_by_caller and verify_passcode (each tool is self-contained in the GECX sandbox). Keep the two copies in sync if edited.",
+        "Downstream: eval-writer should account for audio max_turns headroom (+4-6) and similarity threshold tuning per TDD audio note; speakingRate is set to 1.0 in app.json audioProcessingConfig (tune in Console, not persona text)."
+    ],
+    "next_step_recommendation": "Dispatch lint-fixer to run cxas lint on cxas_app/ and clean up residual warnings, then have the main thread push to the platform. After that, dispatch eval-writer to author goldens/sims/tool-tests/callback-tests per TDD Coverage Map (section 6)."
+}

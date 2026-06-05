@@ -1,0 +1,31 @@
+{
+  "cluster_split": false,
+  "cluster_eval_names": ["deterministic_spoken_closing"],
+  "eval_name": "deterministic_spoken_closing",
+  "category": "TOOL_MISSING",
+  "category_overridden": false,
+  "root_cause": "REGRESSION introduced by Fix round 2 (iteration 3 -> 4). The golden's turn-2 caller supplies the passcode INLINE with the request ('...can you cancel it? Passcode is Sunset.'), and the golden expects lookup_accounts_by_caller + verify_passcode + cancel_alarm all chained in that one turn. In iteration 3 the agent opportunistically consumed the inline passcode and chained the whole flow; it passed. Fix round 2 added emphatic strict-sequential, ask-then-STOP-and-wait language to Resolve_Account ('The confirmation question MUST be a standalone turn ... then STOP and wait ... do NOT ask for the passcode in the same message — the passcode request comes only AFTER the caller confirms the branch') plus a new Verify_Passcode step-5 pushback path. Although that standalone-turn language is scoped to multi-branch disambiguation, it reinforced a one-question-per-turn disposition that bled into this single-account path. Combined with Verify_Passcode step 1 ('Ask the caller for the account passcode'), which is unconditional and never tells the agent to reuse an inline-supplied passcode, the agent now stops after lookup and asks 'Could you please provide the passcode for verification?' — discarding the passcode the caller already gave. The golden's next user turn ('No, that's everything. Thanks.') is then read as a decline/closing, so the agent jumps to Closing + end_session, never calling verify_passcode or cancel_alarm. Surface symptom is TOOL_MISSING cancel_alarm; the deeper break is verify_passcode being dropped one turn earlier. Forward-narrowing fix: add an explicit carve-out so the agent uses a passcode the caller has already supplied (do not re-ask), and scope the 'ask-then-stop / do not ask passcode in same message' language to the multi-branch disambiguation case only — do not let it suppress chaining when the account is single AND the passcode is already in hand.",
+  "evidence_quotes": [
+    {"location": "captured transcript turn 2, model output (run_id a8756b88, 0/3 across all runs)", "quote": "Sure, I can help with that. Could you please provide the passcode for verification?"},
+    {"location": "golden deterministic_spoken_closing turn 2, user input", "quote": "I accidentally set off my alarm — can you cancel it? Passcode is Sunset."},
+    {"location": "iteration_4/results.json per_eval failures (x3)", "quote": "expected cancel_alarm, not found. Called: [lookup_accounts_by_caller, end_session]"},
+    {"location": "diff iteration_3/snapshot -> current, root_agent/instruction.txt (added in Fix round 2)", "quote": "The confirmation question MUST be a standalone turn: ask ONLY the branch-confirmation question, then STOP and wait for the caller's yes/no. Do NOT restate the request or duration, and do NOT ask for the passcode in the same message — the passcode request comes only AFTER the caller confirms the branch."},
+    {"location": "current root_agent/instruction.txt Verify_Passcode step 1 (unconditional, never reuses inline passcode)", "quote": "1. Ask the caller for the account passcode (a single spoken word), e.g., \"Could you please provide the passcode for verification?\""}
+  ],
+  "decision_tree_path": [
+    "regression_status == regression -> walk Regression triage branch",
+    "Read previous_message (Fix round 2): standalone branch-confirmation turn + mandatory put_on_test + action_grounding -> identified change",
+    "Diff current vs iteration_3 snapshot: confirmed added standalone-turn / 'do not ask passcode in same message' language and step-5 pushback path",
+    "Read failing transcript: agent re-asks for passcode in turn 2 despite inline passcode; chain breaks before verify_passcode and cancel_alarm",
+    "Direct conflict: prior change's strict ask-then-stop sequencing (intended for multi-branch fort_worth regression) now suppresses single-turn chaining when the passcode is supplied inline",
+    "Resolution: forward-narrow the prior change + add inline-passcode carve-out to Verify_Passcode (instruction_edit)"
+  ],
+  "suggested_fix_type": "instruction_edit",
+  "regression_resolution": "forward_narrowed_prior_change",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/cxas_app/rrms-v1/agents/root_agent/instruction.txt"
+  ],
+  "fix_summary_one_line": "In root_agent instruction, add a Verify_Passcode carve-out to reuse a passcode the caller already supplied inline (don't re-ask), and scope the Resolve_Account 'standalone turn / do not ask passcode in same message' rule to multi-branch disambiguation only so it no longer blocks single-account chaining.",
+  "needs_user_approval": false,
+  "confidence": "high"
+}
