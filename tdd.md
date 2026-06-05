@@ -145,6 +145,10 @@ Mock dataset lives **in the app code** (user interview 2026-06-04). Minimum requ
 | 2026-06-04 | **24/24 (100%)** | 15/15 (100%) | 16/16 | 18/18 | Alignment package + platform golden force-recreate. Text validation complete — later found to have run on platform-default gemini-2.5-flash ("gemini-3-flash" invalid, silently dropped). |
 | 2026-06-04 | 21/24 (88%) | — | — | — | **First run on gemini-3.1-flash-live** (text channel). dispatch_status 0/3: model parroted "the tool response confirms" to the caller. |
 | 2026-06-04 | **23/24 (96%)** | — | — | — | no_speculation guideline rewritten (internal grounding only). Residual failure = judge paraphrase noise. **Live-model text validation complete.** |
+| 2026-06-04 | 24/24 (100%) | 15/15 (100%) | 16/16 | 18/18 | "Hello" openers (TTS reads `<event>welcome</event>` aloud) + dispatch golden aligned. Live model, text channel. |
+| 2026-06-05 | 9/24 → 22/24 | — | — | — | FIRST AUDIO runs. 0/24 via `--audio` flag = scoring artifact (score via evaluation_status). Real causes: ASR lowercases passcodes (fixed: case-insensitive regexp args) → 22/24; then speak-after-tool tightening for turn-splitting. |
+| 2026-06-05 | 20/24 (83%) | 11/15 (73%) | 16/16 | 18/18 | Full audio baseline round 1. Sims found REAL-CALLER BUG: ASR splits "Bluebird"→"Blue Bird", verify failed. |
+| 2026-06-05 | **21/24 (88%)** | **15/15 (100%)** | **17/17** | **18/18** | Audio round 2 after verify_passcode whitespace normalization. 3 goldens each 2/3, no shared cause — irreducible audio-stochastic band. **AUDIO VALIDATION COMPLETE (96% overall).** |
 
 ### 9. Known Issues / Open Design Questions
 

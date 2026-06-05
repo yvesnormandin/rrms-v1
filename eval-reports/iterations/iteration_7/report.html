@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Iteration 7 Report - ec021a75-b0a0-4d88-90d9-1d39556bee7a</title>
+<style>
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #fff;
+    color: #333;
+  }
+  h1 {
+    color: #1a1a2e;
+    border-bottom: 3px solid #3f51b5;
+    padding-bottom: 10px;
+  }
+  h2 {
+    color: #1a1a2e;
+    margin-top: 30px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 6px;
+  }
+  .header-meta {
+    color: #666;
+    font-size: 0.9em;
+    margin: 4px 0 16px 0;
+  }
+  .section {
+    margin: 16px 0;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+  th, td {
+    text-align: left;
+    padding: 8px 12px;
+    border-bottom: 1px solid #ddd;
+  }
+  th {
+    background: #2c3e50;
+    color: white;
+  }
+  details {
+    margin: 4px 0;
+  }
+  summary {
+    cursor: pointer;
+  }
+  pre {
+    margin: 0;
+  }
+</style>
+</head>
+<body>
+
+<h1>Iteration 7</h1>
+<div class="header-meta">
+  App: <b>ec021a75-b0a0-4d88-90d9-1d39556bee7a</b> | Generated: 2026-06-05 09:52
+</div>
+
+<div style="background:#e8eaf6;padding:12px 16px;border-radius:6px;margin:12px 0;border-left:4px solid #3f51b5;"><b>Rationale:</b> Audio round 2: verify_passcode normalizes whitespace (ASR splits 'Bluebird' -&gt; 'Blue Bird' — real-caller bug found by audio sim); golden passcode regexps space-tolerant; new tool test for word-split case. Prior audio: goldens 20/24, sims 11/15 — residuals were this ASR issue + stochastic audio noise.</div>
+
+<h2>Summary</h2>
+<div class="section">
+
+    <div style="display:flex;gap:24px;align-items:center;margin:12px 0;">
+      <div style="font-size:2.2em;font-weight:bold;color:#f57c00;">88%</div>
+      <div>
+        <b>21/24</b> evals passed<br>
+        <span style="color:#666;font-size:0.85em;">Run: ad72da1e | 2026-06-05 13:28:07</span>
+      </div>
+    </div>
+</div>
+
+<h2>Changes from Previous Iteration</h2>
+<div class="section">
+<details style="margin:8px 0;">
+<summary style="cursor:pointer;font-weight:bold;padding:4px 0;">tools/verify_passcode/python_function/python_code.py <span style="background:#fff3cd;color:#856404;padding:2px 8px;border-radius:4px;font-size:0.8em;">MODIFIED</span></summary>
+<pre style="background:#f6f8fa;padding:12px;border-radius:6px;font-size:0.85em;overflow-x:auto;margin:4px 0;line-height:1.4;"><span style="display:block;">--- a/tools/verify_passcode/python_function/python_code.py</span><span style="display:block;">+++ b/tools/verify_passcode/python_function/python_code.py</span><span style="color:#0366d6;display:block;">@@ -90,7 +90,13 @@</span><span style="display:block;">             &quot;agent_action&quot;: &quot;Ask the caller to provide the account passcode.&quot;,</span><span style="display:block;"></span><span style="display:block;">         }</span><span style="display:block;"></span><span style="display:block;"> </span><span style="display:block;"></span><span style="color:#721c24;background:#f8d7da;display:block;">-    verified = passcode.strip().lower() == record[&quot;passcode&quot;].lower()</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+    # Normalize whitespace and case: ASR often splits compound spoken words</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+    # (&quot;Bluebird&quot; -&gt; &quot;Blue Bird&quot;) and lowercases them. Real callers on the</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+    # phone hit this, so the tool — not the eval — must absorb it.</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+    verified = (</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+        passcode.replace(&quot; &quot;, &quot;&quot;).strip().lower()</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+        == record[&quot;passcode&quot;].replace(&quot; &quot;, &quot;&quot;).lower()</span><span style="display:block;"></span><span style="color:#155724;background:#d4edda;display:block;">+    )</span><span style="display:block;"></span><span style="display:block;"> </span><span style="display:block;"></span><span style="display:block;">     if verified:</span><span style="display:block;"></span><span style="display:block;">         context.state[&quot;_resolved_account&quot;] = json.dumps(</span><span style="display:block;"></span></pre>
+</details>
+
+</div>
+
+<h2>Failure Triage</h2>
+<div class="section">
+<div style="background:#fff;border-left:4px solid #e74c3c;padding:10px 14px;margin:8px 0;border-radius:4px;"><b style="color:#c0392b;">EXPECTATION_FAIL</b> (1)<ul style="margin:4px 0 0 0;padding-left:20px;"><li><b>sms_offered_after_validation_then_declined</b>: &quot;The agent must confirm verbally that no text will be sent, t&quot; — The agent did offer further help by asking if the user wanted to be connected to</li></ul></div>
+<div style="background:#fff;border-left:4px solid #e74c3c;padding:10px 14px;margin:8px 0;border-radius:4px;"><b style="color:#c0392b;">TOOL_MISSING</b> (2)<ul style="margin:4px 0 0 0;padding-left:20px;"><li><b>uc2_on_test_disambiguation_sms_happy_path</b>: expected , not found. Called: [lookup_accounts_by_caller, verify_passcode, put_account_on_test, send_confirmation_sms]</li><li><b>uc1_cancel_false_alarm_happy_path</b>: expected , not found. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm]</li></ul></div>
+
+</div>
+
+<h2>Per-Eval Results</h2>
+<div class="section">
+<table style="border-collapse:collapse;width:100%;margin:10px 0;"><tr style="background:#2c3e50;color:white;"><th style="padding:8px 12px;text-align:left;">Eval</th><th style="padding:8px 12px;text-align:center;">Pass</th><th style="padding:8px 12px;text-align:center;">Total</th><th style="padding:8px 12px;text-align:center;">Rate</th><th style="padding:8px 12px;text-align:left;">Status</th></tr>
+<tr><td style="padding:8px 12px;">deterministic_spoken_closing</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">100%</td><td style="padding:8px 12px;"><span style="color:#27ae60;font-weight:bold;">PASS</span></td></tr>
+<tr><td style="padding:8px 12px;">disambiguation_accuracy_fort_worth</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">100%</td><td style="padding:8px 12px;"><span style="color:#27ae60;font-weight:bold;">PASS</span></td></tr>
+<tr><td style="padding:8px 12px;">dispatch_status_reassurance</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">100%</td><td style="padding:8px 12px;"><span style="color:#27ae60;font-weight:bold;">PASS</span></td></tr>
+<tr><td style="padding:8px 12px;">passcode_gate_enforced_before_action</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">100%</td><td style="padding:8px 12px;"><span style="color:#27ae60;font-weight:bold;">PASS</span></td></tr>
+<tr><td style="padding:8px 12px;">single_site_no_disambiguation</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">100%</td><td style="padding:8px 12px;"><span style="color:#27ae60;font-weight:bold;">PASS</span></td></tr>
+<tr style="background:#fef5f5;"><td style="padding:8px 12px;">sms_offered_after_validation_then_declined</td><td style="padding:8px 12px;text-align:center;">2</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">67%</td><td style="padding:8px 12px;"><span style="color:#e74c3c;font-weight:bold;">FAIL</span></td></tr>
+<tr style="background:#fef5f5;"><td style="padding:8px 12px;">uc1_cancel_false_alarm_happy_path</td><td style="padding:8px 12px;text-align:center;">2</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">67%</td><td style="padding:8px 12px;"><span style="color:#e74c3c;font-weight:bold;">FAIL</span></td></tr>
+<tr style="background:#fef5f5;"><td style="padding:8px 12px;">uc2_on_test_disambiguation_sms_happy_path</td><td style="padding:8px 12px;text-align:center;">2</td><td style="padding:8px 12px;text-align:center;">3</td><td style="padding:8px 12px;text-align:center;">67%</td><td style="padding:8px 12px;"><span style="color:#e74c3c;font-weight:bold;">FAIL</span></td></tr>
+</table>
+</div>
+
+</body>
+</html>

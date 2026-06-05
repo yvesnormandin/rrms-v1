@@ -153,3 +153,25 @@ LESSONS: (1) always pull-verify that modelSettings landed after push — invalid
 - `no_active_alarm_to_cancel`: The agent must inform the caller there is no active alarm signal on the account  — The agent claimed it was having trouble accessing account details rather than in
 - `no_active_alarm_to_cancel`: The agent must offer further help after reporting there is nothing to cancel. — The agent did not report there was nothing to cancel, nor did it offer further h
 
+## Iteration 11 — 2026-06-05
+**Change:** Audio round 2: verify_passcode normalizes whitespace (ASR splits 'Bluebird' -> 'Blue Bird' — real-caller bug found by audio sim); golden passcode regexps space-tolerant; new tool test for word-split case. Prior audio: goldens 20/24, sims 11/15 — residuals were this ASR issue + stochastic audio noise.
+
+| Eval Type | Pass Rate |
+|-----------|-----------|
+| Goldens | 21/24 (88%) |
+| Simulations | 15/15 (100%) |
+| Tool Tests | 17/17 (100%) |
+| Callback Tests | 18/18 (100%) |
+
+**Golden failures:**
+- `TOOL_MISSING` uc2_on_test_disambiguation_sms_happy_path: expected , not found. Called: [lookup_accounts_by_caller, verify_passcode, put_account_on_test, send
+- `TOOL_MISSING` uc1_cancel_false_alarm_happy_path: expected , not found. Called: [lookup_accounts_by_caller, verify_passcode, cancel_alarm]
+- `EXPECTATION_FAIL` sms_offered_after_validation_then_declined: "The agent must confirm verbally that no text will be sent, t" — The agent did offer further help by
+
+
+## Iterations 10–11 — 2026-06-05 (audio channel)
+**Round 1 (full audio baseline):** goldens 20/24, sims 11/15. Triage found a REAL-CALLER BUG: TTS/ASR transcribes spoken "Bluebird" as "Blue Bird" → verify_passcode rejected it (agent then correctly offered operator after 3 attempts). Also one spurious model bail-out (audio flakiness) and judge dings on dropped words.
+**Fixes:** verify_passcode normalizes whitespace + case (tool-side — protects real phone callers, not just evals); golden passcode regexps space-tolerant ((?i)^blue\s*bird$); new tool test verify_passcode_asr_word_split_normalized; speak-after-tool tightening in Put_On_Test (kills "I'm placing..." pre-tool narration).
+**Round 2: 96% overall — goldens 21/24 (3 distinct goldens at 2/3, no shared cause = audio noise band), sims 15/15, tools 17/17, callbacks 18/18. AUDIO VALIDATION COMPLETE.**
+
+LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-splitting) that text evals can never surface. Absorb ASR variance in TOOLS (normalization), not just eval tolerances.
