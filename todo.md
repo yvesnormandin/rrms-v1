@@ -37,5 +37,6 @@ Build Steps (from references/build.md → Full Build):
         rrms-demo-store     = 3f88fc77-6616-42cb-b3ec-72ba75369fb3 (CLID +15125550142 — UC1 flow verified)
         rrms-demo-multisite = 1a32623a-96d0-43f3-bf91-7f533a9deb58 (CLID +12145550199 — disambiguation verified)
   - [ ] 8c. USER: wire the two GTP phone numbers to the variant apps in the Console (one-time)
+- [x] 9. Single-source mock data refactor (2026-06-05): _MOCK_ACCOUNTS only in lookup; _caller_accounts state var; data-driven dispatch_status. Validated 74/74 (text, live model). gate-check.py nested-pull bug fixed; variants redeployed with user-enriched fixtures (Plano: dispatched).
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog
