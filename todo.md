@@ -25,6 +25,10 @@ Build Steps (from references/build.md → Full Build):
   - [x] 7c-rerun5. Goldens text run 7 on gemini-3.1-flash-live — 21/24; only dispatch_status_reassurance 0/3 (live model leaks "the tool response confirms" — parroting the no_speculation guideline)
   - [x] 7c-fix5. no_speculation guideline rewritten (ground internally, never mention tools/systems to the caller); lint clean; pushed
   - [x] 7c-rerun6. Goldens text run 8 on live model — **23/24**; dispatch_status_reassurance 2/3, residual failure is pure judge paraphrase-noise (no leakage). LIVE-MODEL TEXT VALIDATION effectively complete.
-  - [ ] 7e. Sims on live model (text channel), then audio baseline (flip modality/channel to audio + gcs_bucket), then GTP two-variant deployment (default-CLID callback + deploy script)
+  - [x] 7d-prep. Audio-proofing: <event>welcome</event> → "Hello" in all 8 goldens (TTS reads the event tag aloud — user direction); dispatch_status golden aligned to live-model phrasing; goldens force-recreated
+  - [x] 7d-validate. Goldens text run 9 on live model — **24/24 (100%)**
+  - [ ] 7e-sims. Sims on live model (text channel, P1+P2, ×3) — in progress (bg task bf13niqbp)
+  - [ ] 7f. Audio baseline: flip gecx-config modality/default_channel→audio + add gcs_bucket gs://yves-normandin-cxas-evals (app.json model already live); run goldens+sims on audio channel
+  - [ ] 8. GTP two-variant deployment: default-CLID before_agent callback (+callback test), deploy-variants script, create 2 variant apps, wire GTP numbers (Console, user)
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog

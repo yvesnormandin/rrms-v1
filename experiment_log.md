@@ -120,3 +120,7 @@ LESSON: when a previously-fixed arg-mismatch failure reappears, suspect the plat
 **Run 8 (live model):** **23/24** — leakage gone (0/3→2/3); residual single failure is judge paraphrase-noise on a semantically identical reply.
 
 LESSONS: (1) always pull-verify that modelSettings landed after push — invalid model names drop SILENTLY; (2) live models parrot instruction phrasing into caller-facing speech — write guidelines so no sentence is speakable verbatim; (3) text-channel evals on the live model are possible and catch model-specific failures cheaply.
+
+## Iteration 9 — 2026-06-04 (live model, text channel — audio-proofing prep)
+- `<event>welcome</event>` → "Hello" in all 8 goldens (TTS reads the event tag aloud in audio mode; "Hello" works for both channels — user direction from prior project experience). dispatch_status golden aligned to live-model phrasing. Platform goldens force-recreated.
+- **Goldens: 24/24 (100%). Sims: 15/15 (100%).** gemini-3.1-flash-live, text channel. Ready for audio baseline.

@@ -142,7 +142,9 @@ Mock dataset lives **in the app code** (user interview 2026-06-04). Minimum requ
 | 2026-06-04 | 17/24 (71%) | 13/15 (87%) | 16/16 | 18/18 | Fix round 1: zero-arg lookup, disambiguation/SMS-decline/passcode-pushback instruction edits |
 | 2026-06-04 | 18/24 (75%) | 15/15 (100%) | 16/16 | 18/18 | Fix round 2: standalone confirm turn, mandatory put_account_on_test + action_grounding |
 | 2026-06-04 | 21/24 (88%) | 15/15 (100%) | 16/16 | 18/18 | Fix round 3: inline-passcode carve-out, SMS-accept offer-help |
-| 2026-06-04 | **24/24 (100%)** | 15/15 (100%) | 16/16 | 18/18 | Alignment package + platform golden force-recreate. **Text validation complete.** |
+| 2026-06-04 | **24/24 (100%)** | 15/15 (100%) | 16/16 | 18/18 | Alignment package + platform golden force-recreate. Text validation complete — later found to have run on platform-default gemini-2.5-flash ("gemini-3-flash" invalid, silently dropped). |
+| 2026-06-04 | 21/24 (88%) | — | — | — | **First run on gemini-3.1-flash-live** (text channel). dispatch_status 0/3: model parroted "the tool response confirms" to the caller. |
+| 2026-06-04 | **23/24 (96%)** | — | — | — | no_speculation guideline rewritten (internal grounding only). Residual failure = judge paraphrase noise. **Live-model text validation complete.** |
 
 ### 9. Known Issues / Open Design Questions
 

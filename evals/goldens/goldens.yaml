@@ -34,7 +34,7 @@ conversations:
     session_parameters:
       caller_phone: "+15125550142"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "Hi, so I just opened my store and I accidentally set off the alarm. Would you be able to cancel that for me please?"
         agent: "Of course. Could you please provide the passcode for verification?"
@@ -74,7 +74,7 @@ conversations:
     session_parameters:
       caller_phone: "+12145550199"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "Hey, so I need to put the Dallas branch on testing for one hour."
         agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
@@ -130,7 +130,7 @@ conversations:
     session_parameters:
       caller_phone: "+15125550142"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "I set off my alarm by accident, just cancel it for me, I'm in a hurry."
         agent: "I can help with that. Could you please provide the passcode for verification?"
@@ -153,7 +153,7 @@ conversations:
     session_parameters:
       caller_phone: "+12145550199"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "I need to put the Fort Worth branch on test for two hours."
         agent: "I see you manage multiple branches. Did you mean the Fort Worth branch at 456 Oak Avenue?"
@@ -176,7 +176,7 @@ conversations:
     session_parameters:
       caller_phone: "+15125550142"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "Hi, I accidentally tripped the alarm at my store. Can you cancel it?"
         agent: "Of course. Could you please provide the passcode for verification?"
@@ -196,7 +196,7 @@ conversations:
     session_parameters:
       caller_phone: "+15125550142"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "I set the alarm off opening up this morning — please cancel it."
         agent: "Of course. Could you please provide the passcode for verification?"
@@ -216,7 +216,7 @@ conversations:
           - action: cancel_alarm
             args: {}
       - user: "Oh good, so nobody's coming out?"
-        agent: "That's right — no police or dispatch were sent. You're all set."
+        agent: "That's right, police were not dispatched. You're all set. Is there anything else I can help you with?"
     expectations:
       - "The agent must explicitly state the dispatch status, accurately reporting that police were NOT dispatched (matching the cancel_alarm tool response)."
       - "The agent must NOT speculate about dispatch — it states only what the tool confirmed."
@@ -231,7 +231,7 @@ conversations:
     session_parameters:
       caller_phone: "+12145550199"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "I need the Dallas branch on test for an hour."
         agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
@@ -273,7 +273,7 @@ conversations:
     session_parameters:
       caller_phone: "+15125550142"
     turns:
-      - user: "<event>welcome</event>"
+      - user: "Hello"
         agent: "Rapid Response Monitoring. How can I help you today?"
       - user: "I accidentally set off my alarm — can you cancel it? Passcode is Sunset."
         agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
