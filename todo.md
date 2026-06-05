@@ -20,6 +20,11 @@ Build Steps (from references/build.md → Full Build):
   - [x] 7c-rerun3. Text validation run 4 — 96% (goldens 21/24, sims 15/15); deterministic_spoken_closing + uc2 fixed
   - [x] 7c-user. User hand-edited a golden + instruction ("do NOT confirm the site"); goldens-only text run 5 → 22/24, uc1 1/3 (stale platform golden args + uc1/passcode_gate contradiction on store-name mention)
   - [x] 7c-fix4. Alignment package (user-approved): instruction = no store name on single-site passcode ask; passcode_gate golden → generic text; uc1 cancel turn += "Anything else I can help with?"; platform goldens force-recreated; lint+push done
-  - [x] 7c-rerun4. Goldens-only text run 6 — **24/24 (100%)**, all 8 goldens 3/3. TEXT VALIDATION COMPLETE (sims 15/15, tools 16/16, callbacks 18/18 as of run 4)
+  - [x] 7c-rerun4. Goldens-only text run 6 — **24/24 (100%)**, all 8 goldens 3/3 (sims 15/15, tools 16/16, callbacks 18/18 as of run 4)
+  - [!] DISCOVERY: platform modelSettings was EMPTY — "gemini-3-flash" is an invalid model name, silently dropped on push; runs 1–6 actually ran on platform default (gemini-2.5-flash, confirmed by user in Console). gemini-3.1-flash-live pushed and pull-verified 2026-06-04.
+  - [x] 7c-rerun5. Goldens text run 7 on gemini-3.1-flash-live — 21/24; only dispatch_status_reassurance 0/3 (live model leaks "the tool response confirms" — parroting the no_speculation guideline)
+  - [x] 7c-fix5. no_speculation guideline rewritten (ground internally, never mention tools/systems to the caller); lint clean; pushed
+  - [x] 7c-rerun6. Goldens text run 8 on live model — **23/24**; dispatch_status_reassurance 2/3, residual failure is pure judge paraphrase-noise (no leakage). LIVE-MODEL TEXT VALIDATION effectively complete.
+  - [ ] 7e. Sims on live model (text channel), then audio baseline (flip modality/channel to audio + gcs_bucket), then GTP two-variant deployment (default-CLID callback + deploy script)
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog

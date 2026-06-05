@@ -113,3 +113,10 @@ Expected: uc1/uc2/sms_declined 0/3→3/3, passcode_gate 1/3→3/3, sim declines_
 **Run 6: 24/24 (100%) — all 8 goldens 3/3. Text validation complete.**
 
 LESSON: when a previously-fixed arg-mismatch failure reappears, suspect the platform copy (use --force-recreate), and check for golden-vs-golden contradictions before blaming the agent.
+
+## Iteration 7–8 — 2026-06-04 (first runs on gemini-3.1-flash-live, text channel)
+**DISCOVERY:** platform `modelSettings` was EMPTY — "gemini-3-flash" (the skill template's text-model name) is invalid on this platform and every push silently dropped it. Runs 1–6 actually executed on the platform default **gemini-2.5-flash** (user spotted it in the Console). `gemini-3.1-flash-live` pushed and pull-verified. Text-channel eval runs against the live model ARE accepted by the platform.
+**Run 7 (live model):** 21/24 — only `dispatch_status_reassurance` 0/3: live model parroted instruction wording to the caller ("That's right, the tool response confirms police were not dispatched"). Fix: `no_speculation` guideline rewritten — ground internally, NEVER mention tools/systems/lookups to the caller.
+**Run 8 (live model):** **23/24** — leakage gone (0/3→2/3); residual single failure is judge paraphrase-noise on a semantically identical reply.
+
+LESSONS: (1) always pull-verify that modelSettings landed after push — invalid model names drop SILENTLY; (2) live models parrot instruction phrasing into caller-facing speech — write guidelines so no sentence is speakable verbatim; (3) text-channel evals on the live model are possible and catch model-specific failures cheaply.

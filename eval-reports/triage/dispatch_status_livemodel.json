@@ -1,0 +1,34 @@
+{
+  "cluster_split": false,
+  "cluster_eval_names": ["dispatch_status_reassurance"],
+  "eval_name": "dispatch_status_reassurance",
+  "category": "TEXT_MISMATCH",
+  "category_overridden": false,
+  "root_cause": "Model-change regression, NOT a code diff. The live model gemini-3.1-flash-live (run 80c04459-8b87-4568-bd6d-c09ce7e424d4) deterministically fails ONLY on the final reassurance turn (turn 4, 'Oh good, so nobody's coming out?'). All 3 live runs produce the same observed text: \"That's right, the tool response confirms police were not dispatched. Is there anything else I can help you with today?\" The judge fails it (semantic_similarity_result outcome=FAIL, label 'Partially Consistent (Minor Omissions)') because the phrase 'the tool response confirms' is internal-state leakage surfaced to the caller. The earlier model (gemini-2.5-flash-001, run b15a9be2) phrased the same intent without leakage and passed 3/3. The proximate driver of the leaked phrasing is the no_speculation guideline (instruction.txt line 34: 'Only state what the tool responses confirm.') which gemini-3.1-flash-live verbalizes literally instead of treating as an internal directive. Turns 1-3 pass on the live model (sem outcome PASS) including the upstream 'Police were not dispatched' line; only the turn-4 reassurance regresses.",
+  "evidence_quotes": [
+    {"location": "live run 80c04459, result 0, turn 4 (reassurance) — observed_agent_response", "quote": "That's right, the tool response confirms police were not dispatched. Is there anything else I can help you with today?"},
+    {"location": "live run 80c04459, result 0, turn 4 — golden expected_agent_response", "quote": "That's right — no police or dispatch were sent. You're all set."},
+    {"location": "live run 80c04459, result 0, turn 4 — judge explanation (sem score, FAIL)", "quote": "the actual response includes the phrase \"the tool response confirms\", which is internal state leakage not present in the reference. This constitutes a significant structural inconsistency and a readout of internal tool results, penalizing the score to Partially Consistent."},
+    {"location": "live run 80c04459, results 1 & 2, turn 4 — observed_agent_response (identical across all 3 runs, deterministic)", "quote": "That's right, the tool response confirms police were not dispatched. Is there anything else I can help you with today?"},
+    {"location": "live run 80c04459, all results, turns 1-3 — sem outcome", "quote": "PASS (turns 1-3 pass on the live model; only turn 4 regresses)"},
+    {"location": "agent_dir/agents/root_agent/instruction.txt line 33-34 (no_speculation guideline)", "quote": "Never guess or speculate about account details, alarm status, dispatch status, or branch information. Only state what the tool responses confirm."},
+    {"location": "prior-model run b15a9be2 (gemini-2.5-flash-001) — evaluation_status", "quote": "PASS 3/3 (same agent code; only the model differs)"}
+  ],
+  "decision_tree_path": [
+    "Regression branch: regression_status == regression",
+    "Is this caused by a prior instruction/code edit (previous_message)? no — context confirms code is unchanged; the model name silently changed from default gemini-2.5-flash to gemini-3.1-flash-live",
+    "regression_resolution = unrelated_cause -> fall through to normal decision tree as a model-driven phrasing change",
+    "Is the golden expectation stale (instruction changed but golden expects old phrasing)? no — instruction unchanged",
+    "Is the agent hallucinating (saying things not grounded in tool output)? no — substance is correct and grounded (police were not dispatched); the defect is leaking the internal phrase 'the tool response confirms' to the caller",
+    "Behavior is consistent (0/3, identical text all 3 runs) -> not flaky; deterministic live-model phrasing defect rooted in the no_speculation guideline phrasing"
+  ],
+  "regression_resolution": "unrelated_cause",
+  "suggested_fix_type": "instruction_edit",
+  "files_to_edit": [
+    "/home/norman/dev/cxas-scrapi/rrms-v1/cxas_app/rrms-v1/agents/root_agent/instruction.txt"
+  ],
+  "fix_summary_one_line": "Reframe the no_speculation guideline (line 33-34) so the live model treats 'only state what the tool responses confirm' as an internal grounding directive — e.g., add 'Speak naturally to the caller; never say phrases like \"the tool response confirms\" or otherwise reference tools/internal systems' — and/or add a reassurance example for the dispatch-status turn so gemini-3.1-flash-live mirrors caller-facing phrasing instead of verbalizing the directive.",
+  "needs_user_approval": false,
+  "confidence": "high",
+  "notes": "Singleton cluster treated as single-eval. Failure is deterministic (0/3 on live model, identical observed text). The fix is instruction-side per golden doctrine ('default to fix the agent') because 'the tool response confirms' is a genuine caller-facing state-leakage defect worth correcting for the new production model, not merely stale golden phrasing. Alternative/secondary option: eval_edit to relax the turn-4 golden phrasing if the team decides the leakage is acceptable — but the judge flags it as a real inconsistency, so instruction_edit is preferred. transcript_source: list_evaluation_results returns all 6 results unsorted; the live-model run is identified by run id 80c04459 (gemini-3.1-flash-live, all FAIL), NOT by list position — results[-3:] are the OLD gemini-2.5-flash PASS run b15a9be2."
+}
