@@ -1,0 +1,7 @@
+{
+  "name": "141fa374-8ddf-446f-9ecd-0f16098f70cc",
+  "displayName": "eval_exp_0fe02e1f",
+  "llmCriteria": {
+    "prompt": "The agent must report that police were not dispatched, matching the tool\u0027s dispatch status."
+  }
+}

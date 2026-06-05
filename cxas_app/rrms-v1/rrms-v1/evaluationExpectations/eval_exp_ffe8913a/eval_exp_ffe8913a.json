@@ -1,0 +1,7 @@
+{
+  "name": "d6481509-4b31-45e3-ba16-3f5c379e565c",
+  "displayName": "eval_exp_ffe8913a",
+  "llmCriteria": {
+    "prompt": "The agent must call verify_passcode with the spoken passcode before canceling the alarm."
+  }
+}

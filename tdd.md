@@ -90,6 +90,18 @@ The brief is silent on session schema; these are proposals. Default to session p
 | Callback | Agent | Type | Purpose | Justified by |
 |----------|-------|------|---------|--------------|
 | Deterministic farewell + end | `root_agent` | `after_model` | The LLM frequently calls `end_session` without speaking the closing line first (design guide). Inject the closing line before `end_session` so every call ends with a spoken sign-off. | Both sample calls end with a spoken goodbye immediately before hanging up. |
+| Default demo CLID | `root_agent` | `before_agent` | Sets `caller_phone` to `DEFAULT_CALLER_PHONE` ONLY when the session has none (live GTP callers); eval `session_parameters` always win. The constant is the single point of per-variant substitution for the GTP deployment (see Deployment below). | Public demo: any phone can call, so real CLIDs can't key the mock data — each GTP number maps to a fixed mock customer (user requirement 2026-06-05). |
+
+### 5b. Deployment (GTP variants)
+
+The canonical app `rrms-v1` is the only app developed/eval'd against. Two deploy-artifact apps serve the public GTP numbers, regenerated from canonical by `deploy-variants.sh` (only `DEFAULT_CALLER_PHONE` + app identity differ; config in `deploy-variants.json`):
+
+| Variant | App ID | CLID → mock customer |
+|---|---|---|
+| `rrms-demo-store` | `3f88fc77-6616-42cb-b3ec-72ba75369fb3` | `+15125550142` → Johnson Verizon Store (UC1) |
+| `rrms-demo-multisite` | `1a32623a-96d0-43f3-bf91-7f533a9deb58` | `+12145550199` → Dallas/Fort Worth/Plano (UC2) |
+
+Release flow: edit canonical → lint → push `rrms-v1` → evals green → `./deploy-variants.sh`. App IDs are stable, so GTP number wiring (Console, one-time) survives redeploys. Never edit variant apps directly.
 
 No other callbacks proposed. Intent detection, disambiguation, and the passcode gate are judgment/dialogue tasks that belong in the instruction, not in callbacks (design guide: keep detection generative; use callbacks only to enforce execution). Revisit if coverage analysis surfaces non-determinism in the closing or in the verify→act sequence (a trigger pattern for `cancel_alarm` / `put_account_on_test` could be added if the LLM proves unreliable about calling them after verification).
 

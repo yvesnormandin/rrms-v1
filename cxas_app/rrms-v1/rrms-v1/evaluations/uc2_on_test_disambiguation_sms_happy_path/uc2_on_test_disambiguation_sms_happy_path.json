@@ -1,0 +1,175 @@
+{
+  "name": "e201f873-9bda-4b2d-bdd8-2e9682fa5516",
+  "displayName": "uc2_on_test_disambiguation_sms_happy_path",
+  "tags": ["P0", "NO-GO", "uc2", "on-test", "disambiguation", "sms", "happy-path", "rrms-v1", "audio", "goldens"],
+  "golden": {
+    "turns": [{
+      "steps": [{
+        "userInput": {
+          "variables": {
+            "caller_phone": "+12145550199"
+          }
+        }
+      }, {
+        "userInput": {
+          "text": "Hello"
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "Rapid Response Monitoring. How can I help you today?"
+            }]
+          }
+        }
+      }]
+    }, {
+      "steps": [{
+        "userInput": {
+          "text": "Hey, so I need to put the Dallas branch on testing for one hour."
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+            }]
+          }
+        }
+      }, {
+        "expectation": {
+          "toolCall": {
+            "id": "adk-7b7fc881-966d-4890-ba65-371bba5109ec",
+            "tool": "lookup_accounts_by_caller",
+            "args": {
+            },
+            "displayName": "lookup_accounts_by_caller"
+          }
+        }
+      }]
+    }, {
+      "steps": [{
+        "userInput": {
+          "text": "Yes."
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "Great. Please provide the account passcode to confirm."
+            }]
+          }
+        }
+      }]
+    }, {
+      "steps": [{
+        "userInput": {
+          "text": "Bluebird."
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "Thanks, verified. The Dallas branch account ending in 345 is now on test for one hour. Would you like me to send a confirmation text as well?"
+            }]
+          }
+        }
+      }, {
+        "expectation": {
+          "toolCall": {
+            "id": "adk-50bbe805-7a55-43a8-85f9-53373a5de2f0",
+            "tool": "verify_passcode",
+            "args": {
+              "account_id": {
+                "$matchType": "ignore",
+                "$matchValue": "",
+                "$originalValue": ""
+              },
+              "passcode": {
+                "$matchType": "regexp",
+                "$matchValue": "(?i)^blue\\s*bird$",
+                "$originalValue": "Bluebird"
+              }
+            },
+            "displayName": "verify_passcode"
+          }
+        }
+      }, {
+        "expectation": {
+          "toolCall": {
+            "id": "adk-83004094-1d85-46cd-b6eb-d4ae4d913c82",
+            "tool": "put_account_on_test",
+            "args": {
+              "duration_label": {
+                "$matchType": "ignore",
+                "$matchValue": "",
+                "$originalValue": ""
+              },
+              "duration_minutes": 60.0
+            },
+            "displayName": "put_account_on_test"
+          }
+        }
+      }]
+    }, {
+      "steps": [{
+        "userInput": {
+          "text": "Please."
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "Done. A confirmation has been sent. Anything else today?"
+            }]
+          }
+        }
+      }, {
+        "expectation": {
+          "toolCall": {
+            "id": "adk-c8e371f5-9ccb-4cb4-8f60-f81da443cbdd",
+            "tool": "send_confirmation_sms",
+            "args": {
+              "message_summary": {
+                "$matchType": "ignore",
+                "$matchValue": "",
+                "$originalValue": ""
+              }
+            },
+            "displayName": "send_confirmation_sms"
+          }
+        }
+      }]
+    }, {
+      "steps": [{
+        "userInput": {
+          "text": "Nope."
+        }
+      }, {
+        "expectation": {
+          "agentResponse": {
+            "role": "agent",
+            "chunks": [{
+              "text": "All right, have a great day."
+            }]
+          }
+        }
+      }, {
+        "expectation": {
+          "toolCall": {
+            "id": "adk-81ff69ec-a5f0-4d31-9055-3823e2944a45",
+            "tool": "end_session",
+            "args": {
+            }
+          }
+        }
+      }]
+    }],
+    "evaluationExpectations": ["eval_exp_2248d2dd", "eval_exp_6df3799a", "eval_exp_381d19e3", "eval_exp_04ed3ff6", "eval_exp_69acfe9a"]
+  }
+}

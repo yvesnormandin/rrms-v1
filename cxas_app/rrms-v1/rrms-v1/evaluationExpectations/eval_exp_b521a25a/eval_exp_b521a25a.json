@@ -1,0 +1,7 @@
+{
+  "name": "477ffad8-7d3c-4114-a9dc-c001533d6d1b",
+  "displayName": "eval_exp_b521a25a",
+  "llmCriteria": {
+    "prompt": "The agent must NOT speculate about dispatch — it states only what the tool confirmed."
+  }
+}

@@ -31,7 +31,11 @@ Build Steps (from references/build.md → Full Build):
   - [x] 7f-1. Audio golden run 10 — 0/24 via --audio flag = SCORING ARTIFACT (memory: hydro-quebec had same); real score via evaluation_status: 9/24 — all 5 full-flow fails from ONE cause: ASR lowercases spoken passcodes vs EXACT_MATCH args
   - [x] 7f-2. Fix: case-insensitive regexp on 5 passcode args (user-approved); force-recreate; audio run 11 → **22/24** (only sms_declined 1/3: audio turn-splitting — agent speaks "I'm placing..." before calling put_account_on_test)
   - [x] 7f-3. Fix: speak-after-tool tightening in Put_On_Test; lint clean; pushed
-  - [ ] 7f-4. FULL audio baseline (goldens+sims+tests, run-and-report) — in progress (bg task b2nn0on35)
-  - [ ] 8. GTP two-variant deployment: default-CLID before_agent callback (+callback test), deploy-variants script, create 2 variant apps, wire GTP numbers (Console, user)
+  - [x] 7f-4. Full audio baseline round 1 (89%) → ASR "Blue Bird" tool fix → round 2 **96%** (goldens 21/24 = audio noise band, sims 15/15, tools 17/17, callbacks 18/18). AUDIO VALIDATION COMPLETE.
+  - [x] 8a. GTP build: default-CLID before_agent callback + 7 unit tests (25/25 callback tests pass); lint clean; pushed; gate-check ALL PASS; text sanity 24/24 (eval params still win)
+  - [x] 8b. deploy-variants.sh + deploy-variants.json; variants created and smoke-tested with NO session params:
+        rrms-demo-store     = 3f88fc77-6616-42cb-b3ec-72ba75369fb3 (CLID +15125550142 — UC1 flow verified)
+        rrms-demo-multisite = 1a32623a-96d0-43f3-bf91-7f533a9deb58 (CLID +12145550199 — disambiguation verified)
+  - [ ] 8c. USER: wire the two GTP phone numbers to the variant apps in the Console (one-time)
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog

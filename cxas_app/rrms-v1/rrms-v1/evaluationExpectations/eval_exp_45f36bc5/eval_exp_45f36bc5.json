@@ -1,0 +1,7 @@
+{
+  "name": "7c3d2151-4b08-4441-a02e-1e307542c891",
+  "displayName": "eval_exp_45f36bc5",
+  "llmCriteria": {
+    "prompt": "The agent must disambiguate to the Fort Worth branch — referencing the Fort Worth name and its street address (456 Oak Avenue), NOT Dallas."
+  }
+}

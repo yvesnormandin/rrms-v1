@@ -1,0 +1,7 @@
+{
+  "name": "d41cb861-5490-4a34-966d-ba8a555f4a40",
+  "displayName": "eval_exp_69acfe9a",
+  "llmCriteria": {
+    "prompt": "The agent must call send_confirmation_sms after the caller agrees to the text."
+  }
+}

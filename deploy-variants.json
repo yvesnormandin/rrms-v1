@@ -1,0 +1,26 @@
+{
+  "_comment": [
+    "GTP deployment variants for the RRMS demo. Each variant is a copy of the",
+    "canonical app (cxas_app/rrms-v1) with ONLY DEFAULT_CALLER_PHONE substituted",
+    "in the before_agent callback. Managed by deploy-variants.sh \u2014 never edit",
+    "the variant apps directly. app_id is filled in automatically on first deploy."
+  ],
+  "gcp_project_id": "yves-normandin-project",
+  "location": "us",
+  "canonical_app_dir": "cxas_app/rrms-v1",
+  "callback_file": "agents/root_agent/before_agent_callbacks/before_agent_callbacks_01/python_code.py",
+  "variants": [
+    {
+      "name": "rrms-demo-store",
+      "clid": "+15125550142",
+      "description": "UC1 \u2014 Johnson Verizon Store (single-site, passcode Sunset)",
+      "app_id": "3f88fc77-6616-42cb-b3ec-72ba75369fb3"
+    },
+    {
+      "name": "rrms-demo-multisite",
+      "clid": "+12145550199",
+      "description": "UC2 \u2014 multi-location manager: Dallas/Fort Worth/Plano (passcode Bluebird)",
+      "app_id": "1a32623a-96d0-43f3-bf91-7f533a9deb58"
+    }
+  ]
+}

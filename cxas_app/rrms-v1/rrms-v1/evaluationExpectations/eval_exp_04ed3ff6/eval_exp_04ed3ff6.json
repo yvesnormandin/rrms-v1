@@ -1,0 +1,7 @@
+{
+  "name": "a9524437-b785-46b3-a1ff-245f9d520bdb",
+  "displayName": "eval_exp_04ed3ff6",
+  "llmCriteria": {
+    "prompt": "The agent must OFFER an SMS confirmation and only send it after the caller accepts."
+  }
+}

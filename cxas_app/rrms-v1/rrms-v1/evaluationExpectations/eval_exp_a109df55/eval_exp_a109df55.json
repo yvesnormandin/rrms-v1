@@ -1,0 +1,7 @@
+{
+  "name": "2eae6891-0f61-4b7e-9cfe-611bc0c7ef85",
+  "displayName": "eval_exp_a109df55",
+  "llmCriteria": {
+    "prompt": "The agent must call cancel_alarm only after the passcode is verified."
+  }
+}

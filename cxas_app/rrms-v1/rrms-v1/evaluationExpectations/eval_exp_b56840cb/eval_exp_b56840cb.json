@@ -1,0 +1,7 @@
+{
+  "name": "030f6d35-ae4a-447b-817f-9bd1c6564102",
+  "displayName": "eval_exp_b56840cb",
+  "llmCriteria": {
+    "prompt": "The agent must request the passcode and decline to cancel until it is provided and verified."
+  }
+}

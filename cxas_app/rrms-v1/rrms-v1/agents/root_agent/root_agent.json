@@ -1,0 +1,12 @@
+{
+  "name": "root_agent",
+  "displayName": "root_agent",
+  "instruction": "agents/root_agent/instruction.txt",
+  "tools": ["cancel_alarm", "end_session", "lookup_accounts_by_caller", "put_account_on_test", "send_confirmation_sms", "verify_passcode"],
+  "beforeAgentCallbacks": [{
+    "pythonCode": "agents/root_agent/before_agent_callbacks/before_agent_callbacks_01/python_code.py"
+  }],
+  "afterModelCallbacks": [{
+    "pythonCode": "agents/root_agent/after_model_callbacks/after_model_callbacks_01/python_code.py"
+  }]
+}

@@ -175,3 +175,12 @@ LESSONS: (1) always pull-verify that modelSettings landed after push — invalid
 **Round 2: 96% overall — goldens 21/24 (3 distinct goldens at 2/3, no shared cause = audio noise band), sims 15/15, tools 17/17, callbacks 18/18. AUDIO VALIDATION COMPLETE.**
 
 LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-splitting) that text evals can never surface. Absorb ASR variance in TOOLS (normalization), not just eval tolerances.
+
+## Iteration 12 — 2026-06-05 (GTP two-variant deployment)
+- New `before_agent` callback: defaults `caller_phone` to DEFAULT_CALLER_PHONE only when the session has none (live GTP callers); eval session params always win. 7 unit tests (25/25 callback tests total).
+- Text sanity on canonical with callback: goldens 24/24 (user call: text sanity instead of audio — callback is channel-agnostic, audio adds cost not signal).
+- `deploy-variants.sh` + `deploy-variants.json`: variants regenerated from canonical, only the CLID constant + app identity substituted. Created:
+  - rrms-demo-store = 3f88fc77-6616-42cb-b3ec-72ba75369fb3 (CLID +15125550142)
+  - rrms-demo-multisite = 1a32623a-96d0-43f3-bf91-7f533a9deb58 (CLID +12145550199)
+- Smoke-tested both with NO session params (live-caller simulation): store ran full UC1 (lookup→verify inline "Sunset"→cancel→dispatch status); multisite returned 3 branches + standalone Dallas disambiguation question.
+- Remaining manual step: wire GTP numbers to the variant apps in the Console.
