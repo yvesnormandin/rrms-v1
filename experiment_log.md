@@ -201,3 +201,8 @@ LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-sp
 - BUG FOUND+FIXED in skill's gate-check.py: gate 1 pulled with --target-dir=app_dir, nesting a stale platform copy at cxas_app/rrms-v1/rrms-v1/ on every run (recurred twice). Patched to pull into a temp dir (and re-lint the pulled copy for the drift check). deploy-variants.sh also gained a guard stripping nested app artifacts from variant copies.
 - User enriched mock data: Fort Worth + Plano now have active alarms; Plano dispatch_status="dispatched" (exercises the "Police were dispatched" branch). No eval coupling (dispatch assertions only target Johnson Verizon Store; no_active_alarm sim targets Dallas, unchanged).
 - Canonical + both GTP variants re-pushed clean with the refactor + new data.
+
+## Iteration 14 — 2026-06-06 (Plano dispatched golden)
+- New golden `plano_alarm_canceled_police_dispatched`: multi-branch caller cancels Plano's alarm (passcode "Harbor", ASR-tolerant regexp); agent must accurately relay dispatch_status="dispatched" and never claim "not dispatched". Exercises the data-driven dispatch branch added in iteration 13.
+- Platform synced to 9 goldens (1 created + 8 force-recreated). Full text run (live model): **27/27 (100%)** — all 9 goldens 3/3, Plano case green first try.
+- Also resolved the user's "only 4 test cases ran" concern: the run produced exactly 27 results (9×3); all 9 evaluations confirmed registered platform-side — the Console view was partial/filtered.

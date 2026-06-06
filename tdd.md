@@ -122,6 +122,7 @@ No other callbacks proposed. Intent detection, disambiguation, and the passcode 
 | Dispatch-status reassurance is clear and accurate | Golden | UC1 step 5 requires explicit, accurate dispatch status ("Police were not dispatched"). | P1 | HIGH | `uc1, dispatch-status` |
 | SMS offered only after successful validation; sent only if caller accepts | Golden | UC2 step 5 ("based on the prior validation"); offer→accept→send is deterministic. | P1 | MEDIUM | `uc2, sms` |
 | Deterministic spoken closing before `end_session` | Golden | Callback-enforced farewell; both samples end with a spoken sign-off. | P1 | MEDIUM | `closing, callback` |
+| Police-dispatched branch: cancel at a site with dispatch_status="dispatched" reports it accurately (never "not dispatched") | Golden | Data-driven dispatch branch added 2026-06-05 (Plano fixture); deterministic given mock data. | P1 | HIGH | `uc1, dispatch-status, dispatched, disambiguation` |
 | `verify_passcode` returns correct true/false per account | Tool test | Isolated logic over mock dataset; assert on output for valid + invalid passcodes. | P0 | HIGH | `tool-test, verify_passcode` |
 | `lookup_accounts_by_caller` returns one vs. many per caller | Tool test | Assert single-account caller returns 1 record; multi-location caller returns multiple branch records with disambiguation fields. | P0 | HIGH | `tool-test, lookup` |
 | `cancel_alarm` / `put_account_on_test` / `send_confirmation_sms` return expected confirmations | Tool test | Assert confirmation payloads (dispatch status; on-test duration + last digits; SMS sent). | P1 | MEDIUM | `tool-test, actions` |
@@ -162,6 +163,8 @@ Mock dataset lives **in the app code** (user interview 2026-06-04). Minimum requ
 | 2026-06-05 | 9/24 → 22/24 | — | — | — | FIRST AUDIO runs. 0/24 via `--audio` flag = scoring artifact (score via evaluation_status). Real causes: ASR lowercases passcodes (fixed: case-insensitive regexp args) → 22/24; then speak-after-tool tightening for turn-splitting. |
 | 2026-06-05 | 20/24 (83%) | 11/15 (73%) | 16/16 | 18/18 | Full audio baseline round 1. Sims found REAL-CALLER BUG: ASR splits "Bluebird"→"Blue Bird", verify failed. |
 | 2026-06-05 | **21/24 (88%)** | **15/15 (100%)** | **17/17** | **18/18** | Audio round 2 after verify_passcode whitespace normalization. 3 goldens each 2/3, no shared cause — irreducible audio-stochastic band. **AUDIO VALIDATION COMPLETE (96% overall).** |
+| 2026-06-05 | 24/24 (100%) | 15/15 (100%) | 17/17 | 18/18 | Single-source mock-data refactor validation (text, live model): 74/74. |
+| 2026-06-06 | **27/27 (100%)** | — | — | — | 9 goldens incl. NEW plano_alarm_canceled_police_dispatched (data-driven dispatched branch). Text, live model. |
 
 ### 9. Known Issues / Open Design Questions
 

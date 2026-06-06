@@ -314,3 +314,49 @@ conversations:
       - "A spoken farewell must be present in the final turn that calls end_session — the call must not end in silence."
       - "The agent must call end_session to terminate the call after the spoken closing."
     tags: [P1, MEDIUM, closing, callback, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Plano cancellation — police WERE dispatched (dispatch_status: "dispatched").
+  # Exercises the data-driven dispatch branch: the agent must accurately relay
+  # that police were dispatched (never claim they were not), for a multi-branch
+  # caller disambiguating to Plano (passcode "Harbor").
+  # ---------------------------------------------------------------------------
+  - conversation: plano_alarm_canceled_police_dispatched
+    session_parameters:
+      caller_phone: "+12145550199"
+    turns:
+      - user: "Hello"
+        agent: "Rapid Response Monitoring. How can I help you today?"
+      - user: "Hi, I accidentally set off the alarm at our Plano branch. Can you cancel it please?"
+        agent: "I see you manage multiple branches. Did you mean the Plano branch at 789 Elm Street?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Yes, that's the one."
+        agent: "Great. Could you please provide the account passcode?"
+      - user: "Harbor."
+        agent: "Thanks, verified. The alarm at the Plano branch has been canceled. Please note that police were dispatched. Is there anything else I can help you with?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode:
+                $matchType: "regexp"
+                $matchValue: "(?i)^har\\s*bor$"
+                $originalValue: "Harbor"
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "Oh, okay. No, that's all. Thanks."
+        agent: "You're all set. Have a good day."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "The agent must confirm the Plano branch (789 Elm Street) before requesting the passcode."
+      - "The agent must verify the passcode before canceling the alarm."
+      - "The agent must accurately report that police WERE dispatched, matching the cancel_alarm tool's dispatch_status — it must NOT say police were not dispatched."
+      - "The agent must not speculate beyond the tool response about dispatch details."
+    tags: [P1, HIGH, uc1, dispatch-status, dispatched, disambiguation, rrms-v1, audio]
