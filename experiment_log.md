@@ -213,3 +213,5 @@ LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-sp
 - New tool tests: one_edit_accepted (Sunsut→Sunset), two_edits_rejected (Sansat). **Tool tests 19/19, callback tests 25/25.**
 - NOTE: the skill's runner script changed (run-all-evals.py → run-evals.py); its tool-test phase reported nothing — ran ToolEvals directly for authoritative results.
 - Variants redeployed with the fuzzy matching.
+
+- Post-fuzzy regression run (goldens, text, live model): **27/27 (100%)** — no regressions from the edit-distance matching.
