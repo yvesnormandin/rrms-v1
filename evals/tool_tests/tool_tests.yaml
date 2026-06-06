@@ -153,6 +153,39 @@ tests:
           operator: equals
           value: true
 
+  # Fuzzy matching: a single misheard character (edit distance 1) is accepted —
+  # real callers' passcodes get transcribed with small ASR errors.
+  - name: verify_passcode_one_edit_accepted
+    tool: verify_passcode
+    args:
+      passcode: "Sunsut"
+    variables:
+      _caller_accounts: '[{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "passcode": "Sunset", "has_active_alarm": true, "dispatch_status": "not dispatched"}]'
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.verified"
+          operator: equals
+          value: true
+
+  # ...but two edits away is rejected — the tolerance is exactly <= 1.
+  - name: verify_passcode_two_edits_rejected
+    tool: verify_passcode
+    args:
+      passcode: "Sansat"
+    variables:
+      _caller_accounts: '[{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "passcode": "Sunset", "has_active_alarm": true, "dispatch_status": "not dispatched"}]'
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.verified"
+          operator: equals
+          value: false
+
   - name: verify_passcode_invalid_passcode_returns_unverified
     tool: verify_passcode
     args:

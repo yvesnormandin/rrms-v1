@@ -3,7 +3,7 @@
   "pythonFunction": {
     "name": "verify_passcode",
     "pythonCode": "tools/verify_passcode/python_function/python_code.py",
-    "description": "Validate a spoken passcode against the resolved account. Reads the caller's account records from the _caller_accounts session variable (populated by lookup_accounts_by_caller \u2014 call that first). Identify the target account by account_id for multi-location callers; single-account callers resolve implicitly. Comparison is case- and whitespace-insensitive.\n\nReturns:\n    dict: status, verified (bool), and on failure an agent_action hint."
+    "description": "Validate a spoken passcode against the resolved account. Reads the caller's account records from the _caller_accounts session variable (populated by lookup_accounts_by_caller \u2014 call that first). Identify the target account by account_id for multi-location callers; single-account callers resolve implicitly. Matching is fuzzy and voice-friendly: accepted when the normalized edit distance (lower-cased, accents/whitespace/punctuation stripped) is <= 1.\n\nReturns:\n    dict: status, verified (bool), and on failure an agent_action hint."
   },
   "executionType": "SYNCHRONOUS",
   "displayName": "verify_passcode"

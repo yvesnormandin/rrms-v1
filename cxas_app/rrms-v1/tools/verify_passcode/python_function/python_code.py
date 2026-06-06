@@ -8,18 +8,88 @@ DEMO NOTE:
     from state — it holds no dataset copy. Passcodes never appear in any tool's
     return value, so the model never sees them.
 
+MATCHING POLICY (fuzzy, voice-friendly):
+    The spoken passcode is accepted when its Levenshtein (edit) distance from
+    the stored passcode is <= 1, after normalizing BOTH strings:
+      - lower-cased
+      - accents/diacritics removed ("café" -> "cafe")
+      - all whitespace removed (ASR splits compound words: "Bluebird" -> "Blue Bird")
+      - all punctuation removed
+    This absorbs the small transcription errors real phone callers hit
+    (casing, word-splitting, a single misheard letter) while still rejecting
+    genuinely wrong passcodes (the demo's wrong-passcode fixtures are all
+    distance >= 3 from the real ones).
+
 BEHAVIOR:
     - Requires lookup_accounts_by_caller to have run first (it populates
       _caller_accounts); otherwise returns an error with a recovery hint.
     - Identifies the target account by account_id (preferred, for disambiguated
       multi-location callers) or implicitly when the caller has one account.
-    - Compares the spoken passcode case-insensitively and whitespace-tolerantly.
     - On success, writes _resolved_account with passcode_verified=True (and
       dispatch_status) so the action tools can enforce the gate.
     - On failure, returns verified False with an agent_action recovery hint.
 """
 
 import json
+import unicodedata
+
+
+def _normalize(s: str) -> str:
+    """Lower-case the string, strip accents, whitespace and punctuation.
+
+    Accents/diacritics are removed by decomposing to NFKD and dropping the
+    combining marks, so "café" -> "cafe" and "Noël" -> "noel". Uses Unicode
+    categories so it behaves sensibly on accented and non-ASCII text:
+    whitespace, combining marks (category 'Mn') and punctuation (categories
+    starting with 'P') are dropped.
+    """
+    s = s.lower()
+    # Decompose accented characters into base char + combining mark(s).
+    s = unicodedata.normalize("NFKD", s)
+    result = []
+    for ch in s:
+        if ch.isspace():
+            continue
+        category = unicodedata.category(ch)
+        if category == "Mn":  # combining mark (the accent itself)
+            continue
+        if category.startswith("P"):  # any punctuation
+            continue
+        result.append(ch)
+    return "".join(result)
+
+
+def _levenshtein(a: str, b: str) -> int:
+    """Return the Levenshtein distance between strings a and b.
+
+    Cost of 1 for each insertion, deletion, or substitution. Implemented with
+    a space-optimized dynamic-programming row (O(len(a) * len(b)) time,
+    O(min(len(a), len(b))) space).
+    """
+    # Keep the shorter string as the inner loop to minimize memory.
+    if len(a) < len(b):
+        a, b = b, a
+
+    if len(b) == 0:
+        return len(a)
+
+    previous_row = list(range(len(b) + 1))
+
+    for i, ca in enumerate(a, start=1):
+        current_row = [i] + [0] * len(b)
+        for j, cb in enumerate(b, start=1):
+            deletion = previous_row[j] + 1
+            insertion = current_row[j - 1] + 1
+            substitution = previous_row[j - 1] + (0 if ca == cb else 1)
+            current_row[j] = min(deletion, insertion, substitution)
+        previous_row = current_row
+
+    return previous_row[-1]
+
+
+def _distance(s1: str, s2: str) -> int:
+    """Normalize both strings, then return their Levenshtein distance."""
+    return _levenshtein(_normalize(s1), _normalize(s2))
 
 
 def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
@@ -50,13 +120,10 @@ def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
             "agent_action": "Ask the caller to provide the account passcode.",
         }
 
-    # Normalize whitespace and case: ASR often splits compound spoken words
-    # ("Bluebird" -> "Blue Bird") and lowercases them. Real callers on the
-    # phone hit this, so the tool — not the eval — must absorb it.
-    verified = (
-        passcode.replace(" ", "").strip().lower()
-        == record["passcode"].replace(" ", "").lower()
-    )
+    # Fuzzy match (see MATCHING POLICY above): accept when the normalized
+    # edit distance is <= 1 — absorbs ASR casing, word-splitting, accents,
+    # and a single misheard character.
+    verified = _distance(passcode, record["passcode"]) <= 1
 
     if verified:
         context.state["_resolved_account"] = json.dumps(
