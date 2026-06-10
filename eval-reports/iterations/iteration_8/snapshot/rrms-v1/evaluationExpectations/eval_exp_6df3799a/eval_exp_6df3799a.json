@@ -1,7 +1,0 @@
-{
-  "name": "91f943d8-aa8a-4351-b873-537495e49a0f",
-  "displayName": "eval_exp_6df3799a",
-  "llmCriteria": {
-    "prompt": "The agent must verify the passcode before placing the branch on test."
-  }
-}

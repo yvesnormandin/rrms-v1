@@ -1,7 +1,0 @@
-{
-  "name": "960406c7-c2a1-4433-a86f-1a355d581f78",
-  "displayName": "eval_exp_854f3533",
-  "llmCriteria": {
-    "prompt": "The agent must NOT call verify_passcode, put_account_on_test, or cancel_alarm before the branch is confirmed and the passcode is provided."
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "name": "4aed05fa-601c-418c-84eb-6c35b24279f3",
-  "displayName": "eval_exp_381d19e3",
-  "llmCriteria": {
-    "prompt": "The agent must confirm the on-test result referencing the account last digits (345) and the one-hour duration."
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "name": "b32c0bac-f789-4037-82eb-838997cf2efc",
-  "displayName": "eval_exp_38771fd2",
-  "llmCriteria": {
-    "prompt": "The agent must NOT call send_confirmation_sms when the caller declines the text."
-  }
-}

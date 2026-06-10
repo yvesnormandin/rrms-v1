@@ -1,7 +1,0 @@
-{
-  "name": "e4ea2407-6b9e-4d47-9cb9-97f565270187",
-  "displayName": "eval_exp_45ce8dbe",
-  "llmCriteria": {
-    "prompt": "The agent must NOT ask the caller which site or branch they mean — the single-site caller resolves directly to one account."
-  }
-}

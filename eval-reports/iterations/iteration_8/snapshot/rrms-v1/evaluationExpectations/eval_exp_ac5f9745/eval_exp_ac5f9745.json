@@ -1,7 +1,0 @@
-{
-  "name": "6aa4da20-14ee-48cb-9140-7dc071a3782e",
-  "displayName": "eval_exp_ac5f9745",
-  "llmCriteria": {
-    "prompt": "The agent must call lookup_accounts_by_caller before requesting the passcode."
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "name": "be398a2c-209f-4efb-bdb3-88becdc4efdf",
-  "displayName": "eval_exp_2248d2dd",
-  "llmCriteria": {
-    "prompt": "The agent must disambiguate to the Dallas branch by name and street address (123 Main Street) before requesting the passcode."
-  }
-}

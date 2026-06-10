@@ -1,0 +1,28 @@
+{
+  "name": "plano_alarm_canceled_police_dispatched",
+  "session_parameters": {
+    "caller_phone": "+12145550199"
+  },
+  "transcript": [
+    {
+      "user": "Hello",
+      "agent": "Rapid Response Monitoring, I see you're calling  from Lone Star Communications. How can I help you ?"
+    },
+    {
+      "user": "Hi, I accidentally set off the alarm at our Plano branch. Can you cancel it please?",
+      "agent": "I can help with that. I see you manage  multiple branches... Did you mean the Plano branch at  789 Elm Street?"
+    },
+    {
+      "user": "Yes, that's the one.",
+      "agent": "Of course. Could you please provide the passcode for  verification?"
+    },
+    {
+      "user": "Harbor.",
+      "agent": "Thanks. The alarm at the Plano branch has been  canceled. Please note that police were dispatched. Is  there anything else I can help with?"
+    },
+    {
+      "user": "Oh, okay. No, that's all. Thanks.",
+      "agent": "You're all set then. Have a good  day."
+    }
+  ]
+}

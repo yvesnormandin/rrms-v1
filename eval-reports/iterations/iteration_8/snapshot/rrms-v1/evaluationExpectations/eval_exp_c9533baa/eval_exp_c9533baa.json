@@ -1,7 +1,0 @@
-{
-  "name": "cb782d25-b10c-4419-82eb-f6a25c8bd0b6",
-  "displayName": "eval_exp_c9533baa",
-  "llmCriteria": {
-    "prompt": "The agent must explicitly state the dispatch status, accurately reporting that police were NOT dispatched (matching the cancel_alarm tool response)."
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "name": "333ef0bf-bdcd-4392-8d8d-f87c05225e41",
-  "displayName": "eval_exp_61642a03",
-  "llmCriteria": {
-    "prompt": "The agent must call end_session to terminate the call after the spoken closing."
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "name": "329e4997-5010-4cdf-bb18-a8396f5f1a0a",
-  "displayName": "eval_exp_827373f0",
-  "llmCriteria": {
-    "prompt": "The agent must OFFER the SMS confirmation only AFTER the on-test action was successfully validated and placed."
-  }
-}

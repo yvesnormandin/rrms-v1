@@ -1,7 +1,0 @@
-{
-  "name": "ddb58b8f-94eb-4a77-a827-6414c01e1e69",
-  "displayName": "eval_exp_66fd0e74",
-  "llmCriteria": {
-    "prompt": "The agent must proceed straight to requesting the passcode after looking up the account."
-  }
-}

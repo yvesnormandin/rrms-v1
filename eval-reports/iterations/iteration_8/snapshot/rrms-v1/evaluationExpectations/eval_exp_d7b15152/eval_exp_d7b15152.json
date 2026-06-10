@@ -1,7 +1,0 @@
-{
-  "name": "ca152b24-0752-487c-b480-a46dce517f37",
-  "displayName": "eval_exp_d7b15152",
-  "llmCriteria": {
-    "prompt": "A spoken farewell must be present in the final turn that calls end_session — the call must not end in silence."
-  }
-}

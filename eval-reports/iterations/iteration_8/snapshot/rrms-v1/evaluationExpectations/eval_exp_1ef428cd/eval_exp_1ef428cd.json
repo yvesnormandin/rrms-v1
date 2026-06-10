@@ -1,7 +1,0 @@
-{
-  "name": "01c12442-eda6-462e-8c70-57f782cf15e3",
-  "displayName": "eval_exp_1ef428cd",
-  "llmCriteria": {
-    "prompt": "The agent must speak a warm closing sign-off before the session ends."
-  }
-}

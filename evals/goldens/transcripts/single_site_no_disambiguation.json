@@ -1,0 +1,16 @@
+{
+  "name": "single_site_no_disambiguation",
+  "session_parameters": {
+    "caller_phone": "+15125550142"
+  },
+  "transcript": [
+    {
+      "user": "Hello",
+      "agent": "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
+    },
+    {
+      "user": "Hi, I accidentally tripped the alarm at my store. Can you cancel it?",
+      "agent": "Of course. Could you please provide the passcode for verification?"
+    }
+  ]
+}

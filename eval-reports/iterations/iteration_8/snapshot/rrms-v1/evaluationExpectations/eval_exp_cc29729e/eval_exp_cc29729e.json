@@ -1,7 +1,0 @@
-{
-  "name": "69a054cf-310e-4cfd-beda-4658d64c5d0d",
-  "displayName": "eval_exp_cc29729e",
-  "llmCriteria": {
-    "prompt": "The agent must confirm verbally that no text will be sent, then offer further help."
-  }
-}

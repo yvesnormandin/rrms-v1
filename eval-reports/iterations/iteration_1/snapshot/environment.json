@@ -1,9 +1,0 @@
-{
-  "app": {
-    "loggingSettings": {
-      "evaluationAudioRecordingConfig": {
-        "gcsBucket": "gs://yves-normandin-cxas-evals"
-      }
-    }
-  }
-}
