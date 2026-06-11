@@ -166,8 +166,8 @@ def _user_event(text="I want to cancel my alarm"):
     return _event("user", [_text_part(text)])
 
 
-def _ctx(events=None):
-    return CallbackContext(state={}, events=(events or []))
+def _ctx(events=None, state=None):
+    return CallbackContext(state=(state or {}), events=(events or []))
 
 
 # -------------------------------------------------------------------------
@@ -259,7 +259,7 @@ class TestPriorAgentTextInTurn:
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx(events), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
 
 # -------------------------------------------------------------------------
@@ -276,7 +276,7 @@ class TestFarewellInjection:
     def test_farewell_is_first_part(self):
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx(), resp)
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
     def test_end_session_preserved_after_farewell(self):
         resp = _response([_end_session_part()])
@@ -296,7 +296,35 @@ class TestFarewellInjection:
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx(events), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
+
+
+# -------------------------------------------------------------------------
+# Farewell language — keyed on the _language session var (set_language writes
+# it on an explicit switch); defaults to English.
+# -------------------------------------------------------------------------
+class TestFarewellLanguage:
+    """The injected farewell must match the active conversation language."""
+
+    def test_default_state_uses_english(self):
+        resp = _response([_end_session_part()])
+        result = after_model_callback(_ctx(state={}), resp)
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
+
+    def test_english_state_uses_english(self):
+        resp = _response([_end_session_part()])
+        result = after_model_callback(_ctx(state={"_language": "English"}), resp)
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
+
+    def test_spanish_state_uses_spanish(self):
+        resp = _response([_end_session_part()])
+        result = after_model_callback(_ctx(state={"_language": "Spanish"}), resp)
+        assert result.content.parts[0].text == FAREWELL_TEXT["Spanish"]
+
+    def test_unknown_language_falls_back_to_english(self):
+        resp = _response([_end_session_part()])
+        result = after_model_callback(_ctx(state={"_language": "Klingon"}), resp)
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
 
 # -------------------------------------------------------------------------
@@ -310,14 +338,14 @@ class TestEdgeCases:
         resp = _response([_text_part("   \n  "), _end_session_part()])
         result = after_model_callback(_ctx(), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
     def test_empty_events_injects(self):
         """No event history at all -> still inject (no prior agent text)."""
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx([]), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
     def test_prior_silent_agent_events_do_not_block(self):
         """Earlier agent events with only function calls (no text) don't suppress."""
@@ -329,7 +357,7 @@ class TestEdgeCases:
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx(events), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]
 
     def test_prior_agent_whitespace_text_does_not_block(self):
         """An earlier agent event whose only text is whitespace doesn't count as speaking."""
@@ -341,4 +369,4 @@ class TestEdgeCases:
         resp = _response([_end_session_part()])
         result = after_model_callback(_ctx(events), resp)
         assert result is not None
-        assert result.content.parts[0].text == FAREWELL_TEXT
+        assert result.content.parts[0].text == FAREWELL_TEXT["English"]

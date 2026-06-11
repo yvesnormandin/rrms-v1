@@ -40,3 +40,51 @@ Build Steps (from references/build.md → Full Build):
 - [x] 9. Single-source mock data refactor (2026-06-05): _MOCK_ACCOUNTS only in lookup; _caller_accounts state var; data-driven dispatch_status. Validated 74/74 (text, live model). gate-check.py nested-pull bug fixed; variants redeployed with user-enriched fixtures (Plano: dispatched).
   - [ ] 7d. Revert to AUDIO mode (gemini-3.1-flash-live trio + gcs_bucket gs://yves-normandin-cxas-evals), lint, push, run audio baseline
   - [ ] 7e. Update TDD Pass Rate History + Changelog
+
+## Task 10 — Company-name greeting (2026-06-10)
+
+Edit cycle (build.md → Editing an Existing Agent): pull → edit → lint → push → run evals
+
+- [x] 10a. Pull canonical to temp dir; diff vs local (no drift) before editing
+- [x] 10b. Mock data: company 'Lone Star Communications' for multi-location;  per-caller company_name (OUTSIDE branch records) in lookup_accounts_by_caller; tool returns company_name
+- [x] 10c. Instruction: lookup at greeting time; greeting "Rapid Response Monitoring, I see you're calling from <company>. How can I help you?" (generic fallback for unknown caller)
+- [x] 10d. Evals updated: 9 goldens (greeting turn + lookup moved to turn 1; force-recreate), lookup tool tests (+company_name assertions); sims checked
+- [x] 10e. Lint clean — 1 fix (T004 verify_passcode def order) (lint-fixer sub-agent)
+- [x] 10f. Push canonical; push-goldens (9 recreated) --force-recreate
+- [x] 10g. Text validation: 3 rounds → **77/77 (100%)** (goldens 27/27, sims 15/15, tools 17/17, callbacks 18/18); config flipped back to audio
+  - round 1 (P1,P2 only — priority filter ALSO skips P0 goldens; always pass P0,P1,P2): single_site 0/3 stale expectation → reworded; plano 2/3
+  - round 2 (P0–P2): 75/77; plano 1/3 — agent omitted dispatch status on cancel
+  - round 3: mandatory dispatch-status reporting in Cancel_Alarm step 2 → 77/77
+- [x] 10i. Audio baseline (goldens only, run d36e8409): 24/27 (88.9%) — same band as pre-change 21/24; failures are known ASR/audio-noise modes (uc2 ASR passcode reject + dropped digits ref, plano missed end_session); all greeting turns passed
+- [ ] 10j. USER: release to demo numbers via ./deploy-variants.sh (variants still run the OLD greeting)
+- [x] 10h. TDD changelog + data-flow section updated
+
+## Task 11 — Passcode robustness (2026-06-10)
+
+Edit cycle: edit → lint → push → run evals
+
+- [x] 11a. Goldens: verify_passcode `passcode` args → $matchType: ignore (6 occurrences; regexes can't cover all ASR variants)
+- [x] 11b. verify_passcode: edit distance ≤ 2 (was ≤ 1) — e.g. ASR "blueberg" for "Bluebird"; docstring MATCHING POLICY updated
+- [x] 11c. Tool tests (now 20): two_edits_rejected → two_edits_accepted; new three_edits_rejected boundary test
+- [x] 11d. Docs: TDD changelog + CLAUDE.md data-flow/ASR notes (≤1 → ≤2; regexp guidance → ignore)
+- [x] 11e. Lint clean (0 fixes) (lint-fixer sub-agent)
+- [x] 11f. Push app; push-goldens (9 recreated) --force-recreate
+- [x] 11g. Text validation: **77/77 (100%)** (goldens 27/27, sims 15/15, tools 20/20 incl. two_edits_accepted/three_edits_rejected, callbacks 18/18); config flipped back to audio
+- [x] 11h. Audio goldens (run 82954e8c): 23/27 (85.2%) — ALL custom expectations 3/3; failures are trajectory auto-metric dings + 1 stochastic missed cancel_alarm; replay confirms correct flow. Audio noise, no code change. (deploy-variants release still pending — combined with greeting change)
+
+## Task 12 — Caller-requested language switch (EN <-> ES) (2026-06-10)
+
+Editing existing agent + structural add (new tool) -> gate-check after push.
+Requirement: conversation ALWAYS starts in English; switch ONLY on a clear,
+specific caller request (askable in either language); NO auto-detect/auto-switch.
+
+- [x] 12a. New tool set_language (records _language state; EN/ES only, else out-of-scope error)
+- [x] 12b. app.json: (+supportedLanguageCodes es-US — platform requires declaring lang before synth config)  add set_language to tools + _language variableDeclaration + es-US synth config; root_agent.json tools += set_language
+- [x] 12c. Instruction: persona (drop "English only"); new language_switching guideline (start EN, explicit-only switch, no auto-detect, whole-call in active lang, switch back-and-forth, ack in new lang); reference {@TOOL: set_language}
+- [x] 12d. after_model callback: (callback tests 22, +4 lang cases) bilingual farewell keyed on _language; update its callback test (+ Spanish-farewell case)
+- [x] 12e. Evals: 11 goldens, 24 tool tests, 6 sims goldens (switch-to-ES on request; NEGATIVE no-autoswitch when caller just uses Spanish), set_language tool tests (EN/ES/unsupported), 1 sim (mid-call switch)
+- [x] 12f. Lint clean (0 fixes) (lint-fixer sub-agent)
+- [x] 12g. Push canonical; gate-check ALL PASS; push-goldens (2 created, 9 recreated) (structural); push-goldens --force-recreate
+- [x] 12h. Validated. Text: bug found (no_autoswitch 0/3, model switched on 'Hola') -> guideline strengthened -> 82/83. Audio (run 38926dd0): language goldens fully pass (switch 3/3; no_autoswitch language-expectations 3/3); overall 25/33 = pre-existing audio noise (plano 0/3 etc., replays correct, text 3/3 same code). Config back in audio.
+- [x] 12i. TDD pass-rate history + changelog + CLAUDE.md updated
+- [ ] 12j. USER decision: redeploy variants (./deploy-variants.sh) to ship the switch to the demo numbers

@@ -8,6 +8,7 @@
     "lookup_accounts_by_caller",
     "put_account_on_test",
     "send_confirmation_sms",
+    "set_language",
     "verify_passcode"
   ],
   "beforeAgentCallbacks": [

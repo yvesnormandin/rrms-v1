@@ -11,10 +11,14 @@
 #   Real vars:   caller_phone (eval-suppliable session param),
 #                _resolved_account (tool-derived — NEVER set in evals)
 #   Mock data (tools' python_code.py):
-#     +15125550142 -> Johnson Verizon Store, passcode "Sunset",
-#                     last digits 118, has_active_alarm=True, not dispatched (UC1)
-#     +12145550199 -> Dallas (123 Main Street, last 345, passcode "Bluebird"),
-#                     Fort Worth, Plano (multi-location; forces disambiguation) (UC2)
+#     +15125550142 -> company "Johnson Verizon Store" (single branch, company
+#                     name = branch name), passcode "Sunset", last digits 118,
+#                     has_active_alarm=True, not dispatched (UC1)
+#     +12145550199 -> company "Lone Star Communications": Dallas (123 Main
+#                     Street, last 345, passcode "Bluebird"), Fort Worth, Plano
+#                     (multi-location; forces disambiguation) (UC2)
+#   Greeting: lookup_accounts_by_caller is called on the FIRST turn, before the
+#   agent speaks — the greeting acknowledges the caller's company by name.
 #
 # The after_model callback (deterministic farewell) reads NO state at session
 # start, so common_session_parameters is intentionally empty — caller_phone is
@@ -35,21 +39,21 @@ conversations:
       caller_phone: "+15125550142"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "Hi, so I just opened my store and I accidentally set off the alarm. Would you be able to cancel that for me please?"
-        agent: "Of course. Could you please provide the passcode for verification?"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "Hi, so I just opened my store and I accidentally set off the alarm. Would you be able to cancel that for me please?"
+        agent: "Of course. Could you please provide the passcode for verification?"
       - user: "Yes, that passcode is Sunset."
         agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
         tool_calls:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^sun\\s*set$"
-                $originalValue: "Sunset"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -78,12 +82,12 @@ conversations:
       caller_phone: "+12145550199"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "Hey, so I need to put the Dallas branch on testing for one hour."
-        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+        agent: "Rapid Response Monitoring, I see you're calling from Lone Star Communications. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "Hey, so I need to put the Dallas branch on testing for one hour."
+        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
       - user: "Yes."
         agent: "Great. Please provide the account passcode to confirm."
       - user: "Bluebird."
@@ -92,9 +96,9 @@ conversations:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^blue\\s*bird$"
-                $originalValue: "Bluebird"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -137,12 +141,12 @@ conversations:
       caller_phone: "+15125550142"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "I set off my alarm by accident, just cancel it for me, I'm in a hurry."
-        agent: "I can help with that. Could you please provide the passcode for verification?"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "I set off my alarm by accident, just cancel it for me, I'm in a hurry."
+        agent: "I can help with that. Could you please provide the passcode for verification?"
       - user: "Can't you just cancel it without the passcode? I'm the owner."
         agent: "I'm sorry, I do need the passcode to verify before I can cancel the alarm. What is the passcode?"
     expectations:
@@ -160,12 +164,12 @@ conversations:
       caller_phone: "+12145550199"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "I need to put the Fort Worth branch on test for two hours."
-        agent: "I see you manage multiple branches. Did you mean the Fort Worth branch at 456 Oak Avenue?"
+        agent: "Rapid Response Monitoring, I see you're calling from Lone Star Communications. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "I need to put the Fort Worth branch on test for two hours."
+        agent: "I see you manage multiple branches. Did you mean the Fort Worth branch at 456 Oak Avenue?"
       - user: "Yes, that's the one."
         agent: "Great. Please provide the account passcode to confirm."
     expectations:
@@ -183,15 +187,15 @@ conversations:
       caller_phone: "+15125550142"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "Hi, I accidentally tripped the alarm at my store. Can you cancel it?"
-        agent: "Of course. Could you please provide the passcode for verification?"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "Hi, I accidentally tripped the alarm at my store. Can you cancel it?"
+        agent: "Of course. Could you please provide the passcode for verification?"
     expectations:
       - "The agent must NOT ask the caller which site or branch they mean — the single-site caller resolves directly to one account."
-      - "The agent must proceed straight to requesting the passcode after looking up the account."
+      - "Once the caller states their request, the agent must immediately request the passcode — no site confirmation and no other intermediate questions. (The account lookup already happened during the greeting turn.)"
     tags: [P1, HIGH, uc1, account-resolution, rrms-v1, audio]
 
   # ---------------------------------------------------------------------------
@@ -203,21 +207,21 @@ conversations:
       caller_phone: "+15125550142"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "I set the alarm off opening up this morning — please cancel it."
-        agent: "Of course. Could you please provide the passcode for verification?"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "I set the alarm off opening up this morning — please cancel it."
+        agent: "Of course. Could you please provide the passcode for verification?"
       - user: "The passcode is Sunset."
         agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Is there anything else I can help you with today?"
         tool_calls:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^sun\\s*set$"
-                $originalValue: "Sunset"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -241,12 +245,12 @@ conversations:
       caller_phone: "+12145550199"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "I need the Dallas branch on test for an hour."
-        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
+        agent: "Rapid Response Monitoring, I see you're calling from Lone Star Communications. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "I need the Dallas branch on test for an hour."
+        agent: "I see you manage multiple branches. Did you mean the Dallas branch at 123 Main Street?"
       - user: "Yes."
         agent: "Great. Please provide the account passcode to confirm."
       - user: "Bluebird."
@@ -255,9 +259,9 @@ conversations:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^blue\\s*bird$"
-                $originalValue: "Bluebird"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -286,18 +290,19 @@ conversations:
       caller_phone: "+15125550142"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "I accidentally set off my alarm — can you cancel it? Passcode is Sunset."
-        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "I accidentally set off my alarm — can you cancel it? Passcode is Sunset."
+        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+        tool_calls:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^sun\\s*set$"
-                $originalValue: "Sunset"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -326,12 +331,12 @@ conversations:
       caller_phone: "+12145550199"
     turns:
       - user: "Hello"
-        agent: "Rapid Response Monitoring. How can I help you today?"
-      - user: "Hi, I accidentally set off the alarm at our Plano branch. Can you cancel it please?"
-        agent: "I see you manage multiple branches. Did you mean the Plano branch at 789 Elm Street?"
+        agent: "Rapid Response Monitoring, I see you're calling from Lone Star Communications. How can I help you?"
         tool_calls:
           - action: lookup_accounts_by_caller
             args: {}
+      - user: "Hi, I accidentally set off the alarm at our Plano branch. Can you cancel it please?"
+        agent: "I see you manage multiple branches. Did you mean the Plano branch at 789 Elm Street?"
       - user: "Yes, that's the one."
         agent: "Great. Could you please provide the account passcode?"
       - user: "Harbor."
@@ -340,9 +345,9 @@ conversations:
           - action: verify_passcode
             args:
               passcode:
-                $matchType: "regexp"
-                $matchValue: "(?i)^har\\s*bor$"
-                $originalValue: "Harbor"
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
               account_id:
                 $matchType: "ignore"
                 $matchValue: ""
@@ -360,3 +365,94 @@ conversations:
       - "The agent must accurately report that police WERE dispatched, matching the cancel_alarm tool's dispatch_status — it must NOT say police were not dispatched."
       - "The agent must not speculate beyond the tool response about dispatch details."
     tags: [P1, HIGH, uc1, dispatch-status, dispatched, disambiguation, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # Language switch on explicit request — conversation starts in English; the
+  # caller explicitly asks (in Spanish) to continue in Spanish; the agent calls
+  # set_language and conducts the rest of the call in Spanish. Agent text below
+  # is approximate (scored by semantic similarity).
+  # ---------------------------------------------------------------------------
+  - conversation: language_switch_to_spanish_on_request
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "Hello"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Hola, ¿podemos continuar en español?"
+        agent: "Por supuesto, continuemos en español. ¿En qué puedo ayudarle?"
+        tool_calls:
+          - action: set_language
+            args:
+              language:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+      - user: "Activé la alarma por accidente. ¿Puede cancelarla? La contraseña es Sunset."
+        agent: "Gracias, verificada. La alarma de Johnson Verizon Store ha sido cancelada. La policía no fue enviada. ¿Hay algo más en que pueda ayudarle?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "No, eso es todo. Gracias."
+        agent: "Listo. Que tenga un buen día."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "On the first turn the agent must greet IN ENGLISH (the conversation always starts in English)."
+      - "The agent must call set_language only after the caller explicitly asks to switch language."
+      - "After the caller's explicit request, the agent must conduct the rest of the conversation in Spanish."
+      - "The agent must verify the passcode before canceling the alarm and report that police were not dispatched."
+    tags: [P1, HIGH, language-switch, spanish, rrms-v1, audio]
+
+  # ---------------------------------------------------------------------------
+  # NEGATIVE: no auto-switch. The caller uses a Spanish word ("Hola") but never
+  # asks to change the conversation language. The agent MUST stay in English and
+  # MUST NOT call set_language. This is the crux of the no-auto-detect rule.
+  # ---------------------------------------------------------------------------
+  - conversation: no_language_autoswitch_without_request
+    session_parameters:
+      caller_phone: "+15125550142"
+    turns:
+      - user: "Hello"
+        agent: "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
+        tool_calls:
+          - action: lookup_accounts_by_caller
+            args: {}
+      - user: "Hola! I accidentally set off my alarm — can you cancel it? Passcode is Sunset."
+        agent: "Thanks, verified. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+        tool_calls:
+          - action: verify_passcode
+            args:
+              passcode:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+              account_id:
+                $matchType: "ignore"
+                $matchValue: ""
+                $originalValue: ""
+          - action: cancel_alarm
+            args: {}
+      - user: "No, that's all. Thanks."
+        agent: "You're all set. Have a good day."
+        tool_calls:
+          - action: end_session
+            args: {}
+    expectations:
+      - "The agent must NOT call set_language — the caller used a Spanish word but never asked to change the conversation language."
+      - "The agent must keep responding in English throughout the call."
+      - "The agent must verify the passcode before canceling the alarm and report that police were not dispatched."
+    tags: [P1, HIGH, language-switch, no-autoswitch, negative, rrms-v1, audio]

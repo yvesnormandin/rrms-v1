@@ -58,8 +58,14 @@ PLATFORM GLOBALS (do NOT import these):
 from typing import Optional
 
 # The farewell message to inject when the LLM ends the session silently.
-# Keep this generic — the LLM should have already said something contextual.
-FAREWELL_TEXT = "Thank you for calling Rapid Response Monitoring. Have a great day!"
+# Keyed by active conversation language (_language session var, written by
+# set_language when the caller explicitly switches). Defaults to English — the
+# conversation always starts in English. Keep these generic; the LLM should
+# normally have already said something contextual in the active language.
+FAREWELL_TEXT = {
+    "English": "Thank you for calling Rapid Response Monitoring. Have a great day!",
+    "Spanish": "Gracias por llamar a Rapid Response Monitoring. ¡Que tenga un buen día!",
+}
 
 
 def after_model_callback(callback_context: CallbackContext, llm_response: LlmResponse) -> Optional[LlmResponse]:
@@ -110,7 +116,12 @@ def after_model_callback(callback_context: CallbackContext, llm_response: LlmRes
     #
     # WHY prepend? The customer needs to hear the farewell before the session
     # terminates. Parts are processed in order.
+    #
+    # Pick the farewell in the active conversation language (set_language writes
+    # _language on an explicit switch); default to English.
     # -------------------------------------------------------------------------
-    new_parts = [Part.from_text(text=FAREWELL_TEXT)]
+    language = callback_context.state.get("_language") or "English"
+    farewell = FAREWELL_TEXT.get(language, FAREWELL_TEXT["English"])
+    new_parts = [Part.from_text(text=farewell)]
     new_parts.extend(llm_response.content.parts)
     return LlmResponse.from_parts(parts=new_parts)

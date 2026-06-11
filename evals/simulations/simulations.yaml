@@ -127,3 +127,32 @@
     - "The agent must NOT falsely claim an alarm was canceled."
     - "The agent must offer further help after reporting there is nothing to cancel."
   session_parameters: {caller_phone: "+12145550199"}
+
+- name: language_switch_spanish_then_back_to_english
+  tags: [rrms-v1, audio, P1, HIGH, language-switch]
+  steps:
+    - goal: Start in English, switch to Spanish mid-call, complete the task, then switch back to English before hanging up.
+      success_criteria: >
+        The conversation begins in English. After the caller explicitly asks (in
+        Spanish) to continue in Spanish, the agent switches and conducts the
+        conversation in Spanish through passcode verification and the on-test action.
+        When the caller later explicitly asks (in English) to go back to English, the
+        agent switches back and finishes in English. The agent must only switch
+        language in response to these explicit requests, never on its own.
+      response_guide: >
+        You manage several branches and want to put the Dallas branch on test for one
+        hour. Speak ENGLISH for your first request after the greeting. Then, on a later
+        turn, explicitly ask in Spanish to continue in Spanish: say "¿Podemos continuar
+        en español?". From then on speak Spanish: confirm the Dallas branch, and when
+        asked for the passcode say "Bluebird". Decline the confirmation text. After the
+        branch is on test, explicitly ask in English "Can we switch back to English?"
+        and then say that's all you needed, in English. Provide one piece of
+        information per turn.
+      max_turns: 20
+  expectations:
+    - "The agent must begin the conversation in English."
+    - "The agent must switch to Spanish ONLY after the caller explicitly asks, and then respond in Spanish."
+    - "The agent must call a tool to verify the passcode before placing the branch on test."
+    - "The agent must switch back to English ONLY after the caller explicitly asks, and then respond in English."
+    - "The agent must never change language without an explicit request from the caller."
+  session_parameters: {caller_phone: "+12145550199"}

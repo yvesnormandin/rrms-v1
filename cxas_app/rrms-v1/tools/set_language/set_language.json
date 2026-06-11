@@ -1,0 +1,10 @@
+{
+  "name": "set_language",
+  "pythonFunction": {
+    "name": "set_language",
+    "pythonCode": "tools/set_language/python_function/python_code.py",
+    "description": "Record the conversation language the caller explicitly asked to switch to (English or Spanish). Call ONLY on a clear, specific request to change language; never based on merely detecting the language the caller spoke.\n\nReturns:\n    dict: status and the normalized active language, or an error with an agent_action recovery hint when the language is unsupported."
+  },
+  "executionType": "SYNCHRONOUS",
+  "displayName": "set_language"
+}

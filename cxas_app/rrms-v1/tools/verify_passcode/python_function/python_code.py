@@ -10,15 +10,16 @@ DEMO NOTE:
 
 MATCHING POLICY (fuzzy, voice-friendly):
     The spoken passcode is accepted when its Levenshtein (edit) distance from
-    the stored passcode is <= 1, after normalizing BOTH strings:
+    the stored passcode is <= 2, after normalizing BOTH strings:
       - lower-cased
       - accents/diacritics removed ("café" -> "cafe")
       - all whitespace removed (ASR splits compound words: "Bluebird" -> "Blue Bird")
       - all punctuation removed
-    This absorbs the small transcription errors real phone callers hit
-    (casing, word-splitting, a single misheard letter) while still rejecting
-    genuinely wrong passcodes (the demo's wrong-passcode fixtures are all
-    distance >= 3 from the real ones).
+    This absorbs the transcription errors real phone callers hit (casing,
+    word-splitting, a couple of misheard letters — e.g. ASR hearing
+    "blueberg" for "Bluebird", distance 2) while still rejecting genuinely
+    wrong passcodes (the demo's wrong-passcode fixtures are all distance >= 3
+    from the real ones).
 
 BEHAVIOR:
     - Requires lookup_accounts_by_caller to have run first (it populates
@@ -32,6 +33,65 @@ BEHAVIOR:
 
 import json
 import unicodedata
+
+
+def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
+    """Validate a spoken passcode against the resolved account.
+
+    Args:
+        passcode: The passcode spoken by the caller.
+        account_id: The account being verified (use for multi-location callers).
+
+    Returns:
+        dict: status, verified (bool), and on failure an agent_action hint.
+    """
+    record = _find_record(account_id)
+
+    if not record:
+        return {
+            "status": "error",
+            "verified": False,
+            "error": "No resolved account to verify against.",
+            "agent_action": "Resolve the caller's account first via lookup_accounts_by_caller, and re-confirm which branch the caller means before requesting the passcode.",
+        }
+
+    if not passcode:
+        return {
+            "status": "error",
+            "verified": False,
+            "error": "No passcode provided.",
+            "agent_action": "Ask the caller to provide the account passcode.",
+        }
+
+    # Fuzzy match (see MATCHING POLICY above): accept when the normalized
+    # edit distance is <= 2 — absorbs ASR casing, word-splitting, accents,
+    # and up to two misheard characters ("blueberg" for "Bluebird").
+    verified = _distance(passcode, record["passcode"]) <= 2
+
+    if verified:
+        context.state["_resolved_account"] = json.dumps(
+            {
+                "account_id": record["account_id"],
+                "branch_name": record["branch_name"],
+                "street_address": record["street_address"],
+                "account_last_digits": record["account_last_digits"],
+                "has_active_alarm": record["has_active_alarm"],
+                "dispatch_status": record["dispatch_status"],
+                "passcode_verified": True,
+            }
+        )
+        return {
+            "status": "success",
+            "verified": True,
+            "branch_name": record["branch_name"],
+            "account_last_digits": record["account_last_digits"],
+        }
+
+    return {
+        "status": "success",
+        "verified": False,
+        "agent_action": "Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.",
+    }
 
 
 def _normalize(s: str) -> str:
@@ -90,65 +150,6 @@ def _levenshtein(a: str, b: str) -> int:
 def _distance(s1: str, s2: str) -> int:
     """Normalize both strings, then return their Levenshtein distance."""
     return _levenshtein(_normalize(s1), _normalize(s2))
-
-
-def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
-    """Validate a spoken passcode against the resolved account.
-
-    Args:
-        passcode: The passcode spoken by the caller.
-        account_id: The account being verified (use for multi-location callers).
-
-    Returns:
-        dict: status, verified (bool), and on failure an agent_action hint.
-    """
-    record = _find_record(account_id)
-
-    if not record:
-        return {
-            "status": "error",
-            "verified": False,
-            "error": "No resolved account to verify against.",
-            "agent_action": "Resolve the caller's account first via lookup_accounts_by_caller, and re-confirm which branch the caller means before requesting the passcode.",
-        }
-
-    if not passcode:
-        return {
-            "status": "error",
-            "verified": False,
-            "error": "No passcode provided.",
-            "agent_action": "Ask the caller to provide the account passcode.",
-        }
-
-    # Fuzzy match (see MATCHING POLICY above): accept when the normalized
-    # edit distance is <= 1 — absorbs ASR casing, word-splitting, accents,
-    # and a single misheard character.
-    verified = _distance(passcode, record["passcode"]) <= 1
-
-    if verified:
-        context.state["_resolved_account"] = json.dumps(
-            {
-                "account_id": record["account_id"],
-                "branch_name": record["branch_name"],
-                "street_address": record["street_address"],
-                "account_last_digits": record["account_last_digits"],
-                "has_active_alarm": record["has_active_alarm"],
-                "dispatch_status": record["dispatch_status"],
-                "passcode_verified": True,
-            }
-        )
-        return {
-            "status": "success",
-            "verified": True,
-            "branch_name": record["branch_name"],
-            "account_last_digits": record["account_last_digits"],
-        }
-
-    return {
-        "status": "success",
-        "verified": False,
-        "agent_action": "Tell the caller the passcode did not match and ask them to try again. Allow up to 2 retries (3 attempts total); after the final failure, offer to transfer to a live operator.",
-    }
 
 
 def _find_record(account_id: str) -> dict:

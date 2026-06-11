@@ -7,6 +7,9 @@
     "synthesizeSpeechConfigs": {
       "en-US": {
         "speakingRate": 1.0
+      },
+      "es-US": {
+        "speakingRate": 1.0
       }
     }
   },
@@ -45,10 +48,19 @@
         "type": "STRING",
         "default": ""
       }
+    },
+    {
+      "name": "_language",
+      "description": "Active conversation language ('English' or 'Spanish'), written by set_language only when the caller explicitly asks to switch. Defaults to English (the conversation always starts in English). Read by the after_model callback to pick the farewell language; tool-derived, never set directly in evals.",
+      "schema": {
+        "type": "STRING",
+        "default": ""
+      }
     }
   ],
   "languageSettings": {
-    "defaultLanguageCode": "en-US"
+    "defaultLanguageCode": "en-US",
+    "supportedLanguageCodes": ["es-US"]
   },
   "defaultChannelProfile": {},
   "evaluationMetricsThresholds": {

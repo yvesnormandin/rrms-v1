@@ -28,6 +28,9 @@ tests:
         - path: "$.result.status"
           operator: equals
           value: "success"
+        - path: "$.result.company_name"
+          operator: equals
+          value: "Johnson Verizon Store"
         - path: "$.result.account_count"
           operator: equals
           value: 1
@@ -57,6 +60,9 @@ tests:
         - path: "$.result.status"
           operator: equals
           value: "success"
+        - path: "$.result.company_name"
+          operator: equals
+          value: "Lone Star Communications"
         - path: "$.result.account_count"
           operator: equals
           value: 3
@@ -170,11 +176,29 @@ tests:
           operator: equals
           value: true
 
-  # ...but two edits away is rejected — the tolerance is exactly <= 1.
-  - name: verify_passcode_two_edits_rejected
+  # Two edits away is ALSO accepted — tolerance is <= 2, absorbing heavier ASR
+  # mishearings like "blueberg" for "Bluebird" (two substituted letters).
+  - name: verify_passcode_two_edits_accepted
     tool: verify_passcode
     args:
-      passcode: "Sansat"
+      passcode: "Blueberg"
+      account_id: "RRMS-2001"
+    variables:
+      _caller_accounts: '[{"account_id": "RRMS-2001", "branch_name": "Dallas", "street_address": "123 Main Street", "account_last_digits": "345", "passcode": "Bluebird", "has_active_alarm": false, "dispatch_status": "not dispatched"}, {"account_id": "RRMS-2002", "branch_name": "Fort Worth", "street_address": "456 Oak Avenue", "account_last_digits": "782", "passcode": "Maple", "has_active_alarm": false, "dispatch_status": "not dispatched"}]'
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.verified"
+          operator: equals
+          value: true
+
+  # ...but three edits away is rejected — the tolerance is exactly <= 2.
+  - name: verify_passcode_three_edits_rejected
+    tool: verify_passcode
+    args:
+      passcode: "Sonsax"
     variables:
       _caller_accounts: '[{"account_id": "RRMS-1001", "branch_name": "Johnson Verizon Store", "street_address": "742 Commerce Drive", "account_last_digits": "118", "passcode": "Sunset", "has_active_alarm": true, "dispatch_status": "not dispatched"}]'
     expectations:
@@ -402,5 +426,64 @@ tests:
         - path: "$.result.sent"
           operator: equals
           value: false
+        - path: "$.result.agent_action"
+          operator: is_not_null
+
+  # ---------------------------------------------------------------------------
+  # set_language -- records the caller's explicitly requested language.
+  # EN/ES (with common spellings) accepted; anything else is an error the agent
+  # uses to decline and stay in scope.
+  # ---------------------------------------------------------------------------
+  - name: set_language_spanish_succeeds
+    tool: set_language
+    args:
+      language: "Spanish"
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.language"
+          operator: equals
+          value: "Spanish"
+
+  - name: set_language_english_succeeds
+    tool: set_language
+    args:
+      language: "English"
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.language"
+          operator: equals
+          value: "English"
+
+  - name: set_language_native_spelling_espanol_succeeds
+    tool: set_language
+    args:
+      language: "español"
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "success"
+        - path: "$.result.language"
+          operator: equals
+          value: "Spanish"
+
+  - name: set_language_unsupported_returns_error
+    tool: set_language
+    args:
+      language: "French"
+    expectations:
+      response:
+        - path: "$.result.status"
+          operator: equals
+          value: "error"
+        - path: "$.result.language"
+          operator: equals
+          value: ""
         - path: "$.result.agent_action"
           operator: is_not_null

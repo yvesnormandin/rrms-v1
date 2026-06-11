@@ -1,0 +1,20 @@
+{
+  "name": "no_language_autoswitch_without_request",
+  "session_parameters": {
+    "caller_phone": "+15125550142"
+  },
+  "transcript": [
+    {
+      "user": "Hello",
+      "agent": "Rapid Response Monitoring, I see you're calling from Johnson Verizon Store. How can I help you?"
+    },
+    {
+      "user": "Hola! I accidentally set off my alarm \u2014 can you cancel it? Passcode is Sunset.",
+      "agent": "Perfect, thanks. The alarm at Johnson Verizon Store has been canceled. Police were not dispatched. Anything else I can help with?"
+    },
+    {
+      "user": "No, that's all. Thanks.",
+      "agent": "You're all set. Have a good day."
+    }
+  ]
+}

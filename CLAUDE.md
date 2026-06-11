@@ -71,14 +71,16 @@ The full pipeline (`run-and-report.py --message "..." --channel ... --runs 3 --p
 - **Never score audio runs with `results --audio`** — that flag uses goal+expectations scoring and returns a bogus 0%. Plain `results <run_id>` (platform `evaluation_status`) is the truth.
 - **`cxas pull` creates an app-named subfolder INSIDE `--target-dir`.** Never pull into `cxas_app/rrms-v1/` — it nests a stale copy at `cxas_app/rrms-v1/rrms-v1/`. (The workspace copy of the foundry's `gate-check.py` was patched for this; `deploy-variants.sh` strips such artifacts defensively.)
 - **When a previously-fixed golden failure reappears, suspect a stale platform copy** — `push-goldens --force-recreate` hard-resets; the diff-aware upsert can miss tool-arg changes.
-- **ASR realities** (audio channel): spoken words arrive lowercased and compound words split ("Bluebird" → "Blue Bird"). Absorb in *tools* (verify_passcode normalizes + fuzzy-matches), and in golden tool-args use `$matchType: regexp` with `(?i)` patterns, never exact match on spoken values.
+- **ASR realities** (audio channel): spoken words arrive lowercased and compound words split ("Bluebird" → "Blue Bird"). Absorb in *tools* (verify_passcode normalizes + fuzzy-matches, Levenshtein ≤ 2), and in golden tool-args use `$matchType: ignore` for spoken values (passcodes) — regexes can't cover all ASR variants.
 - **The live model parrots instruction phrasing into caller speech** — write guidelines so no sentence is speakable verbatim (a literal "Only state what the tool responses confirm" produced "the tool response confirms…" to a caller).
 - **Goldens' first user turn is `"Hello"`, not `<event>welcome</event>`** — TTS reads the event tag aloud in audio mode.
 - Expect **~90–96% on audio goldens run-to-run** (judge/ASR noise); text runs on the same code score 100%. Don't chase 2/3 audio failures with code changes — read the transcript first.
 
 ## Architecture
 
-Single `root_agent` (`cxas_app/rrms-v1/agents/root_agent/`), five Python tools + system `end_session`. The flow backbone — resolve account → passcode gate → action → confirm → offer further help → spoken closing + `end_session` — lives in `instruction.txt`'s taskflow; constraints there (passcode_gate, action_grounding, confirm_branch_before_action) are deliberately load-bearing for the evals.
+Single `root_agent` (`cxas_app/rrms-v1/agents/root_agent/`), six Python tools + system `end_session`. The flow backbone — greet (lookup at first turn; company-name greeting) → resolve request → passcode gate → action → confirm → offer further help → spoken closing + `end_session` — lives in `instruction.txt`'s taskflow; constraints there (passcode_gate, action_grounding, confirm_branch_before_action) are deliberately load-bearing for the evals.
+
+**Language switching (EN ↔ ES):** `set_language` records the active language in `_language` state, but ONLY on an explicit caller request (the `language_switching` guideline is the load-bearing rule — a foreign greeting/word/passcode is NOT a switch request; the live model needed the explicit "Hola! Can you cancel my alarm?" non-example to stop auto-switching). The conversation always starts in English. `enable_multilingual_support` is intentionally OFF in `languageSettings` — it triggers the platform's pre-built multilingual auto-handling, the opposite of the explicit-only requirement. Spanish audio needs `es-US` in `languageSettings.supportedLanguageCodes` BEFORE it can appear in `audioProcessingConfig.synthesizeSpeechConfigs` (push 400s otherwise).
 
 **Session-state data flow (single source of truth):**
 
@@ -89,7 +91,7 @@ lookup_accounts_by_caller       ← _MOCK_ACCOUNTS lives ONLY here; edit mock da
    ├─ writes _caller_accounts   (full records incl. passcode/dispatch_status; never in tool returns)
    └─ writes _resolved_account  (single-account callers)
    │
-verify_passcode                 ← reads _caller_accounts; fuzzy match (Levenshtein ≤ 1 after
+verify_passcode                 ← reads _caller_accounts; fuzzy match (Levenshtein ≤ 2 after
    │                              lowercase/NFKD-accent/whitespace/punctuation normalization);
    └─ writes _resolved_account with passcode_verified=true + dispatch_status
    │
@@ -99,9 +101,9 @@ cancel_alarm / put_account_on_test / send_confirmation_sms
                                   is "dispatched" to exercise that branch)
 ```
 
-**Callbacks** (`agents/root_agent/*/python_code.py`): `before_agent` defaults `caller_phone` only when the session has none (live GTP callers; eval session params always win — this is what makes one eval suite valid for canonical and both variants); `after_model` guarantees a spoken farewell before `end_session`.
+**Callbacks** (`agents/root_agent/*/python_code.py`): `before_agent` defaults `caller_phone` only when the session has none (live GTP callers; eval session params always win — this is what makes one eval suite valid for canonical and both variants); `after_model` guarantees a spoken farewell before `end_session`, choosing the farewell language from `_language` (English/Spanish, default English).
 
-**Evals** (`evals/`): 9 goldens (bundled `goldens/goldens.yaml`), 5 sims (`simulations/simulations.yaml`), 19 tool tests (`tool_tests/tool_tests.yaml`, state injected via `variables:` as JSON strings), 25 callback test cases (`callback_tests/tests/<agent>/<type>/<base>/test.py` + synced copies/symlinks under `callback_tests/agents/`). `caller_phone` is the only session parameter evals may set; `_caller_accounts`/`_resolved_account` are tool-derived (tool tests excepted).
+**Evals** (`evals/`): 11 goldens (bundled `goldens/goldens.yaml`; incl. `language_switch_to_spanish_on_request` and the negative `no_language_autoswitch_without_request`), 6 sims (`simulations/simulations.yaml`), 24 tool tests (`tool_tests/tool_tests.yaml`, state injected via `variables:` as JSON strings; run via ToolEvals directly — the in-process pipeline under-counts these), 29 callback test cases (`callback_tests/tests/<agent>/<type>/<base>/test.py` + synced copies/symlinks under `callback_tests/agents/`). `caller_phone` is the only session parameter evals may set; `_caller_accounts`/`_resolved_account`/`_language` are tool-derived (tool tests excepted).
 
 ## Project documents
 
