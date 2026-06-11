@@ -1,14 +1,35 @@
 {
   "_comment": [
     "GTP deployment variants for the RRMS demo. Each variant is a copy of the",
-    "canonical app (cxas_app/rrms-v1) with ONLY DEFAULT_CALLER_PHONE substituted",
-    "in the before_agent callback. Managed by deploy-variants.sh \u2014 never edit",
-    "the variant apps directly. app_id is filled in automatically on first deploy."
+    "canonical app (cxas_app/rrms-v1) with DEFAULT_CALLER_PHONE substituted in",
+    "the before_agent callback, its app identity set, and appConfigOverrides",
+    "deep-merged into app.json. Managed by deploy-variants.sh \u2014 never edit the",
+    "variant apps directly. app_id is filled in automatically on first deploy.",
+    "appConfigOverrides (below) preserves Console-only advanced settings that a",
+    "plain push would otherwise reset (Cloud Logging, BigQuery export, live",
+    "audio-recording bucket). The repo is the source of truth: edit values here.",
+    "A per-variant appConfigOverrides may be added inside a variant to override",
+    "the shared block for that one app."
   ],
   "gcp_project_id": "yves-normandin-project",
   "location": "us",
   "canonical_app_dir": "cxas_app/rrms-v1",
   "callback_file": "agents/root_agent/before_agent_callbacks/before_agent_callbacks_01/python_code.py",
+  "appConfigOverrides": {
+    "loggingSettings": {
+      "cloudLoggingSettings": {
+        "enableCloudLogging": true
+      },
+      "bigqueryExportSettings": {
+        "enabled": true,
+        "project": "yves-normandin-project",
+        "dataset": "conversational_insights"
+      },
+      "audioRecordingConfig": {
+        "gcsBucket": "gs://rrms-demo-audio-recordings-2026-06-08"
+      }
+    }
+  },
   "variants": [
     {
       "name": "rrms-demo-store",
