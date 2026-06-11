@@ -2,6 +2,17 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## 🚀 Start here: `RUNBOOK.md`
+
+**At the start of every session, read [`RUNBOOK.md`](RUNBOOK.md)** — the operational
+quick-start: session setup, app/infra IDs, the `cxas` CLI, every `.agents` Python script
+with examples, eval recipes, gotchas, and current project state. It's the fastest way to be
+up and running.
+
+**At the END of every session, update `RUNBOOK.md`** (see its §9 "End-of-session ritual"):
+refresh current state + latest scores, add any new gotcha/recipe, bump the date. Keeping it
+current is what lets the next session start clean.
+
 ## What this is
 
 A CX Agent Studio (GECX/CES) voice demo agent for Rapid Response Monitoring Services: telephone callers cancel false alarms or place branches "on test", gated by a spoken passcode. All customer data is mocked in-code. Built and evaluated with [cxas-scrapi](https://github.com/GoogleCloudPlatform/cxas-scrapi) via the `cxas-agent-foundry` skill, whose workflow (lint → push → eval → triage → iterate) governs all changes here.
