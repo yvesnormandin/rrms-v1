@@ -291,9 +291,9 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - (committed `ee76756`, on canonical + both variants) Company-name greeting; passcode ASR
   robustness (Levenshtein ≤ 2); EN↔ES explicit-only language switching; `deploy-variants.sh`
   preserving variant logging/audio via `appConfigOverrides`.
-- **(2026-06-12, on canonical — NOT yet on variants) Audio tool-drop fix via deterministic
-  emission** (before_model RETURNS cancel/test; after_model APPENDS end_session). See §7 FIX
-  gotcha for the full mechanism + safety gate.
+- **(2026-06-12, on canonical + BOTH variants @ commit `e9d0ffe`) Audio tool-drop fix via
+  deterministic emission** (before_model RETURNS cancel/test; after_model APPENDS end_session).
+  See §7 FIX gotcha for the full mechanism + safety gate.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 29 callback cases.
 **Latest scores (2026-06-12, after the tool-drop fix):**
@@ -317,7 +317,8 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 - **Callback tests not yet written** for the new `before_model` callback and the after_model
   "Case B" (sync-callbacks flags the before_model test missing). Add under
   `evals/callback_tests/tests/root_agent/{before_model_callbacks/before_model,after_model_callbacks/after_model}/test.py`.
-- **Variants NOT redeployed** with the tool-drop fix — run `./deploy-variants.sh` when releasing.
+- ~~Variants NOT redeployed~~ — DONE 2026-06-12: both variants deployed @ `e9d0ffe` via
+  `./deploy-variants.sh`.
 - `experiment_log.md` / `tdd.md` not yet updated with the 2026-06-12 iteration (auto-memory IS
   updated — see `cxas-before-model-emit-fixes-audio-tool-drop`).
 - Minor polish: English filler ("Got it,") sometimes prepended after switching to Spanish
