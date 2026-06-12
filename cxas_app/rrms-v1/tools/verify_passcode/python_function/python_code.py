@@ -34,13 +34,28 @@ BEHAVIOR:
 import json
 import unicodedata
 
+# Accepted test-duration range (minutes). Mirrors put_account_on_test's own
+# range check — kept in sync so a duration stashed here for the callback to
+# force is never one put_account_on_test would reject.
+_MIN_DURATION = 30
+_MAX_DURATION = 480
 
-def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
+
+def verify_passcode(passcode: str = "", account_id: str = "", intent: str = "",
+                    duration_minutes: int = 0, duration_label: str = "") -> dict:
     """Validate a spoken passcode against the resolved account.
 
     Args:
         passcode: The passcode spoken by the caller.
         account_id: The account being verified (use for multi-location callers).
+        intent: The caller's requested action for this account: "cancel" to
+            cancel an alarm, or "test" to place the branch on test. Pass it so
+            the action can proceed reliably once verification succeeds.
+        duration_minutes: For a "test" request, the test duration in minutes the
+            caller asked for (e.g., 60 for "one hour"). Pass it when known so the
+            branch can be placed on test reliably once verification succeeds.
+        duration_label: For a "test" request, the human-friendly duration phrase
+            for read-back (e.g., "one hour").
 
     Returns:
         dict: status, verified (bool), and on failure an agent_action hint.
@@ -80,6 +95,22 @@ def verify_passcode(passcode: str = "", account_id: str = "") -> dict:
                 "passcode_verified": True,
             }
         )
+        # Record the caller's intended action so the before_model callback can
+        # drive the state-changing tool deterministically once the passcode is
+        # verified. cancel_alarm is argument-free; put_account_on_test needs a
+        # duration, so for "test" we also stash the validated duration in state
+        # for the callback to reconstruct the call. An empty or unrecognized
+        # intent leaves the flag unset → no forcing, current behavior.
+        normalized_intent = (intent or "").strip().lower()
+        if normalized_intent in ("cancel", "test"):
+            context.state["_pending_action"] = normalized_intent
+        # Stash the test duration only when it is present AND in range; an
+        # out-of-range or missing duration is left unstored so the callback does
+        # NOT force put_account_on_test — the agent then handles the duration
+        # re-ask via Capture_Duration / the tool's own range check.
+        if normalized_intent == "test" and _MIN_DURATION <= duration_minutes <= _MAX_DURATION:
+            context.state["_test_duration_minutes"] = str(int(duration_minutes))
+            context.state["_test_duration_label"] = duration_label or f"{int(duration_minutes)} minutes"
         return {
             "status": "success",
             "verified": True,

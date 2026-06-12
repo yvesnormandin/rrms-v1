@@ -16,8 +16,15 @@
 after_model_callback — Root Agent
 
 PURPOSE:
-    Injects farewell text before end_session when the LLM calls end_session
-    without saying anything first.
+    Two complementary guarantees around the close:
+    - CASE A (farewell injection): when the LLM calls end_session WITHOUT saying
+      anything first, inject farewell text so the caller hears a goodbye.
+    - CASE B (dropped-end_session rescue, audio): when the LLM SPEAKS its sign-off
+      but DROPS the end_session call (the audio tool-drop, now the dominant
+      residual once cancel_alarm/put_account_on_test are forced via before_model),
+      append the missing end_session so the call actually terminates. The trigger
+      is the model's OWN farewell, so we never decide to hang up — we only complete
+      the mechanical call it dropped.
 
 WHY THIS EXISTS:
     The LLM frequently calls end_session without producing any text, causing
@@ -67,6 +74,37 @@ FAREWELL_TEXT = {
     "Spanish": "Gracias por llamar a Rapid Response Monitoring. ¡Que tenga un buen día!",
 }
 
+# --- Dropped-end_session rescue (audio) -----------------------------------
+# In audio/Live the model intermittently SPEAKS its sign-off but DROPS the
+# end_session function call, so the call never formally terminates. We detect
+# the model's OWN farewell and append the missing end_session. Using the model's
+# spoken farewell as the trigger means we never decide to hang up — the model
+# already did; we only complete the mechanical call it dropped (no premature-
+# hangup risk). Markers are matched as lowercased substrings on the spoken text.
+_CLOSING_MARKERS = (
+    "have a good day", "have a great day", "have a wonderful day",
+    "have a nice day", "have a good one", "take care", "goodbye", "good bye",
+    "good night",
+    # Spanish sign-offs
+    "buen día", "buen dia", "buena tarde", "buenas tardes", "buena noche",
+    "cuídese", "cuidese", "que tenga un", "que tenga una",
+)
+# If the same utterance still OFFERS further help, it is NOT a close — the
+# conversation is continuing — so we must not force end_session.
+_FURTHER_HELP_MARKERS = (
+    "anything else", "something else", "is there anything", "anything more",
+    "how else", "can i help", "may i help",
+    "algo más", "algo mas", "en qué más", "en que mas", "puedo ayudar",
+)
+
+
+def _looks_like_close(text: str) -> bool:
+    """True when the spoken text is a terminal sign-off (and not still offering help)."""
+    low = text.lower()
+    if any(h in low for h in _FURTHER_HELP_MARKERS):
+        return False
+    return any(m in low for m in _CLOSING_MARKERS)
+
 
 def after_model_callback(callback_context: CallbackContext, llm_response: LlmResponse) -> Optional[LlmResponse]:
 
@@ -75,6 +113,7 @@ def after_model_callback(callback_context: CallbackContext, llm_response: LlmRes
     # -------------------------------------------------------------------------
     has_end_session = False
     has_text_this_call = False
+    this_call_text = []
 
     for part in llm_response.content.parts:
         if part.has_function_call("end_session"):
@@ -87,6 +126,22 @@ def after_model_callback(callback_context: CallbackContext, llm_response: LlmRes
             content = part.text_or_transcript()
             if content and len(content.strip()) > 0:
                 has_text_this_call = True
+                this_call_text.append(content)
+
+    # -------------------------------------------------------------------------
+    # CASE B — DROPPED end_session RESCUE (audio):
+    # The model spoke a terminal sign-off but did NOT call end_session in this
+    # call. Append the missing end_session so the session actually ends. We add
+    # ONLY the function_call (not the farewell text — the model already said it),
+    # which in audio's append-only semantics avoids a doubled goodbye. This only
+    # triggers when the model itself signaled the close, so there is no risk of
+    # hanging up on a caller who still needs help. In text mode end_session is
+    # not dropped, so this branch effectively never fires there.
+    # -------------------------------------------------------------------------
+    if not has_end_session and _looks_like_close(" ".join(this_call_text)):
+        return LlmResponse.from_parts(parts=[
+            Part.from_function_call(name="end_session", args={}),
+        ])
 
     # If there's no end_session, or the LLM already said something, no-op.
     if not has_end_session or has_text_this_call:

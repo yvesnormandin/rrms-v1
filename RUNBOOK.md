@@ -4,7 +4,7 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-12.
+Last updated: 2026-06-12 (audio tool-drop fixed via deterministic emission — §7 FIX gotcha, §8).
 
 ---
 
@@ -209,10 +209,35 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **`cxas pull` masks** bucket/project/dataset as `$env_var`. Use `get_app` for real values (§5).
 - **Stale platform golden?** `push-goldens --force-recreate` hard-resets; the diff-aware
   upsert can miss tool-arg changes.
-- **Missed tool calls are an AUDIO artifact** (confirmed 2026-06-11: text run had 0
-  `(None / Missed)`; audio drops `cancel_alarm`/`put_account_on_test` intermittently). Audio
-  goldens sit in a **~85–96% stochastic band**; the same code scores ~100% in text. Read the
-  transcript (`capture-golden-transcripts.py`) before changing code; don't chase 2/3 audio dips.
+- **Audio tool-drop — SOLVED 2026-06-12 via deterministic emission (see the FIX gotcha below).**
+  Historically `gemini-3.1-flash-live` dropped `cancel_alarm`/`put_account_on_test`/`end_session`
+  intermittently in audio (text scored ~100%; audio sat in a ~85–96% band). That gap is now
+  closed — audio goldens 45/55 → **54/55 (98.2%)** with ZERO tool drops across runs. The residual
+  is now language-purity / judge noise, not dropped tools. (Still: read the transcript with
+  `capture-golden-transcripts.py` before chasing a dip; the script saves user/agent TEXT only —
+  for the tool trajectory use `triage-results.py --run-id` and read the `Called: [...]` list.)
+- **★ FIX for the audio tool-drop — deterministic emission from callbacks (2026-06-12).** The
+  model can't drop a call it never had to make: have a **callback emit the function_call** instead
+  of relying on the model.
+    - **State-changing action tools (`cancel_alarm`, `put_account_on_test`) → `before_model`
+      callback that RETURNS the call**, short-circuiting that model turn. The runtime executes it
+      and re-invokes the model with the result, which then speaks a grounded confirmation. This
+      also guarantees tool-before-confirmation ordering. Trigger must be a SAFE state signal, not a
+      data coincidence: we added an `intent` arg (+ `duration_minutes`/`duration_label` for test)
+      to the reliably-called `verify_passcode`, which writes `_pending_action` / `_test_duration_*`
+      on a SUCCESSFUL verify; the callback fires only when `_pending_action` is set AND
+      `passcode_verified` (gate never bypassed — confirmed by `passcode_gate_enforced_before_action`
+      staying 5/5). `has_active_alarm` alone is NOT a safe cancel-vs-test signal (Fort Worth/Plano
+      on-test branches also have active alarms). Args-carrying tools work only if the args are in
+      state (duration stashed via verify_passcode). Missing signal → callback no-ops → safe fallback.
+    - **`end_session` → `after_model` callback that APPENDS the call** (the close happens in one
+      invocation, so `before_model` has nothing to intercept). "Case B" in the after_model callback:
+      when the model SPEAKS a terminal sign-off but drops `end_session`, append
+      `Part.from_function_call("end_session", {})`. Trigger = the model's own farewell text (closing
+      markers, with a negative guard for "anything else?"/"algo más") → zero premature-hangup risk.
+    - **CONFIRMED: both a `before_model`-RETURNED and an `after_model`-APPENDED function_call execute
+      in Live/audio.** This resolves the old "untested whether appended function_calls execute"
+      question and overturns the prior "audio tool-drop has no callback fix" conclusion.
 - **Do NOT add a pre-call "bridge" utterance to fix the audio tool-drop — it makes it WORSE**
   (FALSIFIED 2026-06-11, Iteration 25; A/B: bridge 17/55 = 30.9% vs baseline 45/55 = 81.8%,
   runs=5). Hypothesis was that the strict "call the tool FIRST, never speak in-progress phrasing
@@ -222,6 +247,8 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   care of that for you…" and glide STRAIGHT into "The alarm at the Plano branch has been
   canceled…" in one breath, **never calling cancel_alarm** (bridge-then-hallucinate). That strict
   prohibition is **load-bearing — it suppresses the hallucination glide. Keep it; never relax it.**
+  (The drop itself is now fixed STRUCTURALLY via deterministic emission — see the FIX gotcha
+  above — not by relaxing this prompt rule. The prohibition still stands as a backstop.)
 - **The live model parrots instruction phrasing** into caller speech — write guidelines so no
   sentence is speakable verbatim. (It also auto-switched language on the word "Hola" until the
   guideline got an explicit non-example.)
@@ -232,9 +259,11 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   rewrite** an utterance the model already emitted. This is why the farewell callback works (it
   only adds text when the turn had none) and why a "suppress the false confirmation" guard for
   the dropped-tool-call bug is **not viable in audio** — the hallucinated confirmation is already
-  out. Open question: whether an *appended* `function_call` part actually gets executed by the
-  runtime in Live mode (untested — would be the only callback-based rescue for a dropped
-  `cancel_alarm`, and only for args-free tools; `put_account_on_test`'s duration isn't in state).
+  out. **RESOLVED 2026-06-12: an appended `function_call` IS executed by the Live runtime** — the
+  after_model "Case B" appends a dropped `end_session` and it fires (audio end_session drops → 0).
+  So the append-a-function_call rescue is real. (And `put_account_on_test` IS forceable after all —
+  stash its `duration` in state via verify_passcode; see the FIX gotcha above.) The "can't
+  suppress/rewrite an already-emitted utterance" limit still holds — these callbacks only ADD.
 - **ASR realities** (audio): spoken words lowercase + compound words split ("Bluebird"→"Blue
   Bird"). Absorb in *tools* (verify_passcode normalizes + fuzzy-matches, Levenshtein ≤ 2). In
   golden tool-args use `$matchType: ignore` for spoken values (passcodes) — regexes can't cover
@@ -251,36 +280,48 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 
 **Architecture:** single `root_agent`, 6 Python tools (`lookup_accounts_by_caller`,
 `verify_passcode`, `cancel_alarm`, `put_account_on_test`, `send_confirmation_sms`,
-`set_language`) + system `end_session`. Two callbacks: `before_agent` (default CLID),
-`after_model` (bilingual farewell). Mock data lives ONLY in `lookup_accounts_by_caller`.
+`set_language`) + system `end_session`. THREE callbacks: `before_agent` (default CLID),
+`before_model` (deterministic action-tool emission — forces `cancel_alarm`/`put_account_on_test`),
+`after_model` (Case A bilingual farewell + Case B `end_session` rescue). `verify_passcode` takes
+`intent` (+ `duration_minutes`/`duration_label` for test) and writes `_pending_action` /
+`_test_duration_*` to drive the before_model callback. Mock data lives ONLY in
+`lookup_accounts_by_caller`.
 
-**Features shipped & validated (committed `ee76756`, deployed to canonical + both variants):**
-- Company-name greeting (lookup on first turn; `{company_name, branches}` mock structure).
-- Passcode ASR robustness (verify_passcode Levenshtein ≤ 2).
-- Language switching EN↔ES, explicit-request-only (`set_language` tool, `language_switching`
-  guideline, bilingual farewell, `es-US` supported).
-- `deploy-variants.sh` preserves variant logging/audio settings via `appConfigOverrides`.
+**Features shipped & validated:**
+- (committed `ee76756`, on canonical + both variants) Company-name greeting; passcode ASR
+  robustness (Levenshtein ≤ 2); EN↔ES explicit-only language switching; `deploy-variants.sh`
+  preserving variant logging/audio via `appConfigOverrides`.
+- **(2026-06-12, on canonical — NOT yet on variants) Audio tool-drop fix via deterministic
+  emission** (before_model RETURNS cancel/test; after_model APPENDS end_session). See §7 FIX
+  gotcha for the full mechanism + safety gate.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 29 callback cases.
-**Latest scores:** text 30–32/33 (~91–97%, paraphrase noise); audio 45/55 = 81.8% (runs=5,
-2026-06-11 post-revert reconfirm) — stochastic band, gap is dropped tool calls in the audio
-path, not logic (confirmed via text A/B). **Canonical is on the baseline instruction set.**
+**Latest scores (2026-06-12, after the tool-drop fix):**
+- **audio 54/55 = 98.2% (runs=5 ×2), ZERO tool drops** — up from the 45/55 (81.8%) baseline. The
+  only residual is language-purity / judge noise (`no_language_autoswitch` / `language_switch`),
+  a different golden each run; not a tool drop.
+- **text 29/33 (runs=3): all action + closing goldens 3/3** (cancel, on-test, plano, dispatch,
+  closing, passcode-gate). The 4 misses = `no_language_autoswitch` 0/3 (language autoswitch, see
+  open items) + 1 `sms_offered` TEXT_MISMATCH (judge noise). No tool-drop regression in text.
 
-**2026-06-11 — investigated & FALSIFIED the "pre-call bridge utterance" fix for the audio
-tool-drop** (Iteration 25 in experiment_log; RUNBOOK §7 gotcha). Removing the strict
-"speak only after the tool returns" prohibition + requiring an in-progress bridge made it
-WORSE (30.9% vs 81.8%) — the live model glides bridge→fabricated confirmation, never calling
-the tool. Reverted; the prohibition stays. The audio tool-drop has **no known prompt-side or
-callback-side fix** (Fix B/after_model guard also dead — append-only in Live; see §7); treat
-as the residual stochastic band, not a bug to chase.
+**2026-06-11 — FALSIFIED the "pre-call bridge" prompt fix** (Iteration 25): relaxing the strict
+"speak only after the tool returns" rule made the drop WORSE (30.9% vs 81.8%). The prohibition is
+load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deterministic emission
+(above), without touching that rule.
 
 **Open items / candidate next steps:**
-- Audio tool-drop (`plano` cancel_alarm, `uc2` put_account_on_test) remains the dominant
-  residual failure. Bridge + callback-guard approaches are both exhausted (see §7). Open ideas
-  not yet tried: tool-config / model-settings tuning, or accepting the band as a known limit.
-- Minor polish (not yet done): after switching to Spanish the agent sometimes prepends an
-  English filler ("Got it,") — the persona acknowledgment guideline hardcodes English fillers
-  and isn't language-aware. One-line instruction fix would tighten Spanish purity. (User aware.)
+- **`no_language_autoswitch_without_request` fails in TEXT (0/3)** — the agent calls `set_language`
+  / replies in Spanish when the caller merely USES a Spanish greeting. Pre-existing & orthogonal to
+  the tool-drop fix (passes 4–5/5 in audio; was failing in text before the end_session work).
+  **To investigate next session** (the existing language-autoswitch issue, more pronounced in text).
+- **Callback tests not yet written** for the new `before_model` callback and the after_model
+  "Case B" (sync-callbacks flags the before_model test missing). Add under
+  `evals/callback_tests/tests/root_agent/{before_model_callbacks/before_model,after_model_callbacks/after_model}/test.py`.
+- **Variants NOT redeployed** with the tool-drop fix — run `./deploy-variants.sh` when releasing.
+- `experiment_log.md` / `tdd.md` not yet updated with the 2026-06-12 iteration (auto-memory IS
+  updated — see `cxas-before-model-emit-fixes-audio-tool-drop`).
+- Minor polish: English filler ("Got it,") sometimes prepended after switching to Spanish
+  (persona acknowledgment guideline hardcodes English fillers). (User aware.)
 - `todo.md` item 8c: wire the two GTP phone numbers to the variant apps in the Console (user task).
 
 ---

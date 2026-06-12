@@ -223,7 +223,14 @@
                    Otherwise, ask the caller for the account passcode (a single
                    spoken word), e.g., "Could you please provide the passcode
                    for verification?"
-                2. Call {@TOOL: verify_passcode} with the spoken passcode.
+                2. Call {@TOOL: verify_passcode} with the spoken passcode. Also
+                   set the `intent` argument to the caller's requested action:
+                   `cancel` if they want to cancel an alarm, or `test` if they
+                   want to place a branch on test. For a `test` request, also
+                   pass `duration_minutes` (the requested duration normalized to
+                   minutes, e.g., 60 for "one hour") and `duration_label` (the
+                   spoken phrase, e.g., "one hour") whenever the caller has
+                   already stated a valid duration.
                 3. If verification succeeds, proceed to the requested action.
                 4. If verification fails:
                    - Politely tell the caller the passcode did not match and ask
