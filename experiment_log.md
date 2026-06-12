@@ -335,3 +335,51 @@ LESSON: audio sims are the cheapest way to find real-telephony bugs (ASR word-sp
 - `TEXT_MISMATCH` sms_offered_after_validation_then_declined: sem_score=2
 - `TEXT_MISMATCH` disambiguation_accuracy_fort_worth: sem_score=2
 
+## Iteration 25 — 2026-06-11 (FALSIFIED: pre-call "bridge utterance" hypothesis — REVERTED)
+**Hypothesis tested (user):** the load-bearing On_Test rule "Call the tool FIRST … never say
+any in-progress phrasing before the tool call; speak once, after the fact" was *causing* the
+audio tool-drops — a native-audio Live model's keep-talking prior fights a silent structured
+call, so removing the verbal slot makes it speak the confirmation instead of calling the tool.
+Proposed fix: ALLOW/REQUIRE a brief in-progress bridge ("One moment…") before state-changing
+tools, drop the prohibition, keep action_grounding.
+
+**Change:** Added `action_bridge` constraint (required in-progress acknowledgment in the SAME
+turn as cancel_alarm / put_account_on_test, varied wording, never a completion claim); removed
+the On_Test in-progress prohibition; added an explicit tool-failure branch to Put_On_Test
+step 2; added the bridge to Cancel_Alarm step 1. Lint clean; pushed to canonical. Audio A/B,
+runs=5 (run d5afbe9c).
+
+**Result: 17/55 (30.9%)** — MAJOR regression vs the 25/33 (75.8%) baseline (Iteration 24),
+NOT noise. Clean split: every eval gated on a *completed* state-changing action → 0/5 (plano,
+uc1, uc2, dispatch_status_reassurance, sms_declined, deterministic_spoken_closing); every eval
+NOT needing a completed action → 5/5 (passcode_gate_enforced, single_site). Custom behavioral
+judges sometimes PASSED (agent said the right thing, e.g. "police WERE dispatched") while the
+tool-call metric showed `(None / Missed)` — the agent narrated success it never performed
+(action_grounding violation shipped to the caller).
+
+**Mechanism CONFIRMED by live audio transcript (plano replay), turn [4]:**
+> User: Harbor.  →  Agent: "Thanks. **Let me take care of that for you** … **The alarm at the
+> Plano branch has b[een canceled]…**"  — bridge spoken, then glided STRAIGHT into the
+> confirmation in the same breath; `cancel_alarm` NEVER called.
+
+It is **bridge-then-hallucinate**, not bridge-then-stall (strictly worse than baseline, where
+the agent dropped to end_session rather than fluently lying). The bridge did not create a slot
+for the tool call — it became a runway the keep-talking prior used to flow into a fabricated
+confirmation.
+
+**Conclusion:** Hypothesis FALSIFIED; the inverse is true. The "speak only after the tool
+returns / no in-progress phrasing" prohibition is **load-bearing in the opposite direction** —
+it was *suppressing* this hallucination glide, not causing the drops. Fix A (bridge) is dead in
+audio; Fix B (after_model guard) is also dead in audio — the callback is append-only in Live
+mode, so it can't suppress an emitted utterance (see RUNBOOK §7). For gemini-3.1-flash-live the
+strict silent-call discipline is the best available lever; do not remove it.
+
+**Reverted** all three edits (instruction back to 346 lines, lint clean), re-pushed to canonical
+(run after user authorization). **Confirming audio run (runs=5, run 6d3ece1a): 45/55 (81.8%)** —
+back in the baseline band (uc1 5/5, sms 5/5, fort_worth 5/5; plano 2/5 + uc2 3/5 are the normal
+chronic stochastic droppers). Same-session A/B delta: bridge 30.9% vs baseline 81.8%.
+
+| Eval Type | Pass Rate (post-revert confirm) |
+|-----------|-----------|
+| Goldens | 45/55 (81.8%) |
+

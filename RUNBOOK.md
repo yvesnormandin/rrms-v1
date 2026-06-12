@@ -4,7 +4,7 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-11.
+Last updated: 2026-06-12.
 
 ---
 
@@ -188,6 +188,22 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   After changing `modelSettings.model`, pull and verify. Valid: `gemini-3.1-flash-live`.
 - **Never score audio with `results --audio`** — that flag returns a bogus 0%. Plain
   `results <run_id>` (platform `evaluation_status`) is the truth.
+- **`run-evals.py` proto-enum crash at the scoring step — PATCHED 2026-06-12 (re-apply after any
+  `pip install`/upgrade of `cxas_scrapi`).** Symptom: run triggers fine, then `Unrecognized
+  EvaluationRunState enum value: 5` → `ERROR: Evaluation run failed: 'int' object has no
+  attribute 'name'`. Cause: the server returns `EvaluationRunState=5` but the installed
+  `google-cloud-ces` (0.6.0) stubs only define 0–3, so proto-plus returns the raw int and
+  `run_status.state.name` blows up. Fix is in
+  `.venv/lib/python3.14/site-packages/cxas_scrapi/utils/eval_utils.py`, method
+  `wait_for_run_and_get_results` (~line 1305): compare by **integer** and treat anything not
+  pending as terminal —
+  `if int(run_status.state) not in {0, 1}: break` (0=UNSPECIFIED, 1=RUNNING). Forward-compatible
+  (won't recrash when the server adds state 6). **Not an upgrade problem** — verified 2026-06-12
+  that `cxas_scrapi` (1.4.1) and `google-cloud-ces` (0.6.0) are BOTH already the latest published
+  versions; the CES *server* is ahead of its own published stubs (newest ces still defines only
+  states 0–3), so there's nothing to upgrade to and the bug is unfixed upstream. The value-tolerant
+  compare is the only robust fix. Workaround if the patch is gone: the run still completes on the
+  platform — score it separately with `scrapi-eval-runner.py results <run_id>`.
 - **`cxas pull` nests** an app-named subfolder inside `--target-dir`. Never pull into
   `cxas_app/rrms-v1/`.
 - **`cxas pull` masks** bucket/project/dataset as `$env_var`. Use `get_app` for real values (§5).
@@ -197,9 +213,28 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   `(None / Missed)`; audio drops `cancel_alarm`/`put_account_on_test` intermittently). Audio
   goldens sit in a **~85–96% stochastic band**; the same code scores ~100% in text. Read the
   transcript (`capture-golden-transcripts.py`) before changing code; don't chase 2/3 audio dips.
+- **Do NOT add a pre-call "bridge" utterance to fix the audio tool-drop — it makes it WORSE**
+  (FALSIFIED 2026-06-11, Iteration 25; A/B: bridge 17/55 = 30.9% vs baseline 45/55 = 81.8%,
+  runs=5). Hypothesis was that the strict "call the tool FIRST, never speak in-progress phrasing
+  before the call, speak once after the fact" rule *caused* the drops by removing the model's
+  speech slot. Reality is the **opposite**: with `gemini-3.1-flash-live`, any permitted pre-call
+  speech becomes a **runway** — the live transcript showed the agent say "Thanks, let me take
+  care of that for you…" and glide STRAIGHT into "The alarm at the Plano branch has been
+  canceled…" in one breath, **never calling cancel_alarm** (bridge-then-hallucinate). That strict
+  prohibition is **load-bearing — it suppresses the hallucination glide. Keep it; never relax it.**
 - **The live model parrots instruction phrasing** into caller speech — write guidelines so no
   sentence is speakable verbatim. (It also auto-switched language on the word "Hola" until the
   guideline got an explicit non-example.)
+- **`after_model` callback can only ADD parts in audio/Live, never replace** — returning
+  `LlmResponse.from_parts(...)` in Live mode does NOT replace the model's output; it **appends**
+  the returned parts to what the model already produced (which is already committed/streaming).
+  So a callback can prepend/append text or append a function_call, but it **cannot suppress or
+  rewrite** an utterance the model already emitted. This is why the farewell callback works (it
+  only adds text when the turn had none) and why a "suppress the false confirmation" guard for
+  the dropped-tool-call bug is **not viable in audio** — the hallucinated confirmation is already
+  out. Open question: whether an *appended* `function_call` part actually gets executed by the
+  runtime in Live mode (untested — would be the only callback-based rescue for a dropped
+  `cancel_alarm`, and only for args-free tools; `put_account_on_test`'s duration isn't in state).
 - **ASR realities** (audio): spoken words lowercase + compound words split ("Bluebird"→"Blue
   Bird"). Absorb in *tools* (verify_passcode normalizes + fuzzy-matches, Levenshtein ≤ 2). In
   golden tool-args use `$matchType: ignore` for spoken values (passcodes) — regexes can't cover
@@ -227,10 +262,22 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - `deploy-variants.sh` preserves variant logging/audio settings via `appConfigOverrides`.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 29 callback cases.
-**Latest scores:** text 30–32/33 (~91–97%, paraphrase noise); audio 25–28/33 (stochastic band,
-confirmed via text A/B that the gap is dropped tool calls in the audio path, not logic).
+**Latest scores:** text 30–32/33 (~91–97%, paraphrase noise); audio 45/55 = 81.8% (runs=5,
+2026-06-11 post-revert reconfirm) — stochastic band, gap is dropped tool calls in the audio
+path, not logic (confirmed via text A/B). **Canonical is on the baseline instruction set.**
+
+**2026-06-11 — investigated & FALSIFIED the "pre-call bridge utterance" fix for the audio
+tool-drop** (Iteration 25 in experiment_log; RUNBOOK §7 gotcha). Removing the strict
+"speak only after the tool returns" prohibition + requiring an in-progress bridge made it
+WORSE (30.9% vs 81.8%) — the live model glides bridge→fabricated confirmation, never calling
+the tool. Reverted; the prohibition stays. The audio tool-drop has **no known prompt-side or
+callback-side fix** (Fix B/after_model guard also dead — append-only in Live; see §7); treat
+as the residual stochastic band, not a bug to chase.
 
 **Open items / candidate next steps:**
+- Audio tool-drop (`plano` cancel_alarm, `uc2` put_account_on_test) remains the dominant
+  residual failure. Bridge + callback-guard approaches are both exhausted (see §7). Open ideas
+  not yet tried: tool-config / model-settings tuning, or accepting the band as a known limit.
 - Minor polish (not yet done): after switching to Spanish the agent sometimes prepends an
   English filler ("Got it,") — the persona acknowledgment guideline hardcodes English fillers
   and isn't language-aware. One-line instruction fix would tighten Spanish purity. (User aware.)
