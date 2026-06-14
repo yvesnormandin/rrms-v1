@@ -383,3 +383,49 @@ chronic stochastic droppers). Same-session A/B delta: bridge 30.9% vs baseline 8
 |-----------|-----------|
 | Goldens | 45/55 (81.8%) |
 
+## Iteration 26 — 2026-06-14 (language generation-drift fix for `no_language_autoswitch`)
+
+**Context:** `no_language_autoswitch_without_request` had regressed to **0/3 in text** (passes 4–5/5
+in audio). The 2026-06-10 guideline fix (Iteration 23, "Hola!" non-example) had made it pass in
+text, but it regressed after the 2026-06-12 tool-drop fix (deterministic emission; not logged here
+— see RUNBOOK §8 + auto-memory `cxas-before-model-emit-fixes-audio-tool-drop`).
+
+**Diagnosis (run 38093ec2 + report):** the per-expectation breakdown was the key. The agent
+**PASSED** "must NOT call `set_language`" but **FAILED** "must keep responding in English." Judge
+note: *'After the user said "Hola!", the agent responded with "Gracias, continuaré[mos en
+español]…"'*. So this is NOT a tool-gating failure — the model correctly skips `set_language` yet
+**generates its reply text in Spanish**, mirroring the caller's greeting language. Text-specific
+because the literal "Hola!" token primes a Spanish completion; spoken audio context anchors English.
+The proven deterministic-emission pattern does not apply (no discrete function call to force/block;
+`after_model` is append-only in Live, can't translate). → prompt-tuning problem.
+
+**Change A (VERBOSE — caused a regression):** added a ~14-line block to the `language_switching`
+guideline spelling out reply-language independence. Result (run 8bd632c3, text runs=3): **30/33** —
+no_language **3/3 (fixed)** BUT **plano regressed to 1/3**. Live capture (3/3) showed the bug: at
+the disambiguation-confirm turn the agent **re-asked** "I see you manage multiple branches. Did you
+mean the Plano branch at 789 Elm Street?" even after the caller said "Yes, that's the one" —
+ignoring the confirmation and looping. Controlled comparison (pre-edit 38093ec2: plano PASS /
+no_language FAIL; post-edit: both flipped) → the verbose block diluted the taskflow's
+disambiguation logic.
+
+**Change B (SURGICAL — shipped):** reverted the block; replaced with ONE concise sentence appended
+to the existing "Hola!" bullet: *"Your reply language follows {@TOOL: set_language} only, never the
+caller's wording — echoing the caller's language in your own reply is itself the auto-switch to
+avoid."* Lint clean; pushed to canonical.
+
+| Eval Type | Text (run 1868b353, runs=3) | Audio (run 2826ea0f, runs=3) |
+|-----------|------------------------------|-------------------------------|
+| Goldens | **32/33 (97%)** | **33/33 (100%)** |
+
+- **plano 3/3** (loop gone), **language_switch_to_spanish 3/3** (positive case unharmed),
+  **no_language_autoswitch** text 2/3 / **audio 3/3**. All action/closing goldens 3/3 in audio —
+  deterministic-emission tool-drop fix intact, no regressions.
+- Residual: no_language_autoswitch 1/3 text drift (one run both called set_language and replied in
+  Spanish — genuine, not judge noise). Left as-is: production channel is audio (3/3); chasing it
+  means more guideline text, which is exactly what regressed plano. Risk/reward poor.
+
+**Lesson:** keep `language_switching` guideline additions MINIMAL — verbose instruction blocks
+dilute attention on unrelated taskflow steps (here, multi-branch disambiguation). Surgical > thorough.
+
+**Deployed:** canonical + both GTP variants (`./deploy-variants.sh`).
+

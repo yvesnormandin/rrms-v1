@@ -4,7 +4,7 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-12 (audio tool-drop fixed via deterministic emission — §7 FIX gotcha, §8).
+Last updated: 2026-06-14 (language generation-drift fix for `no_language_autoswitch` — §7 gotcha, §8).
 
 ---
 
@@ -252,6 +252,21 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **The live model parrots instruction phrasing** into caller speech — write guidelines so no
   sentence is speakable verbatim. (It also auto-switched language on the word "Hola" until the
   guideline got an explicit non-example.)
+- **Language auto-switch has TWO failure modes — gate the tool AND the reply language.** Beyond
+  wrongly CALLING `set_language`, the model can keep `set_language` un-called yet still **generate
+  its reply text in the caller's language** (e.g. caller opens "Hola!" → agent answers in Spanish).
+  The judge splits these: "must NOT call set_language" can PASS while "keep responding in English"
+  FAILS. Fix is a guideline sentence tying reply language to `set_language` only — NOT a callback
+  (no discrete call to force/block; `after_model` is append-only in Live and can't translate).
+  More pronounced in TEXT (the literal "Hola!" token primes a Spanish completion); audio anchors
+  English. (Iteration 26, 2026-06-14.)
+- **Keep `language_switching` guideline additions MINIMAL — verbose blocks regress unrelated
+  taskflow steps.** A ~14-line addition to fix the reply-language drift (above) diluted attention
+  on the multi-branch disambiguation step: the agent began **re-asking** the branch-confirmation
+  question after the caller already said "Yes, that's the one" (plano text 3/3 → 1/3, a confirmation
+  loop). The SURGICAL one-sentence version fixed the drift WITHOUT the regression (plano back to
+  3/3). Controlled A/B confirmed the verbose block was the cause. Prefer one tight sentence over a
+  thorough block. (Iteration 26.)
 - **`after_model` callback can only ADD parts in audio/Live, never replace** — returning
   `LlmResponse.from_parts(...)` in Live mode does NOT replace the model's output; it **appends**
   the returned parts to what the model already produced (which is already committed/streaming).
@@ -296,13 +311,14 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   See §7 FIX gotcha for the full mechanism + safety gate.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 29 callback cases.
-**Latest scores (2026-06-12, after the tool-drop fix):**
-- **audio 54/55 = 98.2% (runs=5 ×2), ZERO tool drops** — up from the 45/55 (81.8%) baseline. The
-  only residual is language-purity / judge noise (`no_language_autoswitch` / `language_switch`),
-  a different golden each run; not a tool drop.
-- **text 29/33 (runs=3): all action + closing goldens 3/3** (cancel, on-test, plano, dispatch,
-  closing, passcode-gate). The 4 misses = `no_language_autoswitch` 0/3 (language autoswitch, see
-  open items) + 1 `sms_offered` TEXT_MISMATCH (judge noise). No tool-drop regression in text.
+**Latest scores (2026-06-14, after the language generation-drift fix — surgical edit, on canonical
++ both variants):**
+- **audio 33/33 = 100% (runs=3, run 2826ea0f)** — every golden 3/3 incl. no_language_autoswitch,
+  plano, language_switch. ZERO tool drops (all action/closing goldens 3/3 — deterministic-emission
+  fix intact). Regression-free.
+- **text 32/33 = 97% (runs=3, run 1868b353)**: plano 3/3, language_switch 3/3, all action/closing
+  3/3. Lone miss = `no_language_autoswitch` 2/3 (one genuine text-only Spanish-drift run; passes
+  3/3 in audio). Up from the prior 29/33 (no_language was 0/3 in text).
 
 **2026-06-11 — FALSIFIED the "pre-call bridge" prompt fix** (Iteration 25): relaxing the strict
 "speak only after the tool returns" rule made the drop WORSE (30.9% vs 81.8%). The prohibition is
@@ -310,10 +326,13 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 (above), without touching that rule.
 
 **Open items / candidate next steps:**
-- **`no_language_autoswitch_without_request` fails in TEXT (0/3)** — the agent calls `set_language`
-  / replies in Spanish when the caller merely USES a Spanish greeting. Pre-existing & orthogonal to
-  the tool-drop fix (passes 4–5/5 in audio; was failing in text before the end_session work).
-  **To investigate next session** (the existing language-autoswitch issue, more pronounced in text).
+- ~~`no_language_autoswitch_without_request` fails in TEXT (0/3)~~ — **FIXED 2026-06-14 (Iteration 26)**.
+  Root cause was NOT a tool switch: the agent correctly skipped `set_language` but **generated its
+  reply text in Spanish** (output-language mirroring of the caller's "Hola!"). Fixed with one
+  surgical sentence in the `language_switching` guideline (reply language follows `set_language`
+  only). Audio 3/3, text 2/3 (one residual text-only drift; not worth chasing — see §7 gotcha and
+  experiment_log Iteration 26). NOTE: the first VERBOSE version of this edit regressed `plano`
+  disambiguation into a loop — keep these guideline additions minimal.
 - **Callback tests not yet written** for the new `before_model` callback and the after_model
   "Case B" (sync-callbacks flags the before_model test missing). Add under
   `evals/callback_tests/tests/root_agent/{before_model_callbacks/before_model,after_model_callbacks/after_model}/test.py`.

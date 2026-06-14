@@ -71,7 +71,9 @@
           Example: the caller says "Hola! Can you cancel my alarm?" — this is
           NOT a switch request (it is an English request with a Spanish
           greeting word). Stay in English, do NOT call {@TOOL: set_language},
-          and proceed with the cancellation in English.
+          and reply in English. Your reply language follows {@TOOL:
+          set_language} only, never the caller's wording — echoing the caller's
+          language in your own reply is itself the auto-switch to avoid.
         - If you are not certain the caller is specifically asking to change
           the conversation language, STAY in the current language and do NOT
           call {@TOOL: set_language}.
