@@ -383,12 +383,62 @@ chronic stochastic droppers). Same-session A/B delta: bridge 30.9% vs baseline 8
 |-----------|-----------|
 | Goldens | 45/55 (81.8%) |
 
-## Iteration 26 — 2026-06-14 (language generation-drift fix for `no_language_autoswitch`)
+## Iteration 26 — 2026-06-12 (audio tool-drop SOLVED via deterministic callback emission)
+
+*(Backfilled 2026-06-14 — this major fix shipped 2026-06-12 but was originally recorded only in
+RUNBOOK §7/§8 + auto-memory `cxas-before-model-emit-fixes-audio-tool-drop`, not here.)*
+
+**Problem:** In audio/Live, `gemini-3.1-flash-live` intermittently DROPPED the action function
+call (`cancel_alarm` / `put_account_on_test`) and the close (`end_session`), instead SPEAKING a
+fabricated confirmation ("your alarm has been canceled") without ever calling the tool — an
+`action_grounding` violation shipped to the caller. Text scored ~100%; audio sat in a ~85–96%
+band (**45/55 = 81.8% baseline**). Iteration 25 had just FALSIFIED the pre-call "bridge" prompt
+fix (made it worse — bridge-then-hallucinate); the strict "speak only after the tool returns"
+rule is load-bearing and was kept.
+
+**Insight:** the model can't drop a call it never had to make → have a **callback emit the
+`function_call` deterministically** instead of relying on the model. This is the supported CXAS
+"trigger pattern", NOT the unreachable `tool_config=ANY` decoder constraint (the callback sandbox's
+`LlmRequest` exposes only `.contents`, no `.config`/`.tool_config`).
+
+**Change:**
+- **Action tools (`cancel_alarm`, `put_account_on_test`) → `before_model` callback that RETURNS the
+  call**, short-circuiting that model turn. The runtime executes it and re-invokes the model with
+  the tool result, which then speaks a grounded confirmation (also guarantees tool-before-confirm
+  ordering). New `before_model_callbacks_01` + registered `beforeModelCallbacks` in root_agent.json.
+- **Safe trigger:** added an `intent` arg (+ `duration_minutes`/`duration_label` for test) to the
+  reliably-called `verify_passcode`, which on a SUCCESSFUL verify writes `_pending_action` /
+  `_test_duration_*`. The callback fires ONLY when `_pending_action` is set AND `passcode_verified`
+  (gate never bypassed) AND (for cancel) `has_active_alarm` AND not already forced. `has_active_alarm`
+  alone is NOT a safe cancel-vs-test discriminator (Fort Worth/Plano on-test branches also carry
+  active alarms). Missing signal → callback no-ops → safe fallback to prior behavior; never a wrong
+  action.
+- **`end_session` → `after_model` callback that APPENDS the call (Case B).** The close happens in
+  ONE invocation (model speaks farewell but drops end_session) — nothing for before_model to
+  intercept — so after_model is the only hook. Trigger = the model's OWN farewell text (closing
+  markers, negative guard for "anything else?"/"algo más"), so zero premature-hangup risk.
+- **CONFIRMED: both a before_model-RETURNED and an after_model-APPENDED `function_call` execute in
+  Live/audio** — resolved the prior open question and overturned the "audio tool-drop has no
+  callback fix" conclusion.
+
+| Eval Type | Audio (runs=5 ×multiple) |
+|-----------|---------------------------|
+| Goldens | **45/55 (81.8%) → up to 54/55 (98.2%)** |
+
+- **ZERO `cancel_alarm` drops AND ZERO `put_account_on_test` drops** across runs (incl. runs that
+  otherwise failed); end_session drops (which the action fix UNMASKED — calls now run to completion
+  so the close became the visible failure) also driven to ZERO by Case B. Text stayed 11/11 (no
+  regression / no double-call). `passcode_gate_enforced_before_action` stayed 5/5 (gate never
+  bypassed). Residual = language-purity judge noise (`no_language_autoswitch`) → became Iteration 27.
+- **Deployed:** canonical + both GTP variants @ commit `e9d0ffe`.
+- **Open (still):** callback tests for the new `before_model` and the after_model "Case B" not yet
+  written (sync-callbacks flags the before_model test missing).
+
+## Iteration 27 — 2026-06-14 (language generation-drift fix for `no_language_autoswitch`)
 
 **Context:** `no_language_autoswitch_without_request` had regressed to **0/3 in text** (passes 4–5/5
 in audio). The 2026-06-10 guideline fix (Iteration 23, "Hola!" non-example) had made it pass in
-text, but it regressed after the 2026-06-12 tool-drop fix (deterministic emission; not logged here
-— see RUNBOOK §8 + auto-memory `cxas-before-model-emit-fixes-audio-tool-drop`).
+text, but it regressed after the 2026-06-12 tool-drop fix (deterministic emission — Iteration 26).
 
 **Diagnosis (run 38093ec2 + report):** the per-expectation breakdown was the key. The agent
 **PASSED** "must NOT call `set_language`" but **FAILED** "must keep responding in English." Judge

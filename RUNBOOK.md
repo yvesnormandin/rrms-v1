@@ -259,14 +259,14 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   FAILS. Fix is a guideline sentence tying reply language to `set_language` only — NOT a callback
   (no discrete call to force/block; `after_model` is append-only in Live and can't translate).
   More pronounced in TEXT (the literal "Hola!" token primes a Spanish completion); audio anchors
-  English. (Iteration 26, 2026-06-14.)
+  English. (Iteration 27, 2026-06-14.)
 - **Keep `language_switching` guideline additions MINIMAL — verbose blocks regress unrelated
   taskflow steps.** A ~14-line addition to fix the reply-language drift (above) diluted attention
   on the multi-branch disambiguation step: the agent began **re-asking** the branch-confirmation
   question after the caller already said "Yes, that's the one" (plano text 3/3 → 1/3, a confirmation
   loop). The SURGICAL one-sentence version fixed the drift WITHOUT the regression (plano back to
   3/3). Controlled A/B confirmed the verbose block was the cause. Prefer one tight sentence over a
-  thorough block. (Iteration 26.)
+  thorough block. (Iteration 27.)
 - **`after_model` callback can only ADD parts in audio/Live, never replace** — returning
   `LlmResponse.from_parts(...)` in Live mode does NOT replace the model's output; it **appends**
   the returned parts to what the model already produced (which is already committed/streaming).
@@ -326,20 +326,21 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 (above), without touching that rule.
 
 **Open items / candidate next steps:**
-- ~~`no_language_autoswitch_without_request` fails in TEXT (0/3)~~ — **FIXED 2026-06-14 (Iteration 26)**.
+- ~~`no_language_autoswitch_without_request` fails in TEXT (0/3)~~ — **FIXED 2026-06-14 (Iteration 27)**.
   Root cause was NOT a tool switch: the agent correctly skipped `set_language` but **generated its
   reply text in Spanish** (output-language mirroring of the caller's "Hola!"). Fixed with one
   surgical sentence in the `language_switching` guideline (reply language follows `set_language`
   only). Audio 3/3, text 2/3 (one residual text-only drift; not worth chasing — see §7 gotcha and
-  experiment_log Iteration 26). NOTE: the first VERBOSE version of this edit regressed `plano`
+  experiment_log Iteration 27). NOTE: the first VERBOSE version of this edit regressed `plano`
   disambiguation into a loop — keep these guideline additions minimal.
 - **Callback tests not yet written** for the new `before_model` callback and the after_model
   "Case B" (sync-callbacks flags the before_model test missing). Add under
   `evals/callback_tests/tests/root_agent/{before_model_callbacks/before_model,after_model_callbacks/after_model}/test.py`.
 - ~~Variants NOT redeployed~~ — DONE 2026-06-12: both variants deployed @ `e9d0ffe` via
   `./deploy-variants.sh`.
-- `experiment_log.md` / `tdd.md` not yet updated with the 2026-06-12 iteration (auto-memory IS
-  updated — see `cxas-before-model-emit-fixes-audio-tool-drop`).
+- ~~`experiment_log.md` / `tdd.md` not yet updated with the 2026-06-12 iteration~~ — DONE 2026-06-14:
+  backfilled as experiment_log Iteration 26 + tdd pass-rate/changelog rows (auto-memory
+  `cxas-before-model-emit-fixes-audio-tool-drop` was already current).
 - Minor polish: English filler ("Got it,") sometimes prepended after switching to Spanish
   (persona acknowledgment guideline hardcodes English fillers). (User aware.)
 - `todo.md` item 8c: wire the two GTP phone numbers to the variant apps in the Console (user task).
