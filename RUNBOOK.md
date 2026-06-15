@@ -4,7 +4,8 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-14 (language generation-drift fix for `no_language_autoswitch` — §7 gotcha, §8).
+Last updated: 2026-06-15 (callback tests for the deterministic-emission stack; language
+generation-drift fix for `no_language_autoswitch`; experiment_log Iteration 26 backfill — §7/§8).
 
 ---
 
@@ -288,6 +289,17 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   BEFORE it can appear in `synthesizeSpeechConfigs` (push 400s otherwise). Keep
   `enable_multilingual_support` OFF — it triggers platform auto-handling (we want explicit-only switching).
 - **Background runs**: stdout is buffered; an empty log while the PID is alive is normal.
+- **Writing callback unit tests** (`evals/callback_tests/`, pytest): four traps, each cost time.
+  (a) `CallbackContext(state=...)` **COPIES** the dict — to assert a mutation the callback makes
+  (`_pending_action`, `_cancel_forced`/`_test_forced`), keep the `ctx` and read `ctx.state`, NOT the
+  dict you passed in. (b) The **FIRST** pytest invocation pays a **~8-minute `cxas_scrapi` import
+  warmup**; later runs are ~7–9s — an apparently-hung first run is NORMAL, don't kill it. (c) Inject
+  the platform globals (`Part`/`LlmResponse`/`CallbackContext`/`LlmRequest`) into the imported
+  `python_code` module BEFORE importing the callback fn (it uses them as bare names); Python 3.14
+  defers annotation eval (PEP 649) so the import itself doesn't need them. (d) `agents/<…>/test.py`
+  are **tracked symlinks** created by `sync-callbacks` — `find -type f` MISSES them (they're
+  `-type l`); run `sync-callbacks` after adding a test so the SCRAPI runner registers it, and
+  `git add` the symlink too.
 
 ---
 
@@ -309,6 +321,13 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **(2026-06-12, on canonical + BOTH variants @ commit `e9d0ffe`) Audio tool-drop fix via
   deterministic emission** (before_model RETURNS cancel/test; after_model APPENDS end_session).
   See §7 FIX gotcha for the full mechanism + safety gate.
+- **(2026-06-14, on canonical + BOTH variants @ commit `3dae30c`) Language generation-drift fix**
+  — the agent's REPLY language now follows `set_language` only (one surgical guideline sentence),
+  fixing `no_language_autoswitch` (caller's "Hola!" → agent replied in Spanish without ever calling
+  the tool). See the §7 language gotchas + experiment_log Iteration 27.
+- **(2026-06-15, git only @ commit `fbb43a8`) Callback unit tests for the deterministic-emission
+  stack** — before_model 19 cases (safety gates + cancel-vs-test intent discrimination) + after_model
+  Case B 7 cases. Inventory 29 → 55 callback cases; `sync-callbacks` reports 0 missing.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 55 callback cases (before_agent 7,
 after_model 29, before_model 19).
