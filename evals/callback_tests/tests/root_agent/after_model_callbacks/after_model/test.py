@@ -370,3 +370,60 @@ class TestEdgeCases:
         result = after_model_callback(_ctx(events), resp)
         assert result is not None
         assert result.content.parts[0].text == FAREWELL_TEXT["English"]
+
+
+# -------------------------------------------------------------------------
+# CASE B — dropped-end_session rescue (audio tool-drop)
+#
+# The model SPOKE a terminal sign-off but DROPPED the end_session call. The
+# callback detects its OWN farewell text (closing markers, with a negative
+# guard for utterances still offering help) and APPENDS end_session so the call
+# actually terminates. It appends ONLY the function_call — the model already
+# said the farewell, and audio append-semantics would otherwise double it.
+# Because the trigger is the model's own close, there is no premature-hangup
+# risk: we complete a call the model already signaled.
+# -------------------------------------------------------------------------
+class TestCaseBDroppedEndSessionRescue:
+    """Append end_session when the model signs off but drops the call."""
+
+    def test_appends_end_session_on_english_farewell(self):
+        resp = _response([_text_part("You're all set. Have a good day.")])
+        result = after_model_callback(_ctx(), resp)
+        assert result is not None
+        # ONLY the function call is appended (no doubled farewell text).
+        assert len(result.content.parts) == 1
+        assert result.content.parts[0].has_function_call("end_session")
+
+    def test_appends_on_spanish_farewell(self):
+        resp = _response([_text_part("Listo. Que tenga un buen día.")])
+        result = after_model_callback(_ctx(), resp)
+        assert result is not None
+        assert result.content.parts[0].has_function_call("end_session")
+
+    def test_appends_on_audio_transcript_farewell(self):
+        """Audio is where the drop actually happens — farewell arrives as a transcript."""
+        resp = _response([_transcript_part("Take care now.")])
+        result = after_model_callback(_ctx(), resp)
+        assert result is not None
+        assert result.content.parts[0].has_function_call("end_session")
+
+    def test_no_append_when_still_offering_help_english(self):
+        """Closing marker present BUT still offering help -> not a close -> no append."""
+        resp = _response([_text_part(
+            "Have a good day! Is there anything else I can help with?")])
+        assert after_model_callback(_ctx(), resp) is None
+
+    def test_no_append_when_still_offering_help_spanish(self):
+        resp = _response([_text_part(
+            "Que tenga un buen día. ¿Algo más en que pueda ayudarle?")])
+        assert after_model_callback(_ctx(), resp) is None
+
+    def test_no_append_on_ordinary_midcall_text(self):
+        """Non-closing text never triggers the rescue."""
+        resp = _response([_text_part("Could you provide the passcode, please?")])
+        assert after_model_callback(_ctx(), resp) is None
+
+    def test_no_rescue_when_end_session_already_present(self):
+        """Farewell + end_session already there -> Case B skipped, Case A no-ops."""
+        resp = _response([_text_part("Have a good day."), _end_session_part()])
+        assert after_model_callback(_ctx(), resp) is None

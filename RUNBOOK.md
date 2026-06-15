@@ -310,7 +310,8 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   deterministic emission** (before_model RETURNS cancel/test; after_model APPENDS end_session).
   See §7 FIX gotcha for the full mechanism + safety gate.
 
-**Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 29 callback cases.
+**Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 55 callback cases (before_agent 7,
+after_model 29, before_model 19).
 **Latest scores (2026-06-14, after the language generation-drift fix — surgical edit, on canonical
 + both variants):**
 - **audio 33/33 = 100% (runs=3, run 2826ea0f)** — every golden 3/3 incl. no_language_autoswitch,
@@ -333,9 +334,12 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
   only). Audio 3/3, text 2/3 (one residual text-only drift; not worth chasing — see §7 gotcha and
   experiment_log Iteration 27). NOTE: the first VERBOSE version of this edit regressed `plano`
   disambiguation into a loop — keep these guideline additions minimal.
-- **Callback tests not yet written** for the new `before_model` callback and the after_model
-  "Case B" (sync-callbacks flags the before_model test missing). Add under
-  `evals/callback_tests/tests/root_agent/{before_model_callbacks/before_model,after_model_callbacks/after_model}/test.py`.
+- ~~Callback tests not yet written for the new `before_model` callback and the after_model
+  "Case B"~~ — DONE 2026-06-14: `before_model` test (19 cases — no-op gates, passcode gate,
+  cancel/test emission + re-fire guards, intent-vs-has_active_alarm discrimination) and after_model
+  Case B (7 cases — append-on-farewell EN/ES/transcript, no-append-when-offering-help, no-double).
+  `sync-callbacks` now reports "3 tests found, 0 tests missing". Both pass (before_model 19/19,
+  after_model 29/29).
 - ~~Variants NOT redeployed~~ — DONE 2026-06-12: both variants deployed @ `e9d0ffe` via
   `./deploy-variants.sh`.
 - ~~`experiment_log.md` / `tdd.md` not yet updated with the 2026-06-12 iteration~~ — DONE 2026-06-14:
