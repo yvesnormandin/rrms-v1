@@ -4,8 +4,8 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-15 (callback tests for the deterministic-emission stack; language
-generation-drift fix for `no_language_autoswitch`; experiment_log Iteration 26 backfill — §7/§8).
+Last updated: 2026-06-17 (eval-audio recording-config restore + GCS recording verified;
+instruction variable-substitution mechanics nailed down — `${current_date}` is correct as-is; §7).
 
 ---
 
@@ -288,6 +288,36 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **Spanish audio** needs `es-US` in `app.json` `languageSettings.supportedLanguageCodes`
   BEFORE it can appear in `synthesizeSpeechConfigs` (push 400s otherwise). Keep
   `enable_multilingual_support` OFF — it triggers platform auto-handling (we want explicit-only switching).
+- **Audio evals need an eval-recording bucket or they 400.** The DEPLOYED app must have
+  `logging_settings.evaluation_audio_recording_config.gcs_bucket` set (separate field from
+  `audio_recording_config`, the live-call bucket) or every audio eval run fails with
+  `400 … App must have evaluation_audio_recording_config`. On 2026-06-16 it was found empty —
+  changelog showed it was wiped by an **"Update App" op (Console/API edit), NOT a `cxas push`**
+  (the 06-14 push preserved it; that day's audio run recorded fine). A clean push from the repo
+  RE-ASSERTS it because `environment.json` resolves the `$env_var` for
+  `loggingSettings.evaluationAudioRecordingConfig.gcsBucket` → `gs://yves-normandin-cxas-evals`.
+  Restore surgically without a push via a masked `update_app` on
+  `logging_settings.evaluation_audio_recording_config`. **Don't edit logging settings in the
+  Console** — saves silently clear fields not shown in the form. Verify recordings:
+  `gsutil ls -lr gs://yves-normandin-cxas-evals/yves-normandin-project/us/<app_id>/<YYYY-MM-DD>/evaluation-*/`
+  → `agent-turn-N.wav` / `user-turn-N.wav` / `full-session(N).wav`. (See auto-memory
+  `cxas-eval-audio-recording-config`.)
+- **A mid-flight eval run looks like "all evals failing" in the Console** — pending rows render
+  as "Failed/empty/no turns" until each session actually executes (audio runs in real time, so
+  slow). Before concluding failure, check `EvaluationServiceClient().get_evaluation_run(name=RUN).progress`
+  (`completed_count`/`passed_count`). List runs via `EvaluationServiceClient().list_evaluation_runs(parent=APP)`
+  — `AgentServiceClient` has no such method.
+- **Instruction variable substitution — `${current_date}` is CORRECT as-is; don't "fix" it.**
+  CXAS: `{{var}}` (static) substitutes INLINE into the prompt; `{var}` (dynamic) does NOT —
+  the literal stays in the prompt but a `state_update` event delivers the value. The leading
+  `$` is IGNORED (`${current_date}`≡`{current_date}` dynamic; `${{current_date}}`≡`{{current_date}}`
+  static — both verified). `current_date` is a PREDEFINED var auto-set at session start (raw
+  `YYYY-MM-DD[America/New_York]`; the model reformats to "June 17, 2026" and does relative-date
+  math). The date is NOT ambient — an instruction with no `current_date` reference makes the
+  agent say "I don't have access to today's date." Lint **I014** wants `${current_date}` or
+  `${{current_date}}` ($-prefixed); bare `{{current_date}}` works at runtime but trips I014. So
+  the existing `${current_date}` is the lint-blessed form — leave it. (See auto-memory
+  `cxas-instruction-variable-substitution`.)
 - **Background runs**: stdout is buffered; an empty log while the PID is alive is normal.
 - **Writing callback unit tests** (`evals/callback_tests/`, pytest): four traps, each cost time.
   (a) `CallbackContext(state=...)` **COPIES** the dict — to assert a mutation the callback makes
