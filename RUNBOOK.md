@@ -359,11 +359,11 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **(2026-06-15, git only @ commit `fbb43a8`) Callback unit tests for the deterministic-emission
   stack** — before_model 19 cases (safety gates + cancel-vs-test intent discrimination) + after_model
   Case B 7 cases. Inventory 29 → 55 callback cases; `sync-callbacks` reports 0 missing.
-- **(2026-06-17, on canonical; NOT yet committed / variants NOT yet redeployed) Streamlined
-  `language_switching` instruction** — deleted the verbose ~47-line `<guideline>` and replaced it
-  with a compact `<language_switching>` section (~13 lines prose + 5-case `<examples>` block) at the
-  very END of the instruction per gecx-design-guide. Kept the explicit-only policy (NOT the guide's
-  auto-detect threshold) + both load-bearing bits (reply-language-follows-`set_language`, the "Hola!"
+- **(2026-06-17, on canonical + BOTH variants @ commit `830f730`) Streamlined `language_switching`
+  instruction** — deleted the verbose ~47-line `<guideline>` and replaced it with a compact
+  `<language_switching>` section (~13 lines prose + 5-case `<examples>` block) at the very END of the
+  instruction per gecx-design-guide. Kept the explicit-only policy (NOT the guide's auto-detect
+  threshold) + both load-bearing bits (reply-language-follows-`set_language`, the "Hola!"
   non-example). ~half the instruction tokens; text `no_language_autoswitch` 2/3 → 3/3, both channels
   33/33 regression-free. See experiment_log Iteration 28.
 
@@ -384,9 +384,9 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 (above), without touching that rule.
 
 **Open items / candidate next steps:**
-- **Streamlined `language_switching` refactor (2026-06-17, Iteration 28) is on canonical but NOT yet
-  committed to git and NOT yet redeployed to the variants.** Both channels validated 33/33. Next:
-  `git add` the instruction + docs and commit; then `./deploy-variants.sh` to push to both GTP variants.
+- ~~Streamlined `language_switching` refactor (2026-06-17, Iteration 28) not yet committed/redeployed~~
+  — DONE 2026-06-17: committed @ `830f730` and deployed to BOTH variants via `./deploy-variants.sh`.
+  (Commit is local; not yet pushed to `origin/main`.)
 - ~~`no_language_autoswitch_without_request` fails in TEXT (0/3)~~ — **FIXED 2026-06-14 (Iteration 27)**.
   Root cause was NOT a tool switch: the agent correctly skipped `set_language` but **generated its
   reply text in Spanish** (output-language mirroring of the caller's "Hola!"). Fixed with one
