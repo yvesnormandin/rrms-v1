@@ -4,8 +4,9 @@ Operational quick-start for the `rrms-v1` CXAS voice agent. Read this + `CLAUDE.
 at the start of a session and you're up to speed. **Update this file at the end of
 every session** (see "End-of-session ritual" at the bottom).
 
-Last updated: 2026-06-17 (eval-audio recording-config restore + GCS recording verified;
-instruction variable-substitution mechanics nailed down — `${current_date}` is correct as-is; §7).
+Last updated: 2026-06-17 (streamlined the `language_switching` instruction — verbose ~47-line
+guideline → compact `<language_switching>` section + 5-case `<examples>` block at the very END
+per gecx-design-guide; both channels 33/33, text `no_language_autoswitch` 2/3 → 3/3; §8).
 
 ---
 
@@ -358,17 +359,24 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 - **(2026-06-15, git only @ commit `fbb43a8`) Callback unit tests for the deterministic-emission
   stack** — before_model 19 cases (safety gates + cancel-vs-test intent discrimination) + after_model
   Case B 7 cases. Inventory 29 → 55 callback cases; `sync-callbacks` reports 0 missing.
+- **(2026-06-17, on canonical; NOT yet committed / variants NOT yet redeployed) Streamlined
+  `language_switching` instruction** — deleted the verbose ~47-line `<guideline>` and replaced it
+  with a compact `<language_switching>` section (~13 lines prose + 5-case `<examples>` block) at the
+  very END of the instruction per gecx-design-guide. Kept the explicit-only policy (NOT the guide's
+  auto-detect threshold) + both load-bearing bits (reply-language-follows-`set_language`, the "Hola!"
+  non-example). ~half the instruction tokens; text `no_language_autoswitch` 2/3 → 3/3, both channels
+  33/33 regression-free. See experiment_log Iteration 28.
 
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 55 callback cases (before_agent 7,
 after_model 29, before_model 19).
-**Latest scores (2026-06-14, after the language generation-drift fix — surgical edit, on canonical
-+ both variants):**
-- **audio 33/33 = 100% (runs=3, run 2826ea0f)** — every golden 3/3 incl. no_language_autoswitch,
+**Latest scores (2026-06-17, after the streamlined `language_switching` refactor — pushed to
+canonical; variants NOT yet redeployed):**
+- **text 33/33 = 100% (runs=3, run 6e41be4c)** — every golden 3/3. `no_language_autoswitch`
+  **2/3 → 3/3** (the prior lone text miss is gone), plano 3/3 (no disambiguation-loop regression),
+  language_switch 3/3.
+- **audio 33/33 = 100% (runs=3, run 180f9679)** — every golden 3/3 incl. no_language_autoswitch,
   plano, language_switch. ZERO tool drops (all action/closing goldens 3/3 — deterministic-emission
-  fix intact). Regression-free.
-- **text 32/33 = 97% (runs=3, run 1868b353)**: plano 3/3, language_switch 3/3, all action/closing
-  3/3. Lone miss = `no_language_autoswitch` 2/3 (one genuine text-only Spanish-drift run; passes
-  3/3 in audio). Up from the prior 29/33 (no_language was 0/3 in text).
+  fix intact). Regression-free on both channels (66/66 across the two runs).
 
 **2026-06-11 — FALSIFIED the "pre-call bridge" prompt fix** (Iteration 25): relaxing the strict
 "speak only after the tool returns" rule made the drop WORSE (30.9% vs 81.8%). The prohibition is
@@ -376,6 +384,9 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 (above), without touching that rule.
 
 **Open items / candidate next steps:**
+- **Streamlined `language_switching` refactor (2026-06-17, Iteration 28) is on canonical but NOT yet
+  committed to git and NOT yet redeployed to the variants.** Both channels validated 33/33. Next:
+  `git add` the instruction + docs and commit; then `./deploy-variants.sh` to push to both GTP variants.
 - ~~`no_language_autoswitch_without_request` fails in TEXT (0/3)~~ — **FIXED 2026-06-14 (Iteration 27)**.
   Root cause was NOT a tool switch: the agent correctly skipped `set_language` but **generated its
   reply text in Spanish** (output-language mirroring of the caller's "Hola!"). Fixed with one

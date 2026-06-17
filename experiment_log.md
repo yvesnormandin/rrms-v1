@@ -479,3 +479,13 @@ dilute attention on unrelated taskflow steps (here, multi-branch disambiguation)
 
 **Deployed:** canonical + both GTP variants (`./deploy-variants.sh`).
 
+## Iteration 28 — 2026-06-17
+**Change:** Streamlined language_switching: deleted the verbose ~47-line <guideline>, replaced with a compact <language_switching> section (13 lines prose + 5 few-shot examples) at the very END of the instruction per gecx-design-guide. Preserved load-bearing reply-language-follows-set_language sentence + the 'Hola!' non-example. text run 6e41be4c 33/33=100%, audio run 180f9679 33/33=100%.
+
+| Eval Type | Pass Rate |
+|-----------|-----------|
+| Goldens | 33/33 (100%) |
+| Simulations | 15/15 (100%) |
+| Tool Tests | 17/17 (100%) |
+| Callback Tests | 18/18 (100%) |
+
