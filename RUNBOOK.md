@@ -412,8 +412,8 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
   threshold) + both load-bearing bits (reply-language-follows-`set_language`, the "Hola!"
   non-example). ~half the instruction tokens; text `no_language_autoswitch` 2/3 → 3/3, both channels
   33/33 regression-free. See experiment_log Iteration 28.
-- **(2026-06-19, on canonical only — NOT yet committed/redeployed) Full-instruction streamline +
-  Branch_Resolution/Verification refactor + `<branch_confirmation>` example.** Trimmed the whole
+- **(2026-06-19, committed @ `d4ee612`, on canonical + BOTH variants, pushed to `origin/main`)
+  Full-instruction streamline + Branch_Resolution/Verification refactor + `<branch_confirmation>` example.** Trimmed the whole
   taskflow (~half the tokens); split disambiguation into `Branch_Resolution` (branch only) +
   `Verification` (owns passcode); REMOVED the instruction-level `verify_passcode(intent/duration)`
   line — the tool DOCSTRING now drives `intent` and (CONFIRMED in audio) still arms the before_model
@@ -425,7 +425,7 @@ plain push would otherwise reset. Edit those values in `deploy-variants.json`, n
 **Eval inventory:** 11 goldens, 6 sims, 24 tool tests, 55 callback cases (before_agent 7,
 after_model 29, before_model 19).
 **Latest scores (2026-06-19, after the full-instruction streamline + Branch_Resolution/Verification
-refactor + `<branch_confirmation>` example — pushed to canonical only; NOT committed/redeployed):**
+refactor + `<branch_confirmation>` example — committed @ `d4ee612`, on canonical + BOTH variants):**
 - **text 32/33 = 97% (runs=3, run fa08e57c)** — plano 3/3 + fort_worth 3/3 (disambiguation seesaw
   resolved by the example). Lone failure `sms_offered` 2/3 (strict-judge SMS-decline wording; flickers
   run-to-run — noise).
@@ -442,11 +442,11 @@ load-bearing; keep it. **2026-06-12 — SOLVED the drop structurally** via deter
 (above), without touching that rule.
 
 **Open items / candidate next steps:**
-- **(2026-06-19, Iteration 29) Full-instruction streamline + disambiguation refactor + example —
-  NOT yet committed/redeployed.** Validated text 32/33 + audio 32/33 (both lone failures pre-existing
-  noise). Commit is STAGED for review (instruction.txt, experiment_log.md, tdd.md, RUNBOOK.md).
-  TODO: commit, `./deploy-variants.sh`, push to `origin/main`. (Untracked: `instruction-original.txt`
-  user backup + `evals/goldens/transcripts/*.json` triage artifacts — intentionally NOT staged.)
+- ~~(2026-06-19, Iteration 29) Full-instruction streamline + disambiguation refactor + example~~ —
+  DONE 2026-06-19: validated text 32/33 + audio 32/33 (both lone failures pre-existing noise),
+  committed @ `d4ee612`, deployed to BOTH variants via `./deploy-variants.sh`, pushed to `origin/main`.
+  (Untracked and intentionally NOT committed: `instruction-original.txt` user backup +
+  `evals/goldens/transcripts/*.json` triage artifacts.)
 - ~~Streamlined `language_switching` refactor (2026-06-17, Iteration 28) not yet committed/redeployed~~
   — DONE 2026-06-17: committed @ `830f730` and deployed to BOTH variants via `./deploy-variants.sh`.
   (Commit is local; not yet pushed to `origin/main`.)
