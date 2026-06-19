@@ -489,3 +489,19 @@ dilute attention on unrelated taskflow steps (here, multi-branch disambiguation)
 | Tool Tests | 17/17 (100%) |
 | Callback Tests | 18/18 (100%) |
 
+## Iteration 29 — 2026-06-19 (full-instruction streamline + Branch_Resolution/Verification refactor + disambiguation example)
+**Change:** User streamlined the ENTIRE instruction taskflow (Iter 28 was language only): trimmed the verbose Resolve_Account / Verify_Passcode / Cancel / On_Test choreography (~56 ins / 85 del vs the Iter 28 baseline) and refactored the disambiguation flow — renamed `Account_Resolution` → `Branch_Resolution` (resolves the branch ONLY) and moved passcode-asking into the `Verification` subtask. Removed the instruction-level `verify_passcode(intent=…, duration=…)` line (now relies on the tool's docstring). Iterated the multi-branch confirmation: added "NEVER ask for a passcode before the caller confirms the branch name and address" + "confirm the COMPLETE and ACCURATE … street address", and finally a new `<branch_confirmation>` section with ONE generic example (Dallas / 123 Main Street).
+
+**Findings (all via GROUND-TRUTH conversation inspection — the LLM judge was caught hallucinating, see below):**
+- **The `intent` removal is SAFE.** Audio ground-truth (run 50008e1e) shows `cancel_alarm` / `put_account_on_test` fire in EVERY action golden across EVERY replay — the docstring alone drives `intent` → arms the `before_model` deterministic-emission callback. The instruction-level `intent` line was genuinely redundant; removing it did NOT reintroduce the audio tool-drop. (Resolves the open review question.)
+- **The disambiguation "seesaw" is real and was resolved by the EXAMPLE, not imperative prose.** Re-adding a verbose standalone-turn RULE fixed Fort Worth but broke `plano` 0/3 in TEXT — the negative phrase "ask for the passcode in the same message" PRIMED the model to do exactly that (the live-model-parrots-phrasing gotcha). The Branch_Resolution/Verification refactor then fixed Fort Worth, and "COMPLETE and ACCURATE … street address" fixed a `plano` address digit-drop ("78 Elm" → "789 Elm"), but `plano`/`fort_worth` still BUNDLED the passcode in AUDIO (25/33). A single generic `<branch_confirmation>` example fixed BOTH channels — and the model generalized it (used the real Plano/Fort Worth addresses, did NOT parrot the example's Dallas).
+- **Judge caught hallucinating:** the `language_switch` "called set_language twice" failure was FALSE — ground-truth shows ONE call in all 3 replays, with two byte-identical conversations getting split PASS/FAIL. Always verify countable expectation claims against the stored conversation (new RUNBOOK §5 recipe + auto-memory `cxas-eval-tool-trajectory-from-run` / `cxas-eval-verify-judge-against-conversation`).
+
+| Eval Type | Text (run fa08e57c) | Audio (run 50008e1e) |
+|-----------|---------------------|----------------------|
+| Goldens   | 32/33 (97%)         | 32/33 (97%)          |
+
+plano 3/3 + fort_worth 3/3 on BOTH channels. The two lone failures are pre-existing / noise, NOT from this change: text `sms_offered` 2/3 (strict-judge SMS-decline wording — agent said "No problem" without an explicit "I won't send a text"); audio `no_language_autoswitch` 2/3 (the documented "Hola" → "Gracias" reply-drift). Sims / tool tests / callback tests not re-run (instruction-only change). Net: same scores as the pre-streamline baseline with ~half the instruction tokens and a cleaner structure.
+
+**Deployed:** canonical only (audio modality). Variants NOT redeployed; commit staged for review.
+
